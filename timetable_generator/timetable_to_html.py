@@ -21,6 +21,10 @@ class TimetableHTMLConverter:
             semester = parts[1]
             section = parts[2]
             
+            # Load elective information if available
+            elective_file = csv_file.replace('.csv', '_Electives.txt')
+            electives_html = self._load_electives(elective_file)
+            
             html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -227,6 +231,83 @@ class TimetableHTMLConverter:
             border-radius: 4px;
         }}
         
+        .electives-section {{
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }}
+        
+        .electives-section h2 {{
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }}
+        
+        .elective-note {{
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }}
+        
+        .electives-container {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }}
+        
+        .basket-card {{
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }}
+        
+        .basket-card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }}
+        
+        .basket-card h3 {{
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }}
+        
+        .course-list {{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }}
+        
+        .course-list li {{
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 8px;
+            border-left: 3px solid #764ba2;
+            transition: background 0.2s ease;
+        }}
+        
+        .course-list li:hover {{
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+        }}
+        
+        .classroom-info {{
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: inline-block;
+        }}
+        
         @media print {{
             body {{
                 background: white;
@@ -292,6 +373,8 @@ class TimetableHTMLConverter:
         <div class="timetable-wrapper">
             {self._generate_table(df)}
         </div>
+        
+        {electives_html}
     </div>
 </body>
 </html>
@@ -304,6 +387,66 @@ class TimetableHTMLConverter:
         except Exception as e:
             print(f"Error converting {csv_file}: {e}")
             return False
+    
+    def _load_electives(self, elective_file):
+        """Load elective information from text file and format as HTML"""
+        if not os.path.exists(elective_file):
+            return ""  # No electives for this timetable
+        
+        try:
+            with open(elective_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Parse the elective file
+            html = """
+        <div class="electives-section">
+            <h2>📚 Elective Courses</h2>
+            <p class="elective-note">Students must choose <strong>ONE course</strong> from each basket below:</p>
+            <div class="electives-container">
+"""
+            
+            # Split by basket
+            baskets = content.split('Basket ')[1:]  # Skip header
+            
+            for basket_content in baskets:
+                lines = basket_content.strip().split('\n')
+                basket_name = lines[0].replace(':', '').strip()
+                
+                html += f"""
+                <div class="basket-card">
+                    <h3>Basket {basket_name}</h3>
+                    <ul class="course-list">
+"""
+                
+                # Parse courses
+                i = 2  # Skip basket name and separator
+                while i < len(lines):
+                    line = lines[i].strip()
+                    if line.startswith('•'):
+                        course_info = line.replace('•', '').strip()
+                        html += f'                        <li><strong>{course_info}</strong>'
+                        # Check if next line has classroom
+                        if i + 1 < len(lines) and 'Classroom:' in lines[i + 1]:
+                            classroom = lines[i + 1].split('Classroom:')[1].strip()
+                            html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                            i += 1
+                        html += '</li>\n'
+                    i += 1
+                
+                html += """
+                    </ul>
+                </div>
+"""
+            
+            html += """
+            </div>
+        </div>
+"""
+            return html
+            
+        except Exception as e:
+            print(f"Warning: Could not load electives from {elective_file}: {e}")
+            return ""
     
     def _generate_table(self, df):
         """Generate HTML table from DataFrame"""
@@ -338,6 +481,8 @@ class TimetableHTMLConverter:
             return 'lunch-break'
         elif value_lower == 'free':
             return 'free-slot'
+        elif 'elective' in value_lower:
+            return 'common-course'  # Use same styling as common courses (yellow/amber)
         elif 'common' in value_lower:
             return 'common-course'
         elif 'lab' in value_lower:
@@ -586,7 +731,7 @@ class TimetableHTMLConverter:
         with open(index_file, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
-        print(f"✅ Created index page: {index_file}")
+        print(f"Created index page: {index_file}")
         return index_file
     
     def convert_all(self):
@@ -602,7 +747,7 @@ class TimetableHTMLConverter:
             print("No timetable CSV files found!")
             return False
         
-        print(f"\n🎨 Converting {len(csv_files)} timetables to HTML...")
+        print(f"\nConverting {len(csv_files)} timetables to HTML...")
         
         converted = 0
         for csv_file in csv_files:
@@ -610,29 +755,29 @@ class TimetableHTMLConverter:
             html_file = os.path.join(self.output_dir, filename + '.html')
             
             if self.csv_to_html(csv_file, html_file):
-                print(f"✅ Converted: {filename}")
+                print(f"Converted: {filename}")
                 converted += 1
         
         # Create index page
         self.create_index_page(csv_files)
         
-        print(f"\n✨ Successfully converted {converted}/{len(csv_files)} timetables!")
-        print(f"📁 HTML files location: {self.output_dir}/")
-        print(f"🌐 Open index.html to view all timetables")
+        print(f"\nSuccessfully converted {converted}/{len(csv_files)} timetables!")
+        print(f"HTML files location: {self.output_dir}/")
+        print(f"Open index.html to view all timetables")
         
         return True
 
 def main():
     """Main function"""
-    print("\n🎓 BeyondGames Timetable HTML Converter")
+    print("\nBeyondGames Timetable HTML Converter")
     print("="*80)
     
     converter = TimetableHTMLConverter()
     converter.convert_all()
     
     print("\n" + "="*80)
-    print("✅ HTML conversion complete!")
-    print(f"🌐 Open: timetable_html/index.html in your browser")
+    print("HTML conversion complete!")
+    print(f"Open: timetable_html/index.html in your browser")
     print("="*80)
 
 if __name__ == "__main__":

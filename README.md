@@ -133,23 +133,52 @@ The system generates two types of output files:
 
 ```
 Automated-TimeTable-IIIT-Dharwad/
-├── README.md
-└── timetable_generator/
-    ├── main.py                      # Main CSV timetable generator
-    ├── timetable_to_html.py         # HTML converter
-    ├── input_files/
+├── .gitignore                       # Git ignore file
+├── README.md                        # Main project documentation
+├── CONSTRAINTS_ANALYSIS.md          # Detailed requirements analysis (91.7% compliance)
+│
+├── .vscode/                         # VS Code configuration
+│   ├── launch.json
+│   ├── settings.json
+│   └── tasks.json
+│
+├── screenshots/                     # Screenshots for README
+│   ├── timetable_csv_view.png       # CSV timetable screenshot
+│   ├── timetable_html_view1.png     # HTML viewer screenshot 1
+│   └── timetable_html_view2.png     # HTML viewer screenshot 2
+│
+└── timetable_generator/             # Main application directory
+    ├── main.py                      # Core timetable generation engine
+    ├── timetable_to_html.py         # HTML converter and viewer generator
+    │
+    ├── input_files/                 # Input data directory
     │   └── sdtt_inputs/             # CSV input files
-    │       ├── Even CSE.csv
-    │       ├── Even DSAI.csv
-    │       └── Even ECE.csv
-    ├── timetable_outputs/           # Generated CSV files (18 files)
-    ├── timetable_html/              # Generated HTML files (19 files)
-    ├── *.md                         # Documentation files
-    ├── QUICK_START.md
-    ├── TIMETABLE_README.md
-    ├── HTML_VIEWER_README.md
-    ├── SYSTEM_VERIFICATION_REPORT.md
-    └── MIGRATION_SUMMARY.md
+    │       ├── Even CSE.csv         # CSE course data (Sem 2, 4, 6)
+    │       ├── Even DSAI.csv        # DSAI course data (Sem 2, 4, 6)
+    │       └── Even ECE.csv         # ECE course data (Sem 2, 4, 6)
+    │
+    ├── timetable_outputs/           # Generated CSV timetables
+    │   ├── CSE_Sem2_SectionA_Timetable.csv
+    │   ├── CSE_Sem2_SectionA_Timetable_Electives.txt
+    │   ├── CSE_Sem2_SectionB_Timetable.csv
+    │   ├── CSE_Sem2_SectionB_Timetable_Electives.txt
+    │   ├── ... (18 CSV files + 18 TXT elective files)
+    │   └── ECE_Sem6_SectionB_Timetable_Electives.txt
+    │
+    └── timetable_html/              # Generated HTML viewers
+        ├── index.html               # Main navigation page
+        ├── CSE_Sem2_SectionA_Timetable.html
+        ├── CSE_Sem2_SectionB_Timetable.html
+        ├── ... (18 HTML timetable files)
+        └── ECE_Sem6_SectionB_Timetable.html
+
+Total Files:
+- 3 Input CSV files (course data)
+- 18 Output CSV files (timetables)
+- 18 Output TXT files (elective details)
+- 19 Output HTML files (1 index + 18 timetables)
+- 2 Python scripts (main.py, timetable_to_html.py)
+- 2 Documentation files (README.md, CONSTRAINTS_ANALYSIS.md)
 ```
 
 ---
@@ -251,6 +280,20 @@ Wednesday  CS164-Lab (Common) | Lab-1                    ...  DS164-Lab (Common)
 - ✅ **Clean architecture** - Legacy code removed
 - ✅ **Error handling** - Proper warnings for scheduling conflicts
 - ✅ **Documentation** - Updated README files and guides
+
+---
+
+## 📸 Screenshots
+
+### Timetable Output Examples
+
+#### CSV Timetable View
+![CSV Timetable](screenshots/timetable_csv_view.png)
+
+
+#### HTML Interactive Viewer
+![HTML Timetable Viewer](screenshots/timetable_html_view1.png)
+![HTML Timetable Viewer](screenshots/timetable_html_view2.png)
 
 ---
 

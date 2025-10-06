@@ -1,0 +1,47 @@
+================================================================================
+ELECTIVE COURSES - Choose ONE from each basket
+================================================================================
+
+Basket B1:
+----------------------------------------
+  • CS464: Deep Learning for Computer Vision
+    Classroom: C302
+  • DS357: Large Languange Models
+    Classroom: C004
+  • CS458: Natural Language Processing
+    Classroom: C303
+
+Basket B2:
+----------------------------------------
+  • CS455: Blockchain Technology
+    Classroom: C302
+  • EC361: Introduction to 5G Network
+    Classroom: C303
+  • ASD351: Design Thinking and Innovation
+    Classroom: C204
+
+Basket B3:
+----------------------------------------
+  • CS462: Computer Graphics
+    Classroom: C303
+  • CS307: Machine Learning
+    Classroom: C305
+  • CS469: Virtualization and Cloud Computing
+    Classroom: C002
+
+Basket B4:
+----------------------------------------
+  • DS355: Data Analytics and Visualization
+    Classroom: C002
+  • DS351: Statistics for Health Technology
+    Classroom: C303
+  • DS356: Medical Image Analysis
+    Classroom: C304
+  • CS472: Bioinformatics
+    Classroom: C305
+
+Basket Minor:
+----------------------------------------
+  • DS358: Deep Speech Processing
+    Classroom: C305
+
