@@ -88,7 +88,10 @@ This automated system generates optimized weekly schedules by:
 cd timetable_generator
 
 # Run the main script to generate CSV timetables
-python main.py
+# Choose ONE of the following (both produce identical outputs):
+python main.py                # Class-based OOP approach
+# OR
+python main_functional.py     # Functional programming approach
 ```
 
 #### **Step 2: Generate HTML Viewer** (Optional)
@@ -156,7 +159,8 @@ Automated-TimeTable-IIIT-Dharwad/
 │   └── timetable_html_view2.png     # HTML viewer screenshot 2
 │
 └── timetable_generator/             # Main application directory
-    ├── main.py                      # Core timetable generation engine
+    ├── main.py                      # Core timetable generation engine (Class-based)
+    ├── main_functional.py           # Core timetable generation engine (Functional)
     ├── timetable_to_html.py         # HTML converter and viewer generator
     │
     ├── input_files/                 # Input data directory
@@ -183,10 +187,10 @@ Automated-TimeTable-IIIT-Dharwad/
 Total Files:
 - 3 Input CSV files (course data)
 - 18 Output CSV files (timetables)
-- 18 Output TXT files (elective details)
+- 16 Output TXT files (elective details)
 - 19 Output HTML files (1 index + 18 timetables)
-- 2 Pytho scripts (main.py, timetable_to_html.py)
-- 2 Documentation files (README.md, CONSTRAINTS_ANALYSIS.md)
+- 3 Python scripts (main.py, main_functional.py, timetable_to_html.py)
+- 3 Documentation files (README.md, CONSTRAINTS_ANALYSIS.md, TECH_STACK.md)
 ```
 
 ---
@@ -220,7 +224,8 @@ n
 ## 🔧 Technical Details
 
 ### 🏗️ Architecture
-- **Streamlined Design**: Single main module with integrated scheduling logic
+- **Dual Implementation**: Two versions available - Class-based (main.py) and Functional (main_functional.py)
+  - Both produce 100% identical outputs - choose based on your coding style preference
 - **CSV Integration**: Native CSV file reading and writing using pandas
 - **Constraint-Based Scheduling**: Implements scheduling algorithms with conflict detection
 - **Dual Output**: Generates both CSV files for data processing and HTML for viewing

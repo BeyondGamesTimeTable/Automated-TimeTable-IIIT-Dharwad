@@ -28,7 +28,10 @@
 - **Configuration Files**: `.vscode/` (launch.json, settings.json, tasks.json)
 
 ## Architecture & Design
-- **Modular OOP Design** - Two main classes: `TimetableGenerator`, `TimetableHTMLConverter`
+- **Dual Implementation Available**:
+  - **Object-Oriented (main.py)** - Class-based design with `TimetableGenerator` class (529 lines)
+  - **Functional (main_functional.py)** - Pure functions with explicit data flow (699 lines)
+  - Both produce 100% identical outputs - choose based on preference!
 - **Constraint-Based Scheduling** - Backtracking algorithm with conflict detection
 - **Data Structures**: Dictionaries (schedules), Sets (duplicate prevention), DataFrames (data manipulation)
 - **Design Patterns**: Builder pattern (schedule construction), Template pattern (HTML generation)
@@ -43,11 +46,14 @@
 ```
 Input: 3 CSV files (Even CSE.csv, Even DSAI.csv, Even ECE.csv)
        ↓
-Processing: Python (main.py - 529 lines)
+Processing: Choose one:
+  • Python (main.py - 529 lines) - Class-based OOP approach
+  • Python (main_functional.py - 699 lines) - Functional approach
+  Both produce identical outputs!
        ↓
-Output: 18 CSV timetables + 18 TXT elective details
+Output: 18 CSV timetables + 16 TXT elective details
        ↓
-Conversion: Python (timetable_to_html.py - 785 lines)
+Conversion: Python (timetable_to_html.py - works with both versions)
        ↓
 Viewer: 19 HTML files (1 index + 18 timetables)
 ```
@@ -58,9 +64,18 @@ Viewer: 19 HTML files (1 index + 18 timetables)
 - **Success Rate**: 100% conflict-free scheduling
 - **Compliance**: 91.7% (11/12 requirements satisfied)
 
+## Implementation Choices
+
+### Dual Version Available
+- **main.py (Class-Based)**: OOP design with encapsulation, state management
+- **main_functional.py (Functional)**: Pure functions, explicit data flow, easier testing
+- **Interchangeable**: Both produce byte-for-byte identical outputs
+- **Choose based on**: Team preference (OOP vs Functional programming style)
+
 ## Why This Stack?
 ✅ **Simple** - Minimal setup, only pandas installation required  
 ✅ **Fast** - Pandas vectorization for efficient data processing  
 ✅ **Portable** - Pure Python, runs anywhere  
-✅ **Maintainable** - Clean OOP design, well-documented code  
+✅ **Maintainable** - Clean design (OOP or Functional), well-documented code  
+✅ **Flexible** - Two implementation styles for different coding preferences  
 ✅ **Production-Ready** - Battle-tested libraries, proven approach  
