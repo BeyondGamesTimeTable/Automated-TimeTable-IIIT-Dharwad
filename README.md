@@ -2,16 +2,7 @@
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status:## 📞 Support
-
-For questions or issues:
-- 📧 Create an issue on GitHub
-- 📚 Check the comprehensive documentation:
-  - `QUICK_START.md` - Getting started guide
-  - `TIMETABLE_README.md` - Output file details
-  - `HTML_VIEWER_README.md` - HTML viewer guide
-  - `SYSTEM_VERIFICATION_REPORT.md` - Complete system status
-- 🔍 Review the CSV input files in `input_files/sdtt_inputs/`ng](https://img.shields.io/badge/Status-Working-brightgreen.svg)]()
+[![Status: Working](https://img.shields.io/badge/Status-Working-brightgreen.svg)]()
 [![BeyondGames Team](https://img.shields.io/badge/Team-BeyondGames-purple.svg)](https://github.com/BeyondGamesTimeTable)
 
 ## 📖 Project Overview
@@ -70,8 +61,8 @@ This automated system generates optimized weekly schedules by:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/BeyondGamesTimeTable/BeyondGames_Implementation.git
-   cd BeyondGames_Implementation
+   git clone https://github.com/BeyondGamesTimeTable/Automated-TimeTable-IIIT-Dharwad.git
+   cd Automated-TimeTable-IIIT-Dharwad/timetable_generator
    ```
 
 2. **Install dependencies**
@@ -141,7 +132,7 @@ The system generates two types of output files:
 ## 📁 Project Structure
 
 ```
-BeyondGames_Implementation/
+Automated-TimeTable-IIIT-Dharwad/
 ├── README.md
 └── timetable_generator/
     ├── main.py                      # Main CSV timetable generator
@@ -294,7 +285,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **BeyondGames Team** for the innovative solution design and implementation
 - **IIIT Dharwad** for providing the problem requirements and academic guidance
-- **Python community** for excellent libraries (pandas, openpyxl)
+- **Python community** for excellent libraries (pandas)
 - **Contributors and testers** who helped improve the system
 
 ### 🏆 Project Highlights
@@ -310,8 +301,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For questions or issues:
-- 📧 Creae tan issue on GitHub
-- 📖 Check the documentation in the code comments
-- 🔍 Review the example input files in the sdtt_inputs directory
+- 📧 Create an issue on [GitHub](https://github.com/BeyondGamesTimeTable/Automated-TimeTable-IIIT-Dharwad/issues)
+- � Check the comprehensive documentation files
+- 🔍 Review the example input files in `input_files/sdtt_inputs/` directory
 
 
