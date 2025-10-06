@@ -1,0 +1,35 @@
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Classroom,Semester,Electives,Basket
+CS162,Optimization,3,1,0,0,2,Dr. Dibyajyoti Guha,C004,2,F,
+CS164,Computer Architecture,3,0,2,0,2,Dr.Jagadish D N,C205,2,F,
+HS161,English Language and Communication,3,0,0,0,3,Dr. Rajesh N S,C205/C004,2,F,
+CS163,Data Structures and Algorithms,3,0,2,0,4,Dr. Prabhu Prasad,C205,2,F,
+EC162,Network Analysis,2,1,0,0,3,Dr. Sibasankar Padhy,C205,2,F,
+CS152,Data Science with Python,3,1,0,0,2,Dr. Abdul Wahid,C002,2,T,B3
+EC154,Introduction to Digital VLSI Design,3,1,0,0,2,Dr Prakash Pawar,C203,2,T,B3
+HS155,Industry Insights Program Part 1,1,0,0,0,1,Mr.Ram Subramanian & Mr. Sasi Kumar Sundara Rajan,C204,2,T,B3
+HS159,Principles of Quantum Physics,3,1,0,0,2,Dr. Aswath Babu & Pof. Ravi Shankar,,2,T,B3
+DS151,Linux for Engineers,1,0,0,0,1,Dr. Shirshendu L,C002,2,T,B4
+HS154,Photography101,1,0,0,0,1,Dr Prabhu Prasad BM,C204,2,T,B4
+HS156,Introduction to Holistic Personality Development,1,0,0,0,1,Prof.Chachadi and Dr.Chandrika,C203,2,T,B4
+ASD152,"Visual Design - PAPC	",3,1,0,0,2,Dr. Sandesh P,C304,2,T,B4
+EC205,Control Systems,3,0,2,0,4,Dr. Pankaj Kumar,C101,4,F,
+EC310,Embedded Systems Design,3,1,0,0,4,Dr. Prakash Pawar,C101,4,F,
+EC204,Analog and Digital Communication,3,1,2,0,5,Dr. Somen Bhattacharjee / Dr. Jagadish D N (Lab),C101,4,F,
+HS204,Economics,3,1,0,0,4,Dr.Anushree K,C101,4,F,
+HS205,Ethics,3,0,0,0,3,Dr. Jolly Thomas,C004,4,F,
+DS357,Large Languange Models,3,0,0,4,4,Dr. Sunil S,C004,4,T,Minor
+EC307,Wireless Communication,3,0,0,4,4,Dr. Rajib Sharma/ Dr. Rao (Lab),C305,6,F,
+CS464,Deep Learning for Computer Vision ,3,1,0,0,4,Dr. Chinmayanand,C302,6,T,B1
+DS357,Large Languange Models,3,0,0,4,4,Dr. Sunil S,C004,6,T,B1
+CS458,Natural Language Processing,3,1,0,0,4,Dr. Krishnendu,C303,6,T,B1
+DS358,Deep Speech Processing,3,1,0,0,4,Prof. SRM Prasanna,C305,6,T,Minor
+CS455,Blockchain Technology,3,0,0,4,4,Dr. Rajendra H,C302,6,T,B2
+EC361,Introduction to 5G Network,3,1,0,0,4,Dr. Jagadeesha R Bhat,C303,6,T,B2
+ASD351,Design Thinking and Innovation,3,1,0,0,4,Dr. Sandesh P,C204,6,T,B2
+CS462,Computer Graphics,3,1,0,0,4,Dr. Vivekraj V K,C303,6,T,B3
+CS307,Machine Learning,3,1,0,0,4,Dr. Deepak K T,C305,6,T,B3
+CS469,Virtualization and Cloud Computing,3,1,0,0,4,Dr Malay,C002,6,T,B3
+DS355,Data Analytics and Visualization,3,1,0,0,4,Dr. Sunil CK,C002,6,T,B4
+ DS351,Statistics for Health Technology,3,1,0,0,4,Dr. Ramesh Athe,C303,6,T,B4
+DS356,Medical Image Analysis,3,0,0,4,4,Dr. Girish GN,C304,6,T,B4
+CS472,Bioinformatics,3,1,0,0,4,Dr. Sunil Kumar PV,C305,6,T,B4

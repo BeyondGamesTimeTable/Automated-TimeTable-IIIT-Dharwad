@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSAI - Sem6 - SectionB Timetable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .timetable-wrapper {
+            padding: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tbody tr:hover {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+        
+        .day-column {
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .time-slot {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .lunch-break {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #333;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .free-slot {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .course-slot {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            font-weight: 500;
+        }
+        
+        .common-course {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .lab-slot {
+            background-color: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .tutorial-slot {
+            background-color: #e0f2f1;
+            border-left: 4px solid #009688;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            margin: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .back-button, .legend {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 DSAI Timetable</h1>
+            <div class="subtitle">Sem6 - SectionB</div>
+        </div>
+        
+        <a href="index.html" class="back-button">← Back to Selection</a>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e3f2fd; border-left: 4px solid #2196f3;"></div>
+                <span>Regular Course</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #fff3e0; border-left: 4px solid #ff9800;"></div>
+                <span>Common Course</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f3e5f5; border-left: 4px solid #9c27b0;"></div>
+                <span>Lab</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e0f2f1; border-left: 4px solid #009688;"></div>
+                <span>Tutorial</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e8f5e9;"></div>
+                <span>Free Slot</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                <span>Lunch Break</span>
+            </div>
+        </div>
+        
+        <div class="timetable-wrapper">
+            <table>
+<thead>
+<tr>
+<th>Day/Time</th>
+<th class="time-slot">08:00-09:30</th>
+<th class="time-slot">09:45-11:15</th>
+<th class="time-slot">11:30-13:00</th>
+<th class="time-slot">13:00-14:30</th>
+<th class="time-slot">14:45-16:15</th>
+<th class="time-slot">16:30-18:00</th>
+<th class="time-slot">18:15-19:45</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="day-column">Monday</td>
+<td class="common-course">DS309 (Common) | C004</td>
+<td class="common-course">DS309 (Common) | C004</td>
+<td class="common-course">DS309 (Common) | C004</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="common-course">DS306 (Common) | C004</td>
+<td class="common-course">DS306 (Common) | C004</td>
+<td class="common-course">DS306 (Common) | C004</td>
+</tr>
+<tr>
+<td class="day-column">Tuesday</td>
+<td class="common-course">DS307 (Common) | C004</td>
+<td class="common-course">DS307 (Common) | C004</td>
+<td class="common-course">DS307 (Common) | C004</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="common-course">DS307 (Common) | C004</td>
+<td class="common-course">DS308 (Common) | C004</td>
+<td class="common-course">DS308 (Common) | C004</td>
+</tr>
+<tr>
+<td class="day-column">Wednesday</td>
+<td class="common-course">DS308 (Common) | C004</td>
+<td class="common-course">DS308 (Common) | C004</td>
+<td class="course-slot">CS464-B | C302</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot">CS464-B | C302</td>
+<td class="course-slot">CS464-B | C302</td>
+<td class="tutorial-slot">CS464-T-B | C302</td>
+</tr>
+<tr>
+<td class="day-column">Thursday</td>
+<td class="course-slot">DS357-B | C004</td>
+<td class="course-slot">DS357-B | C004</td>
+<td class="course-slot">DS357-B | C004</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot">CS458-B | C303</td>
+<td class="course-slot">CS458-B | C303</td>
+<td class="course-slot">CS458-B | C303</td>
+</tr>
+<tr>
+<td class="day-column">Friday</td>
+<td class="tutorial-slot">CS458-T-B | C303</td>
+<td class="course-slot">DS358-B | C305</td>
+<td class="course-slot">DS358-B | C305</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot">DS358-B | C305</td>
+<td class="tutorial-slot">DS358-T-B | C305</td>
+<td class="course-slot">CS455-B | C302</td>
+</tr>
+</tbody>
+</table>
+        </div>
+    </div>
+</body>
+</html>

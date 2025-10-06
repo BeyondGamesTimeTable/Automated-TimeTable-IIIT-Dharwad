@@ -1,0 +1,35 @@
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Classroom,Semester,Electives,Basket
+CS162,Optimization,3,1,0,0,2,Dr. Dibyajyoti Guha,C004,2,F,
+ CS164,Computer Architecture,3,0,2,0,2,Dr. Manjunath,C204,2,F,
+ HS161,English Language and Communication,3,0,0,0,3,Dr. Rajesh N S,C204,2,F,
+ CS163,Data Structures and Algorithms,3,0,2,0,4,Dr. Sunil Saumya,C204,2,F,
+DS164,Data Curation Techniques,2,0,2,0,3,Dr. Siddharth R.,C002,2,F,
+CS152,Data Science with Python,3,1,0,0,2,Dr. Abdul Wahid,C002,2,T,B3
+EC154,Introduction to Digital VLSI Design,3,1,0,0,2,Dr Prakash Pawar,C203,2,T,B3
+HS155,Industry Insights Program Part 1,1,0,0,0,1,Mr. Ram Subramanian & Mr. Sasi Kumar Sundara Rajan,,2,T,B3
+HS159,Principles of Quantum Physics,3,1,0,0,2,Dr. Ashwath Babu & Prof. Ravi Shankar,,2,T,B3
+DS151,Linux for Engineers,3,1,0,0,2,Dr. Shirshendu Layek,C203,2,T,B4
+HS154,Photography101,1,0,0,0,1,Dr Prabhu Prasad BM,C204,2,T,B4
+HS156,Introduction to Holistic Personality Development,1,0,0,0,1, Prof. Chachadi and Dr. Chandrika K,-,2,T,B4
+ASD152,"Visual Design - PAPC	",3,1,0,0,2,Dr. Sandesh P,C304,2,T,B4
+MA202,Linear Algebra,3,1,0,0,4,Dr. Chinmayananda,C003,4,F,
+HS206,Industrial Social Psychology,3,0,0,0,3,Dr. Navyashree,C003,4,F,
+CS204,Operating Systems,3,1,0,0,4,Dr. Manjunath K V,C003,4,F,
+DS204,Software Engineering and Services,3,0,2,0,4,Dr. Animesh Chaturvedi,C003,4,F,
+CS310,Database Management System,3,1,2,0,5,Dr. Shirshendu and Dr. Utkarsh Khaire,C003,4,F,
+DS205,Global Business Perspectives,3,0,0,0,3,Mr. Manmohan Singh ( Course Coordinator: Dr. Rajendra Hegadi),C003,4,F,
+DS357,Large Languange Models,3,0,0,4,4,Dr. Sunil S,C004,4,T,Minor
+DS309,Cloud Computing,3,0,0,4,4,Dr. Animesh Chaturvedi,C302,6,F,
+DS306,Financial Data Analytics,3,0,0,4,4,Dr.Utkarsh Khaire,C302,6,F,
+DS307,Innovation and Entrepreneurship,3,1,0,0,4,Mr. Ram Subramanian ( Course Coordinator: Dr.  Manjunath KV),C302,6,F,
+DS308,Data Security and Privacy,3,1,0,0,4,Dr. Abdul Wahid & Dr. Rajendra Hegadi,C302,6,F,
+CS464,Deep Learning for Computer Vision ,3,1,0,0,4,Dr. Chinmayanand,C302,6,T,B1
+DS357,Large Languange Models,3,0,0,4,4,Dr. Sunil S,C004,6,T,B1
+CS458,Natural Language Processing,3,1,0,0,4,Dr. Krishnendu,C303,6,T,B1
+DS358,Deep Speech Processing,3,1,0,0,4,Prof. SRM Prasanna,C305,6,T,Minor
+CS455,Blockchain Technology,3,0,0,4,4,Dr. Rajendra H,C302,6,T,B2
+EC361,Introduction to 5G Network,3,1,0,0,4,Dr. Jagadeesha R Bhat,C303,6,T,B2
+CS365,Model Checking,3,0,0,4,4,Dr. Pavan,C305,6,T,B2
+PH352,Quantum Communication,3,0,0,0,3,Dr. Aswath B,C304,6,T,B2
+PH353,Quantum HPC and AI,1,0,0,0,1,Dr. Manish M (Dr. Aswath),Online,6,T,B2
+ASD351,Design Thinking and Innovation,3,1,0,0,4,Dr. Sandesh P,C204,6,T,B2

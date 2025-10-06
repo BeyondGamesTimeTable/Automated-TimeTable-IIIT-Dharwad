@@ -1,0 +1,45 @@
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Classroom,Semester,Electives,Basket,Section
+MA163,Linear Algebra,3,1,0,0,2,Dr Somen Bhattacharjee,C203,2,F,,2B
+MA163,Linear Algebra,3,1,0,0,2,Dr. Sibasankar Padhy,C202,2,F,,2A
+CS163,Data Structures & Algorithms,3,0,2,0,4,Dr. C. B. Akki,C202,2,F,,2A
+CS163,Data Structures & Algorithms,3,0,2,0,4,Dr Suvadip Hazra,C202,2,F,,2B
+HS153,Innovation and Entrepreneurship,3,1,0,0,3,Dr.Deepak K T,C004,2,T,E1,
+HS204,Economics,2,1,0,0,3,Dr. Anushree Kini,C202,2,T,E1,
+CS165,Mathematical foundations of Computing,3,0,0,0,3,Dr. Animesh Roy,C202,2,F,,
+CS152,Data Science with Python,3,1,0,0,2,Dr. Abdul Wahid,C002,2,T,B3,
+EC154,Introduction to Digital VLSI Design,3,1,0,0,2,Dr Prakash Pawar,C203,2,T,B3,
+HS155,Industry Insights Program Part 1,1,0,0,0,1,Mr. Ram Subramanian & Mr. Sasi Kumar Sundara Rajan,,2,T,B3,
+DS151,Linux for Engineers,3,1,0,0,2,Dr. Shirshendu L,C203,2,T,B4,
+HS156,Introduction to Holistic Personality Development,1,0,0,0,1, Prof. Chachadi and Dr. Chandrika K,C203,2,T,B4,
+HS154,Photography101,1,0,0,0,1,Dr Prabhu Prasad BM,C204,2,T,B4,
+ASD152,Visual Design-PAPC,3,1,0,0,2,Dr. Sandesh Phalke,C304,2,T,B4,
+CS206,Theory of Computation,3,1,0,0,4,Dr. Pavan,C104,4,F,,4A
+CS206,Theory of Computation,3,1,0,0,4, Dr. Sunil C K,C102,4,F,,4B
+MA202,Linear Algebra,3,1,0,0,4,Dr. Anand Barangi,C104,4,F,,4A
+MA202,Linear Algebra,3,1,0,0,4,Dr. Anand Barangi,C102,4,F,,4B
+CS301,Software Engineering,3,1,0,0,4,Dr. Vivekraj V K,C104,4,F,,4A
+CS301,Software Engineering,3,1,0,0,4,Dr. Sunil Kumar P V,C102,4,F,,4B
+CS204,Operating System,3,0,2,0,4,Dr. Suvadip Hazra,C104,4,F,,4A
+CS204,Operating System,3,0,2,0,4,Dr. Malay/ Dr. Dibyajyothi,C102,4,F,,4B
+CS310,Database Management Systems,3,1,2,0,5,Dr. Pramod Yelmewad,C104,4,F,,4A
+CS310,Database Management Systems,3,1,2,0,5,Dr. Abdul,C102,4,F,,4B
+HS205,Ethics,3,0,0,0,3,"Dr. Jolly Thomas, IIT Dharwad",C004,4,F,,
+CS307,Machine Learning,3,0,2,0,4,Dr. Girish G N,C304,6,F,,6A
+CS307,Machine Learning,3,0,2,0,4,Dr. Krishnendu Ghosh,C303,6,F,,6B
+CS471,Deep Computer Vision,3,1,0,0,4,Chinmayanand,C302,6,T,B1,
+DS357,Large Languange Models,3,1,0,0,4,Dr. Sunil S,C004,6,T,B1,
+CS458,Natural Language Processing,3,1,0,0,4,Dr. Krishnendu,C303,6,T,B1,
+DS358,Deep Speech Processing,3,0,0,4,4,Prof. SRM Prasanna,C305,6,T,Minor,
+CS455,Blockchain Technology,3,1,0,0,4,Dr. Rajendra H,C302,6,T,B2,
+EC361,Introduction to 5G Network,3,1,0,0,4,Dr. Jagadeesha R Bhat,C303,6,T,B2,
+CS365,Model Checking,3,0,0,4,4,Dr. Pavan,C305,6,T,B2,
+PH352,Quantum Communication,3,0,0,0,3,Dr. Aswath B,C304,6,T,B2,
+PH353,Quantum HPC and AI,1,0,0,0,1,Dr. Manish M (Dr. Aswath),Online,6,T,B2,
+ASD351,Design Thinking and Innovation,3,1,0,0,4,Dr. Sandesh P,C204,6,T,B2,
+EC362,Automotive Embedded and Multimedia Systems,3,0,0,4,4,Mr. Jagadeesh K                                              (Dr Sibasankar Padhy),,6,T,B3,
+CS462,Computer Graphics,3,1,0,0,4,Dr. Vivekraj V K,C303,6,T,B3,
+CS469,Virtualization and Cloud Computing,3,1,0,0,4,Dr Malay,C002,6,T,B3,
+DS355,Data Analytics and Visualization,3,1,0,0,4,Dr. Sunil CK,C002,6,T,B4,
+DS351,Statistics for Health Technology,3,1,0,0,4,Dr. Ramesh Athe,C303,6,T,B4,
+DS356,Medical Image Analysis,3,0,0,4,4,Dr. Girish GN,C304,6,T,B4,
+CS472,Bioinformatics,3,1,0,0,4,Dr. Sunil Kumar PV,C305,6,T,B4,

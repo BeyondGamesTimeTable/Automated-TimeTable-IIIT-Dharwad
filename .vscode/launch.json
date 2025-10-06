@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run BeyondGames Timetable Generator",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/timetable_generator/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/timetable_generator"
+        }
+    ]
+}
