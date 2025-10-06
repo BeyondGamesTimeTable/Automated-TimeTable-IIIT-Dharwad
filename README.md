@@ -177,12 +177,12 @@ Total Files:
 - 18 Output CSV files (timetables)
 - 18 Output TXT files (elective details)
 - 19 Output HTML files (1 index + 18 timetables)
-- 2 Python scripts (main.py, timetable_to_html.py)
+- 2 Pytho scripts (main.py, timetable_to_html.py)
 - 2 Documentation files (README.md, CONSTRAINTS_ANALYSIS.md)
 ```
 
 ---
-
+n
 ## ⚙️ Configuration
 
 ### 🕒 Time Slots (Built-in)
