@@ -108,17 +108,35 @@ class TimetableHTMLConverter:
         
         th {{
             padding: 15px;
-            text-align: left;
+            text-align: center;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.9em;
+            font-size: 1em;
             letter-spacing: 1px;
+        }}
+        
+        th.time-slot {{
+            font-weight: 700;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-right: 2px solid rgba(255,255,255,0.2);
+        }}
+        
+        th.time-slot:last-child {{
+            border-right: none;
         }}
         
         td {{
             padding: 15px;
             border-bottom: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
             vertical-align: top;
+        }}
+        
+        td:last-child {{
+            border-right: none;
         }}
         
         tr:last-child td {{
@@ -135,11 +153,7 @@ class TimetableHTMLConverter:
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             text-align: center;
-        }}
-        
-        .time-slot {{
-            font-weight: 600;
-            color: #667eea;
+            font-size: 1.1em;
         }}
         
         .lunch-break {{
@@ -151,31 +165,43 @@ class TimetableHTMLConverter:
         }}
         
         .free-slot {{
-            background-color: #e8f5e9;
-            color: #2e7d32;
+            background-color: #f0f4f8;
+            color: #64748b;
             text-align: center;
             font-style: italic;
-        }}
-        
-        .course-slot {{
-            background-color: #e3f2fd;
-            border-left: 4px solid #2196f3;
             font-weight: 500;
         }}
         
+        .course-slot {{
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 6px solid #3b82f6;
+            font-weight: 600;
+            color: #1e40af;
+            padding: 18px 15px;
+        }}
+        
         .common-course {{
-            background-color: #fff3e0;
-            border-left: 4px solid #ff9800;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 6px solid #f59e0b;
+            font-weight: 600;
+            color: #92400e;
+            padding: 18px 15px;
         }}
         
         .lab-slot {{
-            background-color: #f3e5f5;
-            border-left: 4px solid #9c27b0;
+            background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
+            border-left: 6px solid #a855f7;
+            font-weight: 600;
+            color: #6b21a8;
+            padding: 18px 15px;
         }}
         
         .tutorial-slot {{
-            background-color: #e0f2f1;
-            border-left: 4px solid #009688;
+            background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
+            border-left: 6px solid #14b8a6;
+            font-weight: 600;
+            color: #115e59;
+            padding: 18px 15px;
         }}
         
         .legend {{
@@ -238,28 +264,28 @@ class TimetableHTMLConverter:
         
         <div class="legend">
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #e3f2fd; border-left: 4px solid #2196f3;"></div>
-                <span>Regular Course</span>
+                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 6px solid #3b82f6;"></div>
+                <span><strong>Lecture</strong> - Regular Course</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #fff3e0; border-left: 4px solid #ff9800;"></div>
-                <span>Common Course</span>
+                <div class="legend-color" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 6px solid #f59e0b;"></div>
+                <span><strong>Lecture</strong> - Common Course</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #f3e5f5; border-left: 4px solid #9c27b0;"></div>
-                <span>Lab</span>
+                <div class="legend-color" style="background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%); border-left: 6px solid #a855f7;"></div>
+                <span><strong>Practical/Lab</strong></span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #e0f2f1; border-left: 4px solid #009688;"></div>
-                <span>Tutorial</span>
+                <div class="legend-color" style="background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%); border-left: 6px solid #14b8a6;"></div>
+                <span><strong>Tutorial</strong></span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #e8f5e9;"></div>
+                <div class="legend-color" style="background-color: #f0f4f8;"></div>
                 <span>Free Slot</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
-                <span>Lunch Break</span>
+                <span>🍽️ Lunch Break</span>
             </div>
         </div>
         
@@ -284,9 +310,9 @@ class TimetableHTMLConverter:
         html = '<table>\n<thead>\n<tr>\n'
         
         # Header row
-        html += '<th>Day/Time</th>\n'
+        html += '<th style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Day/Time</th>\n'
         for col in df.columns:
-            html += f'<th class="time-slot">{col}</th>\n'
+            html += f'<th class="time-slot">⏰ {col}</th>\n'
         html += '</tr>\n</thead>\n<tbody>\n'
         
         # Data rows
