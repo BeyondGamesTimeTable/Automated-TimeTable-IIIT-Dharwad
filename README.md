@@ -1,7 +1,14 @@
 # 🎓 BeyondGames Automated Timetable Generator
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](htTotal Files:
+- 3 Input CSV files (course data)
+- 18 Output CSV files (timetables)
+- 18 Output TXT files (elective details)
+- 19 Output HTML files (1 index + 18 timetables)
+- 2 Python scripts (main.py, timetable_to_html.py)
+- 3 Documentation files (README.md, CONSTRAINTS_ANALYSIS.md, TECH_STACK.md)
+```g.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status: Working](https://img.shields.io/badge/Status-Working-brightgreen.svg)]()
 [![BeyondGames Team](https://img.shields.io/badge/Team-BeyondGames-purple.svg)](https://github.com/BeyondGamesTimeTable)
 
@@ -136,6 +143,7 @@ Automated-TimeTable-IIIT-Dharwad/
 ├── .gitignore                       # Git ignore file
 ├── README.md                        # Main project documentation
 ├── CONSTRAINTS_ANALYSIS.md          # Detailed requirements analysis (91.7% compliance)
+├── TECH_STACK.md                    # Technology stack documentation
 │
 ├── .vscode/                         # VS Code configuration
 │   ├── launch.json
@@ -228,6 +236,16 @@ n
 ### 🎲 Randomization
 - Uses randomized slot assignment to generate varied timetables
 - Prevents predictable patterns while maintaining constraints
+
+### 📚 Technology Stack
+For complete details about the technologies, libraries, and frameworks used in this project, see **[TECH_STACK.md](TECH_STACK.md)**
+
+**Quick Summary**:
+- **Language**: Python 3.12+
+- **Core Library**: pandas (data processing)
+- **Frontend**: HTML5 + CSS3 (no JavaScript)
+- **Data Formats**: CSV (input/output), TXT (electives), HTML (viewer)
+- **Architecture**: OOP with constraint-based scheduling algorithms
 
 ---
 
@@ -345,7 +363,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions or issues:
 - 📧 Create an issue on [GitHub](https://github.com/BeyondGamesTimeTable/Automated-TimeTable-IIIT-Dharwad/issues)
-- � Check the comprehensive documentation files
+- 📚 Check the comprehensive documentation files:
+  - [README.md](README.md) - Main documentation
+  - [CONSTRAINTS_ANALYSIS.md](CONSTRAINTS_ANALYSIS.md) - Requirements analysis
+  - [TECH_STACK.md](TECH_STACK.md) - Technology stack details
 - 🔍 Review the example input files in `input_files/sdtt_inputs/` directory
 
 
