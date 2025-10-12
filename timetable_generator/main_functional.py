@@ -611,7 +611,7 @@ def main():
                 result = generate_timetable(dept, sem, sec)
                 
                 if result:
-                    timetable, electives = result
+                    timetable, electives, rotated_out = result
                     print_timetable(timetable)
                     filename = f"{dept}_Sem{sem}_Section{sec}_Timetable.csv"
                     export_to_csv(timetable, filename, electives)
