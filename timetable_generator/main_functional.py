@@ -19,18 +19,27 @@ import random
 
 DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
-# Extended time slots (8 AM - 8 PM, Lunch 1:30-2:30 PM)
-TIME_SLOTS = [
+# Morning/Regular time slots (1.5 hours each) for lectures and tutorials
+REGULAR_SLOTS = [
     ('08:00', '09:30'),  # 1.5 hours - Early morning slot
     ('09:45', '11:15'),  # 1.5 hours
     ('11:30', '13:00'),  # 1.5 hours
-    ('13:00', '14:30'),  # LUNCH BREAK
-    ('14:45', '16:15'),  # 1.5 hours
-    ('16:30', '18:00'),  # 1.5 hours
-    ('18:15', '19:45'),  # 1.5 hours - Evening slot
 ]
 
+# Lunch break
 LUNCH_SLOT = ('13:00', '14:30')
+
+# Afternoon 2-hour FLEXIBLE slots - can be used for:
+# - Labs (full 2 hours)
+# - Lectures (1.5 hours of the 2-hour slot)
+# - Tutorials (1 hour of the 2-hour slot)
+AFTERNOON_FLEX_SLOTS = [
+    ('14:30', '16:30'),  # 2 hours - Flexible slot 1
+    ('16:30', '18:30'),  # 2 hours - Flexible slot 2
+]
+
+# Combined time slots for timetable display
+TIME_SLOTS = REGULAR_SLOTS + [LUNCH_SLOT] + AFTERNOON_FLEX_SLOTS
 LARGE_AUDITORIUM = 'C004'  # 240-seater for common courses
 LAB_ROOMS = ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5']
 
@@ -60,6 +69,27 @@ def load_department_data(department, csv_folder='input_files/sdtt_inputs'):
 def get_courses_by_semester(df, semester):
     """Filter courses for a specific semester"""
     return df[df['Semester'] == semester].copy()
+
+
+def get_day_priority_order(timetable):
+    """
+    Calculate priority order for days based on current usage.
+    Returns days sorted by number of free slots (most free first).
+    This helps fill underutilized days like Friday.
+    """
+    day_free_count = {}
+    
+    for day in DAYS:
+        free_count = 0
+        for time_slot in TIME_SLOTS:
+            time_str = f"{time_slot[0]}-{time_slot[1]}"
+            if time_slot != LUNCH_SLOT and timetable[day][time_str] == 'Free':
+                free_count += 1
+        day_free_count[day] = free_count
+    
+    # Sort days by free slots (descending) - prioritize days with most free slots
+    sorted_days = sorted(DAYS, key=lambda d: day_free_count[d], reverse=True)
+    return sorted_days
 
 
 # ============================================================================
@@ -164,8 +194,11 @@ def schedule_session(timetable, used_slots, lecture_schedule, tutorial_schedule,
         session_schedule = lecture_schedule  # Fallback
         max_per_day = 1
     
-    # Try each day systematically
-    for day in DAYS:
+    # Get day priority order (prioritize underutilized days like Friday)
+    day_priority = get_day_priority_order(timetable)
+    
+    # Try each day in priority order
+    for day in day_priority:
         # Enforce strict rule: max 1 lecture/tutorial per course per day
         # Check BOTH lecture and tutorial schedules to prevent lecture+tutorial on same day
         if session_schedule[course_code][day] >= max_per_day:
@@ -249,8 +282,11 @@ def schedule_lab_session(timetable, used_slots, lecture_schedule, tutorial_sched
     # Find consecutive slots (excluding lunch)
     available_slots = [slot for slot in TIME_SLOTS if slot != LUNCH_SLOT]
     
-    # Try each day systematically
-    for day in DAYS:
+    # Get day priority order (prioritize underutilized days like Friday)
+    day_priority = get_day_priority_order(timetable)
+    
+    # Try each day in priority order
+    for day in day_priority:
         # Enforce: Max 1 lab session per course per day
         if lab_schedule[course_code][day] >= MAX_LABS_PER_DAY:
             continue
@@ -409,8 +445,10 @@ def schedule_courses(courses_df, timetable, used_slots,
             if not success:
                 unscheduled_courses.append(f"{course_code} - Tutorial {tut_num+1}")
         
-        # Schedule practicals/labs (2 hours exactly)
-        for prac_num in range(practicals):
+        # Schedule practicals/labs (2 hours per lab session)
+        # Practicals value represents credits: 2 credits = 1 lab session (2 hours), 4 credits = 2 lab sessions
+        num_lab_sessions = practicals // 2  # Each lab session is 2 hours (2 credits)
+        for prac_num in range(num_lab_sessions):
             success = schedule_lab_session(
                 timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                 lab_usage, course_code, course_title, classroom,

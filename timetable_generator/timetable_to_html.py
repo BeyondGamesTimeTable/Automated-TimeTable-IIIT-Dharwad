@@ -332,6 +332,95 @@ class TimetableHTMLConverter:
                 font-size: 0.85em;
             }}
         }}
+        
+        /* ============================================ */
+        /* FLEXIBLE AFTERNOON SLOT DURATION BARS */
+        /* ============================================ */
+        
+        .afternoon-flex-slot {{
+            position: relative;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            overflow: hidden;
+            min-height: 85px;
+        }}
+        
+        .session-container {{
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }}
+        
+        .duration-bar-wrapper {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }}
+        
+        .duration-bar {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            position: relative;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            width: 100%;
+            gap: 6px;
+        }}
+        
+        /* Lab - Full 2 hours (100%) */
+        .lab-duration {{
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-left: 4px solid #6d28d9;
+        }}
+        
+        /* Lecture - 1.5 hours (75% of 2 hours) */
+        .lecture-duration {{
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-left: 4px solid #1d4ed8;
+        }}
+        
+        /* Tutorial - 1 hour (50% of 2 hours) */
+        .tutorial-duration {{
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-left: 4px solid #047857;
+        }}
+        
+        .duration-tag {{
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }}
+        
+        .course-info {{
+            font-size: 0.95em;
+            line-height: 1.4;
+        }}
+        
+        /* Hover effects for afternoon slots */
+        .afternoon-flex-slot:hover {{
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }}
+        
+        .duration-bar:hover {{
+            filter: brightness(1.05);
+        }}
     </style>
 </head>
 <body>
@@ -418,20 +507,51 @@ class TimetableHTMLConverter:
                     <ul class="course-list">
 """
                 
-                # Parse courses
+                # First pass: collect all courses with their classrooms
+                courses = []
                 i = 2  # Skip basket name and separator
                 while i < len(lines):
                     line = lines[i].strip()
                     if line.startswith('•'):
                         course_info = line.replace('•', '').strip()
-                        html += f'                        <li><strong>{course_info}</strong>'
+                        classroom = None
                         # Check if next line has classroom
                         if i + 1 < len(lines) and 'Classroom:' in lines[i + 1]:
                             classroom = lines[i + 1].split('Classroom:')[1].strip()
-                            html += f'<br><span class="classroom-info">📍 {classroom}</span>'
                             i += 1
-                        html += '</li>\n'
+                        courses.append({'info': course_info, 'classroom': classroom})
                     i += 1
+                
+                # Second pass: detect duplicates and mark alternates as "After Midsems"
+                classroom_count = {}
+                for course in courses:
+                    if course['classroom'] and course['classroom'] not in ['nan', '-', '']:
+                        classroom_count[course['classroom']] = classroom_count.get(course['classroom'], 0) + 1
+                
+                classroom_seen = {}
+                
+                # Third pass: render courses with "After Midsems" label for duplicates
+                for course in courses:
+                    html += f'                        <li><strong>{course["info"]}</strong>'
+                    
+                    if course['classroom']:
+                        # Check if this classroom has duplicates in the same basket
+                        classroom = course['classroom']
+                        if classroom not in ['nan', '-', ''] and classroom_count.get(classroom, 0) > 1:
+                            # This classroom is shared by multiple courses in same basket
+                            if classroom in classroom_seen:
+                                # This is the 2nd+ occurrence - mark as "After Midsems"
+                                html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                                html += '<br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span>'
+                            else:
+                                # This is the 1st occurrence
+                                html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                                classroom_seen[classroom] = True
+                        else:
+                            # No duplicates or empty classroom
+                            html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                    
+                    html += '</li>\n'
                 
                 html += """
                     </ul>
@@ -442,6 +562,60 @@ class TimetableHTMLConverter:
             </div>
         </div>
 """
+            
+            # Check if there are "After Midsems" electives
+            if 'AFTER MIDSEMS' in content:
+                html += """
+        <div class="after-midsems-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 15px; border: 3px solid #f59e0b;">
+            <h2 style="color: #92400e; margin-bottom: 15px;">🔄 After Midsems - Second Half Electives</h2>
+            <p style="color: #78350f; font-weight: 600; margin-bottom: 20px;">These elective baskets will be offered <strong>after mid-semester exams</strong> in the same time slots:</p>
+            <div class="electives-container">
+"""
+                # Parse After Midsems section
+                after_midsems_section = content.split('AFTER MIDSEMS')[1] if 'AFTER MIDSEMS' in content else ""
+                after_baskets = after_midsems_section.split('Basket ')[1:] if after_midsems_section else []
+                
+                for basket_content in after_baskets:
+                    lines = basket_content.strip().split('\n')
+                    basket_name = lines[0].replace(':', '').replace('(After Midsems)', '').strip()
+                    
+                    html += f"""
+                <div class="basket-card" style="border: 2px solid #f59e0b; background: white;">
+                    <h3 style="color: #92400e;">Basket {basket_name} <span style="font-size: 0.8em; color: #f59e0b;">(After Midsems)</span></h3>
+                    <ul class="course-list">
+"""
+                    
+                    # Parse courses
+                    i = 2  # Skip basket name and separator
+                    while i < len(lines):
+                        line = lines[i].strip()
+                        if line.startswith('•'):
+                            course_info = line.replace('•', '').strip()
+                            classroom = None
+                            # Check if next line has classroom
+                            if i + 1 < len(lines) and 'Classroom:' in lines[i + 1]:
+                                classroom = lines[i + 1].split('Classroom:')[1].strip()
+                                i += 1
+                            
+                            html += f'                        <li><strong>{course_info}</strong>'
+                            if classroom and classroom not in ['nan', '-', '']:
+                                html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                            html += '</li>\n'
+                        i += 1
+                    
+                    html += """
+                    </ul>
+                </div>
+"""
+                
+                html += """
+            </div>
+            <p style="margin-top: 20px; color: #78350f; font-style: italic; font-size: 0.95em;">
+                💡 <strong>Note:</strong> These courses will replace the current electives in the timetable after midsem exams, using the same classroom and time slots.
+            </p>
+        </div>
+"""
+            
             return html
             
         except Exception as e:
@@ -449,13 +623,17 @@ class TimetableHTMLConverter:
             return ""
     
     def _generate_table(self, df):
-        """Generate HTML table from DataFrame"""
+        """Generate HTML table from DataFrame with duration bar support"""
         html = '<table>\n<thead>\n<tr>\n'
         
         # Header row
         html += '<th style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Day/Time</th>\n'
         for col in df.columns:
-            html += f'<th class="time-slot">⏰ {col}</th>\n'
+            # Check if this is an afternoon flexible slot
+            if self._is_afternoon_flex_slot(col):
+                html += f'<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ {col} <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>\n'
+            else:
+                html += f'<th class="time-slot">⏰ {col}</th>\n'
         html += '</tr>\n</thead>\n<tbody>\n'
         
         # Data rows
@@ -465,13 +643,80 @@ class TimetableHTMLConverter:
             
             for col in df.columns:
                 cell_value = str(df.loc[day, col])
-                cell_class = self._get_cell_class(cell_value)
-                html += f'<td class="{cell_class}">{cell_value}</td>\n'
+                
+                # Check if this is an afternoon flexible slot
+                if self._is_afternoon_flex_slot(col):
+                    html += self._render_flex_slot_cell(cell_value, col)
+                else:
+                    cell_class = self._get_cell_class(cell_value)
+                    # Clean display value (remove [EVENING] label)
+                    display_value = cell_value.replace('[EVENING]', '').strip()
+                    html += f'<td class="{cell_class}">{display_value}</td>\n'
             
             html += '</tr>\n'
         
         html += '</tbody>\n</table>'
         return html
+    
+    def _is_afternoon_flex_slot(self, time_slot):
+        """Check if a time slot is an afternoon flexible slot (2 hours)"""
+        # Afternoon flexible slots: 14:30-16:30 and 16:30-18:30
+        flex_patterns = ['14:30-16:30', '16:30-18:30']
+        return any(pattern in time_slot for pattern in flex_patterns)
+    
+    def _render_flex_slot_cell(self, cell_value, time_slot):
+        """Render a flexible afternoon slot cell with duration bar"""
+        # Check for free slot or lunch
+        if cell_value.lower() == 'free':
+            return '<td class="free-slot">Free</td>\n'
+        elif 'lunch' in cell_value.lower():
+            return '<td class="lunch-break">🍽️ LUNCH BREAK</td>\n'
+        
+        # Parse duration from cell value (e.g., "[120min]", "[90min]", "[60min]")
+        duration_minutes = 120  # Default to full slot
+        duration_class = 'lab-duration'  # Default
+        duration_label = '2 Hours'
+        
+        if '[120min]' in cell_value:
+            duration_minutes = 120
+            duration_class = 'lab-duration'
+            duration_label = '2 Hours'
+        elif '[90min]' in cell_value:
+            duration_minutes = 90
+            duration_class = 'lecture-duration'
+            duration_label = '1.5 Hours'
+        elif '[60min]' in cell_value:
+            duration_minutes = 60
+            duration_class = 'tutorial-duration'
+            duration_label = '1 Hour'
+        elif 'Lab' in cell_value or 'lab' in cell_value:
+            duration_class = 'lab-duration'
+            duration_label = '2 Hours'
+        elif '-T-' in cell_value or 'Tutorial' in cell_value:
+            duration_class = 'tutorial-duration'
+            duration_minutes = 60
+            duration_label = '1 Hour'
+        else:
+            duration_class = 'lecture-duration'
+            duration_minutes = 90
+            duration_label = '1.5 Hours'
+        
+        # Clean cell value for display (remove duration markers and EVENING label)
+        display_value = cell_value.replace('[120min]', '').replace('[90min]', '').replace('[60min]', '').replace('[EVENING]', '').strip()
+        
+        # Generate cell HTML with duration bar
+        cell_html = f'''<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar {duration_class}">
+                <div class="course-info">{display_value}</div>
+                <div class="duration-tag">{duration_label}</div>
+            </div>
+        </div>
+    </div>
+</td>
+'''
+        return cell_html
     
     def _get_cell_class(self, value):
         """Determine CSS class based on cell content"""

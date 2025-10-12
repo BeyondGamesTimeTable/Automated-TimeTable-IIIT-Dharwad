@@ -11,15 +11,6 @@ Basket B1:
   • CS458: Natural Language Processing
     Classroom: C303
 
-Basket B2:
-----------------------------------------
-  • CS455: Blockchain Technology
-    Classroom: C302
-  • EC361: Introduction to 5G Network
-    Classroom: C303
-  • ASD351: Design Thinking and Innovation
-    Classroom: C204
-
 Basket B3:
 ----------------------------------------
   • CS462: Computer Graphics
@@ -29,7 +20,21 @@ Basket B3:
   • CS469: Virtualization and Cloud Computing
     Classroom: C002
 
-Basket B4:
+
+================================================================================
+AFTER MIDSEMS - These electives will be offered after mid-semester exams
+================================================================================
+
+Basket B2 (After Midsems):
+----------------------------------------
+  • CS455: Blockchain Technology
+    Classroom: C302
+  • EC361: Introduction to 5G Network
+    Classroom: C303
+  • ASD351: Design Thinking and Innovation
+    Classroom: C204
+
+Basket B4 (After Midsems):
 ----------------------------------------
   • DS355: Data Analytics and Visualization
     Classroom: C002
@@ -40,7 +45,7 @@ Basket B4:
   • CS472: Bioinformatics
     Classroom: C305
 
-Basket Minor:
+Basket Minor (After Midsems):
 ----------------------------------------
   • DS358: Deep Speech Processing
     Classroom: C305

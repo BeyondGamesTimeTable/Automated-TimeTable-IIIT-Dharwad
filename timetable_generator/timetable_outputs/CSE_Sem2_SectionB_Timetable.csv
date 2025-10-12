@@ -1,6 +1,6 @@
-,08:00-09:30,09:45-11:15,11:30-13:00,13:00-14:30,14:45-16:15,16:30-18:00,18:15-19:45
-Monday,MA163-B | C203,CS163-B | C202,CS163-Lab-B | Lab-1,LUNCH BREAK,CS163-Lab-B (cont.) | Lab-1,Elective (E1),CS165-B | C202
-Tuesday,MA163-B | C203,CS163-B | C202,CS163-Lab-B | Lab-1,LUNCH BREAK,CS163-Lab-B (cont.) | Lab-1,Elective (E1),CS165-B | C202
-Wednesday,MA163-B | C203,CS163-B | C202,Elective (E1),LUNCH BREAK,CS165-B | C202,Elective (B3),Elective (B4)
-Thursday,MA163-T-B | C203,Elective (E1),Elective (B3),LUNCH BREAK,Elective (B4),Free,Free
-Friday,Elective (B3),Elective (B4),Free,LUNCH BREAK,Free,Free,Free
+,08:00-09:30,09:45-11:15,11:30-13:00,13:00-14:30,14:30-16:30,16:30-18:30,18:30-20:00
+Monday,MA163-B | C203,Elective (E1),CS163-B | C202,LUNCH BREAK,Elective (B4) [90min],Elective (B3) [90min],Free
+Tuesday,MA163-B | C203,Elective (E1),CS163-B | C202,LUNCH BREAK,Elective (B4) [90min],Elective (B3) [90min],Free
+Wednesday,MA163-B | C203,Elective (B3),CS165-B | C202,LUNCH BREAK,CS163-Lab-B [120min] | Lab-2,Free,Elective (B4) [EVENING]
+Thursday,MA163-T-B | C203,CS165-B | C202,Elective (E1),LUNCH BREAK,Free,Elective (B3) [60min],Free
+Friday,Elective (E1),CS163-B | C202,Elective (B4),LUNCH BREAK,CS165-B [90min] | C202,Free,Free

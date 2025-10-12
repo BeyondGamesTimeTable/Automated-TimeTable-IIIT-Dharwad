@@ -305,6 +305,95 @@
                 font-size: 0.85em;
             }
         }
+        
+        /* ============================================ */
+        /* FLEXIBLE AFTERNOON SLOT DURATION BARS */
+        /* ============================================ */
+        
+        .afternoon-flex-slot {
+            position: relative;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            overflow: hidden;
+            min-height: 85px;
+        }
+        
+        .session-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .duration-bar-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .duration-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            position: relative;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            width: 100%;
+            gap: 6px;
+        }
+        
+        /* Lab - Full 2 hours (100%) */
+        .lab-duration {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-left: 4px solid #6d28d9;
+        }
+        
+        /* Lecture - 1.5 hours (75% of 2 hours) */
+        .lecture-duration {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-left: 4px solid #1d4ed8;
+        }
+        
+        /* Tutorial - 1 hour (50% of 2 hours) */
+        .tutorial-duration {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-left: 4px solid #047857;
+        }
+        
+        .duration-tag {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .course-info {
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        
+        /* Hover effects for afternoon slots */
+        .afternoon-flex-slot:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+        
+        .duration-bar:hover {
+            filter: brightness(1.05);
+        }
     </style>
 </head>
 <body>
@@ -352,61 +441,152 @@
 <th class="time-slot">⏰ 09:45-11:15</th>
 <th class="time-slot">⏰ 11:30-13:00</th>
 <th class="time-slot">⏰ 13:00-14:30</th>
-<th class="time-slot">⏰ 14:45-16:15</th>
-<th class="time-slot">⏰ 16:30-18:00</th>
-<th class="time-slot">⏰ 18:15-19:45</th>
+<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 14:30-16:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
+<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 16:30-18:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
+<th class="time-slot">⏰ 18:30-20:00</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="day-column">Monday</td>
-<td class="common-course">EC205 (Common) | C004</td>
-<td class="common-course">EC205-Lab (Common) | Lab-1</td>
-<td class="common-course">EC205-Lab (Common) (cont.) | Lab-1</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
-<td class="common-course">EC310 (Common) | C004</td>
-<td class="common-course">EC204 (Common) | C004</td>
-<td class="common-course">HS204 (Common) | C004</td>
+<td class="free-slot">Free</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC205 (Common)  | C205</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="common-course">EC310 (Common)  | C204</td>
 </tr>
 <tr>
 <td class="day-column">Tuesday</td>
-<td class="common-course">EC205 (Common) | C004</td>
-<td class="common-course">EC205-Lab (Common) | Lab-1</td>
-<td class="common-course">EC205-Lab (Common) (cont.) | Lab-1</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
-<td class="common-course">EC310 (Common) | C004</td>
-<td class="common-course">EC204 (Common) | C004</td>
-<td class="common-course">HS204 (Common) | C004</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lab-duration">
+                <div class="course-info">EC204-Lab (Common)  | Lab-2</div>
+                <div class="duration-tag">2 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="free-slot">Free</td>
+<td class="common-course">EC205 (Common)  | C204</td>
 </tr>
 <tr>
 <td class="day-column">Wednesday</td>
-<td class="common-course">EC205 (Common) | C004</td>
-<td class="common-course">EC310 (Common) | C004</td>
-<td class="common-course">EC204 (Common) | C004</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
-<td class="common-course">EC204-Lab (Common) | Lab-1</td>
-<td class="common-course">EC204-Lab (Common) (cont.) | Lab-1</td>
-<td class="common-course">HS204 (Common) | C004</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC205 (Common)  | C204</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar tutorial-duration">
+                <div class="course-info">EC310 (Common)  | C204</div>
+                <div class="duration-tag">1 Hour</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="common-course">EC204 (Common)  | C202</td>
 </tr>
 <tr>
 <td class="day-column">Thursday</td>
-<td class="common-course">EC310 (Common) | C004</td>
-<td class="common-course">EC204 (Common) | C004</td>
-<td class="common-course">EC204-Lab (Common) | Lab-1</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
-<td class="common-course">EC204-Lab (Common) (cont.) | Lab-1</td>
-<td class="common-course">HS204 (Common) | C004</td>
-<td class="common-course">HS205 (Common) | C004</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lab-duration">
+                <div class="course-info">EC205-Lab (Common)  | Lab-4</div>
+                <div class="duration-tag">2 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC204 (Common)  | C204</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="common-course">HS204 (Common)  | C203</td>
 </tr>
 <tr>
 <td class="day-column">Friday</td>
-<td class="common-course">HS205 (Common) | C004</td>
-<td class="common-course">Elective (Minor)</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC310 (Common)  | C205</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC204 (Common)  | C102</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="common-course">HS204 (Common)  | C202</td>
+</tr>
+<tr>
+<td class="day-column">Saturday</td>
+<td class="common-course">EC310 (Common) | C101</td>
+<td class="common-course">EC204 (Common) | C101</td>
+<td class="common-course">HS204 (Common) | C101</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">HS205 (Common)  | C101</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
 <td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
+<td class="common-course">Elective (Minor)</td>
 </tr>
 </tbody>
 </table>
