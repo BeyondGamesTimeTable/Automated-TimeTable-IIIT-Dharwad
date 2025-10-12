@@ -38,8 +38,13 @@ AFTERNOON_FLEX_SLOTS = [
     ('16:30', '18:30'),  # 2 hours - Flexible slot 2
 ]
 
+# Evening slot (1.5 hours) - for overflow classes
+EVENING_SLOT = [
+    ('18:30', '20:00'),  # 1.5 hours - Evening slot
+]
+
 # Combined time slots for timetable display
-TIME_SLOTS = REGULAR_SLOTS + [LUNCH_SLOT] + AFTERNOON_FLEX_SLOTS
+TIME_SLOTS = REGULAR_SLOTS + [LUNCH_SLOT] + AFTERNOON_FLEX_SLOTS + EVENING_SLOT
 LARGE_AUDITORIUM = 'C004'  # 240-seater for common courses
 LAB_ROOMS = ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5']
 
@@ -468,6 +473,14 @@ def generate_timetable(department, semester, section='A', csv_folder='input_file
     print(f"Generating Timetable: {department} - Semester {semester} - Section {section}")
     print(f"{'='*80}")
     
+    # Dynamic Saturday scheduling for ECE Semester 4 (high course load)
+    global DAYS
+    if department == 'ECE' and semester == 4:
+        DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        print(">> Saturday classes enabled for ECE Semester 4 (high load optimization)")
+    else:
+        DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    
     # Load department data
     df = load_department_data(department, csv_folder)
     if df is None:
@@ -522,8 +535,10 @@ def generate_timetable(department, semester, section='A', csv_folder='input_file
     else:
         print(f"\nAll courses scheduled successfully!")
     
-    # Return timetable with elective information
-    return timetable, elective_courses
+    # Return timetable with elective information and rotated courses (for compatibility with main.py)
+    # Note: rotated_out_electives would contain "After Midsems" courses if we tracked them separately
+    rotated_out_electives = {}  # Placeholder for compatibility
+    return timetable, elective_courses, rotated_out_electives
 
 
 # ============================================================================
