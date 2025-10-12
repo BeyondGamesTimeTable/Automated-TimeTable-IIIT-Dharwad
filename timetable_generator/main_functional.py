@@ -48,10 +48,18 @@ TIME_SLOTS = REGULAR_SLOTS + [LUNCH_SLOT] + AFTERNOON_FLEX_SLOTS + EVENING_SLOT
 LARGE_AUDITORIUM = 'C004'  # 240-seater for common courses
 LAB_ROOMS = ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5']
 
+# Backup large classrooms (if C004 is unavailable)
+BACKUP_LARGE_CLASSROOMS = ['C001', 'C002', 'C003', 'C101', 'C102', 'C103', 'C104']
+
 # Strict scheduling rules
 MAX_LECTURES_PER_DAY = 1
 MAX_TUTORIALS_PER_DAY = 1
 MAX_LABS_PER_DAY = 1
+
+# ============================================================================
+# GLOBAL CLASSROOM TRACKING (Prevents double-booking across all timetables)
+# ============================================================================
+GLOBAL_CLASSROOM_USAGE = {}
 
 
 # ============================================================================
@@ -95,6 +103,138 @@ def get_day_priority_order(timetable):
     # Sort days by free slots (descending) - prioritize days with most free slots
     sorted_days = sorted(DAYS, key=lambda d: day_free_count[d], reverse=True)
     return sorted_days
+
+
+def find_available_large_classroom(day, time_str, global_classroom_usage):
+    """
+    Find an available large classroom for common courses.
+    Tries C004 first, then backup large classrooms.
+    
+    Args:
+        day: Day of the week
+        time_str: Time slot string (e.g., "08:00-09:30")
+        global_classroom_usage: Global tracking dictionary
+        
+    Returns:
+        Available classroom code or None if all occupied
+    """
+    # Try primary large auditorium first
+    classrooms_to_try = [LARGE_AUDITORIUM] + BACKUP_LARGE_CLASSROOMS
+    
+    for classroom in classrooms_to_try:
+        # Check if this classroom is free in global usage
+        is_free = True
+        if day in global_classroom_usage:
+            if time_str in global_classroom_usage[day]:
+                if classroom in global_classroom_usage[day][time_str]:
+                    is_free = False
+        
+        if is_free:
+            return classroom
+    
+    return None
+
+
+def record_global_classroom_usage(global_dict, day, time_str, classroom, department, semester, section, course_code):
+    """
+    Record classroom usage in the global tracking dictionary.
+    Prevents double-booking of classrooms across different timetables.
+    
+    Args:
+        global_dict: The GLOBAL_CLASSROOM_USAGE dictionary
+        day: Day of the week
+        time_str: Time slot string
+        classroom: Classroom code
+        department: Department name (CSE, ECE, DSAI)
+        semester: Semester number
+        section: Section (A, B, ...)
+        course_code: Course code
+    """
+    if day not in global_dict:
+        global_dict[day] = {}
+    if time_str not in global_dict[day]:
+        global_dict[day][time_str] = {}
+    
+    # Record which dept/sem/sec is using this classroom
+    global_dict[day][time_str][classroom] = {
+        'department': department,
+        'semester': semester,
+        'section': section,
+        'course': course_code
+    }
+
+
+def create_session_label(course_code, session_type, section, is_common, is_elective, basket):
+    """
+    Create consistent session label for timetable display.
+    
+    Returns:
+        Formatted label string
+    """
+    if is_elective and basket:
+        return f"Elective ({basket})"
+    elif is_common:
+        return f"{course_code} (Common)"
+    else:
+        if session_type == 'Tutorial':
+            return f"{course_code}-T-{section}"
+        else:
+            return f"{course_code}-{section}"
+
+
+def has_classroom_conflict(day, time_str, classroom, used_slots, global_classroom_usage):
+    """
+    Check if classroom is already in use at this day/time.
+    Checks both local (current timetable) and global (across all timetables) usage.
+    
+    Returns:
+        True if there's a conflict, False if classroom is available
+    """
+    # Check local conflict
+    if day in used_slots and time_str in used_slots[day]:
+        for existing_slot in used_slots[day][time_str].values():
+            if existing_slot.get('room') == classroom:
+                return True
+    
+    # Check global conflict
+    if day in global_classroom_usage:
+        if time_str in global_classroom_usage[day]:
+            if classroom in global_classroom_usage[day][time_str]:
+                return True
+    
+    return False
+
+
+def mark_slot_used(used_slots, day, time_str, course_code, classroom, session_type, duration_minutes, slot_duration_minutes, is_elective, basket):
+    """
+    Mark a time slot as used in the local tracking dictionary.
+    
+    Args:
+        used_slots: Local tracking dictionary for current timetable
+        day: Day of the week
+        time_str: Time slot string
+        course_code: Course code
+        classroom: Classroom code
+        session_type: 'Lecture', 'Tutorial', or 'Lab'
+        duration_minutes: Actual duration of session
+        slot_duration_minutes: Duration of the time slot
+        is_elective: Boolean indicating if this is an elective
+        basket: Basket name for electives
+    """
+    if day not in used_slots:
+        used_slots[day] = {}
+    if time_str not in used_slots[day]:
+        used_slots[day][time_str] = {}
+    
+    used_slots[day][time_str][course_code] = {
+        'room': classroom,
+        'course': course_code,
+        'type': session_type,
+        'duration_minutes': duration_minutes,
+        'slot_duration_minutes': slot_duration_minutes,
+        'is_elective': is_elective,
+        'basket': basket
+    }
 
 
 # ============================================================================
@@ -182,110 +322,244 @@ def initialize_course_tracking(course_code, lecture_schedule, tutorial_schedule,
 
 def schedule_session(timetable, used_slots, lecture_schedule, tutorial_schedule,
                      lab_schedule, lab_usage, course_code, course_title, classroom,
-                     session_type, section, is_common, is_elective, basket, duration_hours=1.5):
-    """Schedule a single session (Lecture or Tutorial)"""
+                     session_type, section, is_common, is_elective, basket,
+                     global_classroom_usage, department, semester, duration_hours=1.5):
+    """
+    Schedule a single session (Lecture or Tutorial) using MULTI-STAGE slot prioritization.
     
-    # Get available time slots (excluding lunch)
-    available_slots = [slot for slot in TIME_SLOTS if slot != LUNCH_SLOT]
+    CRITICAL: This function MUST match the OOP version in main.py exactly!
     
-    # Determine which schedule tracker to use
+    Scheduling Stages (in order of priority):
+        Stage 1: Try REGULAR morning slots first (08:00-13:00)
+        Stage 2: Try AFTERNOON flexible slots (14:30-18:30) with duration labels
+        Stage 3: Try EVENING slot (18:30-20:00) as last resort
+    
+    This ensures morning slots are filled first, matching the OOP implementation.
+    
+    Args:
+        timetable: Current timetable dictionary
+        used_slots: Local slot tracking
+        lecture_schedule: Lecture count tracker
+        tutorial_schedule: Tutorial count tracker
+        lab_schedule: Lab count tracker (unused here)
+        lab_usage: Lab room tracker (unused here)
+        course_code: Course code
+        course_title: Course title
+        classroom: Assigned classroom (or None for common courses)
+        session_type: 'Lecture' or 'Tutorial'
+        section: Section (A, B, ...)
+        is_common: Boolean - is this a common course?
+        is_elective: Boolean - is this an elective?
+        basket: Elective basket name
+        global_classroom_usage: Global classroom tracking dict (prevents double-booking)
+        department: Department name (CSE, ECE, DSAI)
+        semester: Semester number
+        duration_hours: Duration in hours (1.5 for lectures, 1.0 for tutorials)
+        
+    Returns:
+        True if scheduled successfully, False otherwise
+    """
+    
+    # Determine session-specific settings
     if session_type == 'Lecture':
         session_schedule = lecture_schedule
         max_per_day = MAX_LECTURES_PER_DAY
+        duration_minutes = 90  # 1.5 hours
     elif session_type == 'Tutorial':
         session_schedule = tutorial_schedule
         max_per_day = MAX_TUTORIALS_PER_DAY
+        duration_minutes = 60  # 1 hour
     else:
         session_schedule = lecture_schedule  # Fallback
         max_per_day = 1
+        duration_minutes = 90
     
     # Get day priority order (prioritize underutilized days like Friday)
     day_priority = get_day_priority_order(timetable)
     
-    # Try each day in priority order
+    # ========================================================================
+    # STAGE 1: Try REGULAR morning slots FIRST (08:00-13:00)
+    # ========================================================================
     for day in day_priority:
         # Enforce strict rule: max 1 lecture/tutorial per course per day
-        # Check BOTH lecture and tutorial schedules to prevent lecture+tutorial on same day
         if session_schedule[course_code][day] >= max_per_day:
             continue
         
-        # Additional check: if this is a lecture, ensure no tutorial on same day, and vice versa
+        # Prevent lecture+tutorial on same day for same course
         if session_type == 'Lecture' and tutorial_schedule[course_code][day] > 0:
             continue
         elif session_type == 'Tutorial' and lecture_schedule[course_code][day] > 0:
             continue
         
-        # Try each time slot in this day
-        for time_slot in available_slots:
+        # Try each regular morning slot
+        for time_slot in REGULAR_SLOTS:
             time_str = f"{time_slot[0]}-{time_slot[1]}"
             
             # Check if slot is free in timetable
             if timetable[day][time_str] != 'Free':
                 continue
             
-            # Check classroom conflict (different courses can use different rooms at same time)
-            conflict = False
-            if day in used_slots and time_str in used_slots[day]:
-                for existing_slot in used_slots[day][time_str].values():
-                    if existing_slot.get('room') == classroom:
-                        conflict = True
-                        break
+            # For common courses, dynamically find large classroom
+            actual_classroom = classroom
+            if is_common and classroom is None:
+                actual_classroom = find_available_large_classroom(day, time_str, global_classroom_usage)
+                if actual_classroom is None:
+                    continue  # No large classroom available
             
-            if conflict:
+            # Check classroom conflicts (local + global)
+            if has_classroom_conflict(day, time_str, actual_classroom, used_slots, global_classroom_usage):
                 continue
             
-            # Create label based on course type
+            # Schedule the session in regular slot
+            label = create_session_label(course_code, session_type, section, is_common, is_elective, basket)
+            
             if is_elective and basket:
-                # For electives, show basket name without classroom in timetable
-                # Classroom info will be shown in the electives detail section below
-                label = f"Elective ({basket})"
                 timetable[day][time_str] = label  # No classroom for electives in grid
-            elif is_common:
-                label = f"{course_code} (Common)"
-                timetable[day][time_str] = f"{label} | {classroom}"
             else:
-                if session_type == 'Tutorial':
-                    label = f"{course_code}-T-{section}"
-                else:
-                    label = f"{course_code}-{section}"
-                timetable[day][time_str] = f"{label} | {classroom}"
+                timetable[day][time_str] = f"{label} | {actual_classroom}"
             
-            # Mark as used (allow multiple entries for different rooms)
-            if day not in used_slots:
-                used_slots[day] = {}
-            if time_str not in used_slots[day]:
-                used_slots[day][time_str] = {}
+            # Mark slot as used locally
+            mark_slot_used(used_slots, day, time_str, course_code, actual_classroom, 
+                          session_type, duration_minutes, 90, is_elective, basket)
             
-            used_slots[day][time_str][course_code] = {
-                'room': classroom,
-                'course': course_code,
-                'type': session_type,
-                'is_elective': is_elective,
-                'basket': basket
-            }
+            # Record classroom usage globally
+            record_global_classroom_usage(global_classroom_usage, day, time_str, 
+                                         actual_classroom, department, semester, section, course_code)
             
-            # Update session-specific schedule
+            # Update session count
             session_schedule[course_code][day] += 1
             
             return True
     
+    # ========================================================================
+    # STAGE 2: Try AFTERNOON FLEXIBLE slots (14:30-18:30)
+    # ========================================================================
+    # These are 2-hour slots that can fit lectures (90min) or tutorials (60min)
+    # Show duration info: [90min] or [60min]
+    
+    for day in day_priority:
+        if session_schedule[course_code][day] >= max_per_day:
+            continue
+        
+        if session_type == 'Lecture' and tutorial_schedule[course_code][day] > 0:
+            continue
+        elif session_type == 'Tutorial' and lecture_schedule[course_code][day] > 0:
+            continue
+        
+        # Try each afternoon flexible slot
+        for time_slot in AFTERNOON_FLEX_SLOTS:
+            time_str = f"{time_slot[0]}-{time_slot[1]}"
+            
+            if timetable[day][time_str] != 'Free':
+                continue
+            
+            # For common courses, dynamically find large classroom
+            actual_classroom = classroom
+            if is_common and classroom is None:
+                actual_classroom = find_available_large_classroom(day, time_str, global_classroom_usage)
+                if actual_classroom is None:
+                    continue
+            
+            # Check classroom conflicts
+            if has_classroom_conflict(day, time_str, actual_classroom, used_slots, global_classroom_usage):
+                continue
+            
+            # Schedule in afternoon flexible slot WITH duration display
+            label = create_session_label(course_code, session_type, section, is_common, is_elective, basket)
+            duration_display = f"{duration_minutes}min"
+            
+            if is_elective and basket:
+                timetable[day][time_str] = f"{label} [{duration_display}]"
+            else:
+                timetable[day][time_str] = f"{label} [{duration_display}] | {actual_classroom}"
+            
+            # Mark slot as used (120-minute slot, but actual usage is duration_minutes)
+            mark_slot_used(used_slots, day, time_str, course_code, actual_classroom,
+                          session_type, duration_minutes, 120, is_elective, basket)
+            
+            # Record global usage
+            record_global_classroom_usage(global_classroom_usage, day, time_str,
+                                         actual_classroom, department, semester, section, course_code)
+            
+            session_schedule[course_code][day] += 1
+            
+            return True
+    
+    # ========================================================================
+    # STAGE 3: Try EVENING slot (18:30-20:00) as LAST RESORT
+    # ========================================================================
+    
+    for day in day_priority:
+        if session_schedule[course_code][day] >= max_per_day:
+            continue
+        
+        if session_type == 'Lecture' and tutorial_schedule[course_code][day] > 0:
+            continue
+        elif session_type == 'Tutorial' and lecture_schedule[course_code][day] > 0:
+            continue
+        
+        # Try evening slot
+        for time_slot in EVENING_SLOT:
+            time_str = f"{time_slot[0]}-{time_slot[1]}"
+            
+            if timetable[day][time_str] != 'Free':
+                continue
+            
+            # For common courses, dynamically find large classroom
+            actual_classroom = classroom
+            if is_common and classroom is None:
+                actual_classroom = find_available_large_classroom(day, time_str, global_classroom_usage)
+                if actual_classroom is None:
+                    continue
+            
+            # Check classroom conflicts
+            if has_classroom_conflict(day, time_str, actual_classroom, used_slots, global_classroom_usage):
+                continue
+            
+            # Schedule in evening slot
+            label = create_session_label(course_code, session_type, section, is_common, is_elective, basket)
+            
+            if is_elective and basket:
+                timetable[day][time_str] = label
+            else:
+                timetable[day][time_str] = f"{label} | {actual_classroom}"
+            
+            # Mark slot as used
+            mark_slot_used(used_slots, day, time_str, course_code, actual_classroom,
+                          session_type, duration_minutes, 90, is_elective, basket)
+            
+            # Record global usage
+            record_global_classroom_usage(global_classroom_usage, day, time_str,
+                                         actual_classroom, department, semester, section, course_code)
+            
+            session_schedule[course_code][day] += 1
+            
+            return True
+    
+    # ========================================================================
+    # All stages failed - could not schedule
+    # ========================================================================
     print(f"      WARNING: Could not schedule {course_code} - {session_type}")
     return False
 
 
 def schedule_lab_session(timetable, used_slots, lecture_schedule, tutorial_schedule,
                          lab_schedule, lab_usage, course_code, course_title, classroom,
-                         section, is_common, is_elective, basket):
-    """Schedule a 2-hour lab session - uses exactly 2 hours (not 3)"""
+                         section, is_common, is_elective, basket,
+                         global_classroom_usage, department, semester):
+    """
+    Schedule a 2-hour lab session in dedicated afternoon flexible slots.
+    CRITICAL: Must match main.py's _schedule_lab_session() exactly!
     
-    # Note: Current slots are 1.5 hours each. For a 2-hour lab:
-    # Option 1: Use 2 consecutive 1.5hr slots (= 3 hrs) - NOT IDEAL
-    # Option 2: Create special 2-hour blocks - BETTER but requires rework
-    # For now, using 2 consecutive slots but marking as "2-hour lab"
-    # TODO: Implement proper 2-hour time blocks in future
+    Labs are 2 hours and use the AFTERNOON_FLEX_SLOTS (14:30-16:30, 16:30-18:30).
+    Each afternoon slot is 2 hours, perfect for labs.
     
-    # Find consecutive slots (excluding lunch)
-    available_slots = [slot for slot in TIME_SLOTS if slot != LUNCH_SLOT]
+    Args:
+        (same as schedule_session plus global_classroom_usage, department, semester)
+        
+    Returns:
+        True if lab scheduled successfully, False otherwise
+    """
     
     # Get day priority order (prioritize underutilized days like Friday)
     day_priority = get_day_priority_order(timetable)
@@ -296,73 +570,75 @@ def schedule_lab_session(timetable, used_slots, lecture_schedule, tutorial_sched
         if lab_schedule[course_code][day] >= MAX_LABS_PER_DAY:
             continue
         
-        # Try consecutive slots for 2-hour lab
-        for i in range(len(available_slots) - 1):
-            slot1 = available_slots[i]
-            slot2 = available_slots[i + 1]
+        # Try afternoon flexible slots (2-hour blocks - perfect for labs!)
+        for time_slot in AFTERNOON_FLEX_SLOTS:
+            time_str = f"{time_slot[0]}-{time_slot[1]}"
             
-            time_str1 = f"{slot1[0]}-{slot1[1]}"
-            time_str2 = f"{slot2[0]}-{slot2[1]}"
-            
-            # Check both slots are free
-            if (timetable[day][time_str1] != 'Free' or 
-                timetable[day][time_str2] != 'Free'):
+            # Check if slot is free
+            if timetable[day][time_str] != 'Free':
                 continue
             
-            # Find an available lab room for both slots
-            used_labs_1 = lab_usage[day].get(time_str1, [])
-            used_labs_2 = lab_usage[day].get(time_str2, [])
-            
+            # Find an available lab room
+            used_labs = lab_usage[day].get(time_str, [])
             available_lab = None
-            for lab in LAB_ROOMS:
-                if lab not in used_labs_1 and lab not in used_labs_2:
-                    available_lab = lab
-                    break
             
-            if available_lab:
-                # Create label for lab session
-                if is_elective and basket:
-                    label = f"Elective Lab ({basket})"
-                elif is_common:
-                    label = f"{course_code}-Lab (Common)"
-                else:
-                    label = f"{course_code}-Lab-{section}"
-                
-                # Schedule both slots with lab room
-                timetable[day][time_str1] = f"{label} | {available_lab}"
-                timetable[day][time_str2] = f"{label} (cont.) | {available_lab}"
-                
-                # Mark lab as used
-                lab_usage[day][time_str1].append(available_lab)
-                lab_usage[day][time_str2].append(available_lab)
-                
-                # Mark in used_slots (allow multiple entries for different labs)
-                if day not in used_slots:
-                    used_slots[day] = {}
-                if time_str1 not in used_slots[day]:
-                    used_slots[day][time_str1] = {}
-                if time_str2 not in used_slots[day]:
-                    used_slots[day][time_str2] = {}
-                
-                used_slots[day][time_str1][course_code] = {
-                    'room': available_lab,
-                    'course': course_code,
-                    'type': 'Lab',
-                    'is_elective': is_elective,
-                    'basket': basket
-                }
-                used_slots[day][time_str2][course_code] = {
-                    'room': available_lab,
-                    'course': course_code,
-                    'type': 'Lab',
-                    'is_elective': is_elective,
-                    'basket': basket
-                }
-                
-                # Update lab schedule (counts as 1 lab session even though it uses 2 slots)
-                lab_schedule[course_code][day] += 1
-                
-                return True
+            for lab in LAB_ROOMS:
+                if lab not in used_labs:
+                    # Check GLOBAL usage to prevent double-booking
+                    global_conflict = False
+                    if day in global_classroom_usage and time_str in global_classroom_usage[day]:
+                        if lab in global_classroom_usage[day][time_str]:
+                            global_conflict = True
+                    
+                    if not global_conflict:
+                        available_lab = lab
+                        break
+            
+            if not available_lab:
+                continue
+            
+            # Create label for lab session
+            if is_elective and basket:
+                label = f"Elective Lab ({basket})"
+            elif is_common:
+                label = f"{course_code}-Lab (Common)"
+            else:
+                label = f"{course_code}-Lab-{section}"
+            
+            # Schedule the lab (full 2 hours) with [120min] duration label
+            timetable[day][time_str] = f"{label} [120min] | {available_lab}"
+            
+            # Mark lab as used
+            if time_str not in lab_usage[day]:
+                lab_usage[day][time_str] = []
+            lab_usage[day][time_str].append(available_lab)
+            
+            # Mark in used_slots with duration info
+            if day not in used_slots:
+                used_slots[day] = {}
+            if time_str not in used_slots[day]:
+                used_slots[day][time_str] = {}
+            
+            used_slots[day][time_str][course_code] = {
+                'room': available_lab,
+                'course': course_code,
+                'type': 'Lab',
+                'duration_minutes': 120,  # Full 2 hours
+                'slot_capacity_minutes': 120,  # Afternoon slots are 2 hours
+                'is_elective': is_elective,
+                'basket': basket
+            }
+            
+            # Record GLOBAL classroom usage to prevent double-booking across semesters
+            record_global_classroom_usage(
+                global_classroom_usage, day, time_str, available_lab,
+                department, semester, section, course_code
+            )
+            
+            # Update lab schedule
+            lab_schedule[course_code][day] += 1
+            
+            return True
     
     print(f"      WARNING: Could not schedule lab for {course_code}")
     return False
@@ -370,8 +646,9 @@ def schedule_lab_session(timetable, used_slots, lecture_schedule, tutorial_sched
 
 def schedule_courses(courses_df, timetable, used_slots,
                      lecture_schedule, tutorial_schedule, lab_schedule,
-                     lab_usage, section, semester, is_common, elective_courses, unscheduled_courses):
-    """Schedule courses into timetable"""
+                     lab_usage, section, semester, is_common, elective_courses, unscheduled_courses,
+                     global_classroom_usage, department):
+    """Schedule courses into timetable (with global classroom tracking)"""
     
     # Track which baskets we've already scheduled
     scheduled_baskets = set()
@@ -405,9 +682,9 @@ def schedule_courses(courses_df, timetable, used_slots,
             scheduled_baskets.add(basket)
             course_code = f"ELECTIVE_{basket}"  # Use basket as unique identifier
         
-        # Use large auditorium for common courses
+        # For common courses, classroom will be dynamically assigned (pass None)
         if is_common:
-            classroom = LARGE_AUDITORIUM
+            classroom = None  # Will be dynamically found by find_available_large_classroom()
         
         lectures, tutorials, practicals = parse_ltpsc(course)
         
@@ -435,7 +712,8 @@ def schedule_courses(courses_df, timetable, used_slots,
             success = schedule_session(
                 timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                 lab_usage, course_code, course_title, classroom,
-                'Lecture', section, is_common, is_elective, basket
+                'Lecture', section, is_common, is_elective, basket,
+                global_classroom_usage, department, semester
             )
             if not success:
                 unscheduled_courses.append(f"{course_code} - Lecture {lec_num+1}")
@@ -445,7 +723,8 @@ def schedule_courses(courses_df, timetable, used_slots,
             success = schedule_session(
                 timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                 lab_usage, course_code, course_title, classroom,
-                'Tutorial', section, is_common, is_elective, basket, duration_hours=1
+                'Tutorial', section, is_common, is_elective, basket,
+                global_classroom_usage, department, semester, duration_hours=1
             )
             if not success:
                 unscheduled_courses.append(f"{course_code} - Tutorial {tut_num+1}")
@@ -457,7 +736,8 @@ def schedule_courses(courses_df, timetable, used_slots,
             success = schedule_lab_session(
                 timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                 lab_usage, course_code, course_title, classroom,
-                section, is_common, is_elective, basket
+                section, is_common, is_elective, basket,
+                global_classroom_usage, department, semester
             )
             if not success:
                 unscheduled_courses.append(f"{course_code} - Lab {prac_num+1}")
@@ -468,13 +748,16 @@ def schedule_courses(courses_df, timetable, used_slots,
 # ============================================================================
 
 def generate_timetable(department, semester, section='A', csv_folder='input_files/sdtt_inputs'):
-    """Generate timetable for a specific department, semester, and section"""
+    """
+    Generate timetable for a specific department, semester, and section.
+    Uses GLOBAL_CLASSROOM_USAGE to prevent double-booking across all timetables.
+    """
     print(f"\n{'='*80}")
     print(f"Generating Timetable: {department} - Semester {semester} - Section {section}")
     print(f"{'='*80}")
     
     # Dynamic Saturday scheduling for ECE Semester 4 (high course load)
-    global DAYS
+    global DAYS, GLOBAL_CLASSROOM_USAGE
     if department == 'ECE' and semester == 4:
         DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         print(">> Saturday classes enabled for ECE Semester 4 (high load optimization)")
@@ -517,15 +800,17 @@ def generate_timetable(department, semester, section='A', csv_folder='input_file
     print(f"   Common courses: {len(common_courses)}")
     print(f"   Section-specific courses: {len(section_courses)}")
     
-    # Schedule common courses first
+    # Schedule common courses first (pass global_classroom_usage)
     schedule_courses(common_courses, timetable, used_slots, 
                     lecture_schedule, tutorial_schedule, lab_schedule,
-                    lab_usage, section, semester, True, elective_courses, unscheduled_courses)
+                    lab_usage, section, semester, True, elective_courses, unscheduled_courses,
+                    GLOBAL_CLASSROOM_USAGE, department)
     
-    # Schedule section-specific courses
+    # Schedule section-specific courses (pass global_classroom_usage)
     schedule_courses(section_courses, timetable, used_slots,
                     lecture_schedule, tutorial_schedule, lab_schedule,
-                    lab_usage, section, semester, False, elective_courses, unscheduled_courses)
+                    lab_usage, section, semester, False, elective_courses, unscheduled_courses,
+                    GLOBAL_CLASSROOM_USAGE, department)
     
     # Report unscheduled courses
     if unscheduled_courses:
@@ -596,6 +881,8 @@ def print_timetable(timetable):
 
 def main():
     """Main function to generate all timetables"""
+    global GLOBAL_CLASSROOM_USAGE
+    
     departments = ['CSE', 'DSAI', 'ECE']
     semesters = [2, 4, 6]
     sections = ['A', 'B']
@@ -604,6 +891,9 @@ def main():
     print("="*80)
     print("Generating timetables from CSV files...")
     print("="*80)
+    
+    # Reset global classroom usage at the start
+    GLOBAL_CLASSROOM_USAGE = {}
     
     for dept in departments:
         for sem in semesters:
