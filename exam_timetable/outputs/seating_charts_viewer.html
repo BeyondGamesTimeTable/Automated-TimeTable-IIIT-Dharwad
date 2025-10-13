@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Seating Charts - IIIT Dharwad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            color: #64748b;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-bottom: 30px;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .session-group {
+            margin-bottom: 50px;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .session-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .session-header h2 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .session-header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .session-header.forenoon {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        }
+        
+        .session-header.afternoon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .chart-classroom {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .chart-courses {
+            font-size: 0.95em;
+            color: #64748b;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .chart-students {
+            font-size: 0.9em;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .stats {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1em;
+            color: #64748b;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .navigation {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .nav-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .nav-button:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-button.exam {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #c44569 100%);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.35);
+        }
+        
+        .nav-button.exam:hover {
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.5);
+        }
+        
+        .nav-button.home {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);
+        }
+        
+        .nav-button.home:hover {
+            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🪑 Exam Seating Arrangements</h1>
+            <p>View all seating charts organized by date and session</p>
+        </div>
+        
+        <div class="navigation">
+            <a href="../../index.html" class="nav-button home">🏠 Main Menu</a>
+            <a href="exam_timetable.html" class="nav-button exam">📋 Exam Schedule</a>
+            <a href="exam_schedule.csv" class="nav-button" download>📊 Download CSV</a>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">324</div>
+                <div class="stat-label">Seating Charts</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">18</div>
+                <div class="stat-label">Classrooms</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">18</div>
+                <div class="stat-label">Exam Sessions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">8880</div>
+                <div class="stat-label">Total Seats</div>
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 15/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/15_04_2025_AN_C101_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C102_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C104_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C201_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C202_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C203_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C204_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C205_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C302_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C303_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C304_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C305_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C402_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C403_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C404_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C405_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C406_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_AN_C407_CS162 + CS302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS162 + CS302</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 15/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/15_04_2025_FN_C101_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C102_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C104_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C201_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C202_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C203_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C204_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C205_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C302_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C303_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C304_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C305_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C402_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C403_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C404_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C405_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C406_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/15_04_2025_FN_C407_CS163 + CS301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS163 + CS301</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 16/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/16_04_2025_AN_C101_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C102_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C104_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C201_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C202_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C203_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C204_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C205_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C302_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C303_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C304_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C305_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C402_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C403_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C404_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C405_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C406_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_AN_C407_MA163 + CS495.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">MA163 + CS495</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 16/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/16_04_2025_FN_C101_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C102_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C104_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C201_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C202_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C203_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C204_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C205_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C302_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C303_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C304_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C305_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C402_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C403_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C404_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C405_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C406_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/16_04_2025_FN_C407_CS161 + CS310.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS161 + CS310</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 17/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/17_04_2025_AN_C101_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C102_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C104_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C201_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C202_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C203_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C204_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C205_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C302_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C303_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C304_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C305_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C402_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C403_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C404_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C405_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C406_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_AN_C407_CS164 + CS458 + EC404.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS164 + CS458 + EC404</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 17/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/17_04_2025_FN_C101_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C102_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C104_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C201_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C202_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C203_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C204_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C205_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C302_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C303_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C304_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C305_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C402_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C403_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C404_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C405_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C406_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/17_04_2025_FN_C407_CS165 + CS455 + EC405.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS165 + CS455 + EC405</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 18/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/18_04_2025_AN_C101_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C102_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C104_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C201_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C202_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C203_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C204_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C205_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C302_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C303_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C304_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C305_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C402_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C403_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C404_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C405_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C406_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_AN_C407_CS471 + CS464 + EC402.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS471 + CS464 + EC402</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 18/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/18_04_2025_FN_C101_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C102_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C104_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C201_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C202_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C203_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C204_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C205_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C302_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C303_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C304_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C305_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C402_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C403_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C404_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C405_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C406_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 25 students</div>
+                </a>
+
+                <a href="seating_charts/18_04_2025_FN_C407_CS206 + CS462 + EC403.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS206 + CS462 + EC403</div>
+                    <div class="chart-students">👥 35 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 21/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/21_04_2025_AN_C101_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C102_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C104_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C201_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C202_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C203_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C204_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C205_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C302_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C303_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C304_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C305_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C402_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C403_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C404_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C405_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C406_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_AN_C407_CS472 + DS505 + EC361 + EC306.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS472 + DS505 + EC361 + EC306</div>
+                    <div class="chart-students">👥 33 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 21/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/21_04_2025_FN_C101_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C102_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C104_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C201_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C202_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C203_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C204_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C205_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C302_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C303_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C304_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C305_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C402_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C403_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C404_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C405_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C406_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/21_04_2025_FN_C407_CS469 + DS504 + EC310 + EC401.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">CS469 + DS504 + EC310 + EC401</div>
+                    <div class="chart-students">👥 33 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 22/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/22_04_2025_AN_C101_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C102_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C104_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C201_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C202_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C203_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C204_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C205_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C302_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C303_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C304_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C305_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C402_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C403_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C404_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C405_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C406_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_AN_C407_DS163 + DS508 + HS161 + EC304.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">DS163 + DS508 + HS161 + EC304</div>
+                    <div class="chart-students">👥 33 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 22/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/22_04_2025_FN_C101_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C102_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C104_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C201_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C202_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C203_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C204_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C205_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C302_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C303_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C304_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C305_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C402_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C403_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C404_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C405_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C406_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 31 students</div>
+                </a>
+
+                <a href="seating_charts/22_04_2025_FN_C407_DS162 + DS506 + EC363 + EC305.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">DS162 + DS506 + EC363 + EC305</div>
+                    <div class="chart-students">👥 33 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 23/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/23_04_2025_AN_C101_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C102_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C104_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C201_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C202_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C203_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C204_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C205_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C302_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C303_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C304_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C305_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C402_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C403_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C404_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C405_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C406_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_AN_C407_DS551 + DS358 + HS161 + EC302.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">DS551 + DS358 + HS161 + EC302</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 23/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/23_04_2025_FN_C101_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C102_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C104_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C201_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C202_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C203_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C204_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C205_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C302_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C303_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C304_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C305_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C402_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C403_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C404_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C405_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C406_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/23_04_2025_FN_C407_DS509 + DS357 + HS162 + EC303.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">DS509 + DS357 + HS162 + EC303</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 24/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/24_04_2025_AN_C101_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C102_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C104_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C201_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C202_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C203_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C204_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C205_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C302_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C303_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C304_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C305_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C402_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C403_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C404_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C405_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C406_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_AN_C407_DS556 + EC162 + HS205 + MA163.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">DS556 + EC162 + HS205 + MA163</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 24/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/24_04_2025_FN_C101_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C102_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C104_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C201_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C202_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C203_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C204_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C205_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C302_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C303_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C304_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C305_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C402_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C403_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C404_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C405_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C406_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+                <a href="seating_charts/24_04_2025_FN_C407_DS554 + DS359 + HS204 + EC301.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">DS554 + DS359 + HS204 + EC301</div>
+                    <div class="chart-students">👥 30 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header afternoon">
+                <h2>📅 25/04/2025</h2>
+                <p>Afternoon Session (AN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/25_04_2025_AN_C101_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C102_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C104_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C201_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C202_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C203_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C204_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C205_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C302_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C303_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C304_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C305_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C402_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C403_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C404_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C405_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C406_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_AN_C407_EC305 + EC279 + EC372.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">EC305 + EC279 + EC372</div>
+                    <div class="chart-students">👥 26 students</div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="session-group">
+            <div class="session-header forenoon">
+                <h2>📅 25/04/2025</h2>
+                <p>Forenoon Session (FN)</p>
+            </div>
+            
+            <div class="charts-grid">
+
+                <a href="seating_charts/25_04_2025_FN_C101_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C101</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C102_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C102</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C104_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C104</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C201_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C201</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C202_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C202</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C203_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C203</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C204_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C204</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C205_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C205</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C302_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C302</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C303_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C303</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C304_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C304</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C305_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C305</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C402_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C402</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C403_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C403</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C404_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C404</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C405_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C405</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C406_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C406</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 22 students</div>
+                </a>
+
+                <a href="seating_charts/25_04_2025_FN_C407_EC364 + HS808 + EC207.html" class="chart-card">
+                    <div class="chart-classroom">🏛️ C407</div>
+                    <div class="chart-courses">EC364 + HS808 + EC207</div>
+                    <div class="chart-students">👥 26 students</div>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

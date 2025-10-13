@@ -47,21 +47,103 @@
         }
         
         .back-button {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             margin: 20px;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
         
         .back-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .back-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .back-button:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.4);
+        }
+        
+        .download-section {
+            text-align: center;
+            margin: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .download-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 14px;
+        }
+        
+        .download-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .csv-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .image-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
         }
         
         .timetable-wrapper {
@@ -304,6 +386,17 @@
                 padding: 10px;
                 font-size: 0.85em;
             }
+            
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .download-btn {
+                width: 80%;
+                max-width: 300px;
+                justify-content: center;
+            }
         }
         
         /* ============================================ */
@@ -395,6 +488,51 @@
             filter: brightness(1.05);
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        function downloadAsImage() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Generating...';
+            button.disabled = true;
+            
+            // Get the timetable container
+            const timetableContainer = document.querySelector('.container');
+            
+            // Configure html2canvas options
+            const options = {
+                scale: 2, // Higher quality
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                width: timetableContainer.scrollWidth,
+                height: timetableContainer.scrollHeight,
+                scrollX: 0,
+                scrollY: 0
+            };
+            
+            html2canvas(timetableContainer, options).then(canvas => {
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'CSE_Sem4_SectionB_Timetable_timetable.png';
+                link.href = canvas.toDataURL('image/png');
+                
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }).catch(error => {
+                console.error('Error generating image:', error);
+                alert('Error generating image. Please try again.');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -404,6 +542,18 @@
         </div>
         
         <a href="index.html" class="back-button">← Back to Selection</a>
+        
+        <div class="download-section">
+            <h3>📥 Download Timetable</h3>
+            <div class="download-buttons">
+                <a href="../timetable_outputs/CSE_Sem4_SectionB_Timetable.csv" class="download-btn csv-btn" download="CSE_Sem4_SectionB_Timetable.csv">
+                    📊 Download CSV
+                </a>
+                <button class="download-btn image-btn" onclick="downloadAsImage()">
+                    🖼️ Download as Image
+                </button>
+            </div>
+        </div>
         
         <div class="legend">
             <div class="legend-item">

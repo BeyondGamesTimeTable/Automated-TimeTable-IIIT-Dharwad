@@ -1,0 +1,59 @@
+department,semester,course_code,course_name,credits,exam_type,exam_duration
+CSE,Sem2,CS163,Concurrency and Computation,4,END SEM,3_hours
+CSE,Sem2,CS162,Optimization,3,END SEM,3_hours
+CSE,Sem2,CS161,Data Structures and Algorithms,4,END SEM,3_hours
+CSE,Sem2,MA163,Foundations of Mathematics,4,END SEM,3_hours
+CSE,Sem2,CS165,Mathematical Foundations of Computing,3,END SEM,3_hours
+CSE,Sem2,CS164,Operating Systems,4,END SEM,3_hours
+CSE,Sem2,CS206,Theory of Computing,4,END SEM,3_hours
+CSE,Sem2,CS471,"Security, Governance, Risk and Policy Management",2,END SEM,3_hours
+CSE,Sem4,CS301,Software Engineering,4,END SEM,3_hours
+CSE,Sem4,CS302,Machine Learning,4,END SEM,3_hours
+CSE,Sem4,CS310,Database Management System,5,END SEM,3_hours
+CSE,Sem4,CS495,Data Processing,4,END SEM,3_hours
+CSE,Sem4,CS455,Blockchain Technology,4,END SEM,3_hours
+CSE,Sem4,CS458,Natural Language Processing,4,END SEM,3_hours
+CSE,Sem4,CS462,Computer Graphics,4,END SEM,3_hours
+CSE,Sem4,CS464,Deep Learning for Computer Vision,4,END SEM,3_hours
+CSE,Sem6,CS469,Virtualization and Cloud Computing,4,END SEM,3_hours
+CSE,Sem6,CS472,Bioinformatics,4,END SEM,3_hours
+CSE,Sem6,DS162,Computer Interface Statistical Methods,2,END SEM,3_hours
+CSE,Sem6,DS163,Data Curation Techniques,3,END SEM,3_hours
+DSAI,Sem2,DS504,Software Engineering and Services,4,END SEM,3_hours
+DSAI,Sem2,DS505,Game Business Perspectives,3,END SEM,3_hours
+DSAI,Sem2,DS506,Financial Data Analytics,4,END SEM,3_hours
+DSAI,Sem2,DS508,Data Security and Privacy,4,END SEM,3_hours
+DSAI,Sem2,DS509,Cloud Computing,4,END SEM,3_hours
+DSAI,Sem2,DS551,Statistics for Health Technology,4,END SEM,3_hours
+DSAI,Sem2,DS554,Data Analytics and Visualization,4,END SEM,3_hours
+DSAI,Sem2,DS556,Medical Image Analysis,4,END SEM,3_hours
+DSAI,Sem4,DS357,Large Language Models,4,END SEM,3_hours
+DSAI,Sem4,DS358,Deep Speech Processing,4,END SEM,3_hours
+DSAI,Sem4,DS359,Computational Internet of Things,2,END SEM,3_hours
+DSAI,Sem4,EC162,Network Analysis,3,END SEM,3_hours
+DSAI,Sem4,EC364,Analog & Digital Communication,6,END SEM,3_hours
+DSAI,Sem4,EC305,Control Systems,4,END SEM,3_hours
+DSAI,Sem4,EC372,VLSI Physical Design,4,END SEM,3_hours
+DSAI,Sem4,EC207,Wireless Communication,4,END SEM,3_hours
+DSAI,Sem6,EC310,Embedded Systems Design,4,END SEM,3_hours
+DSAI,Sem6,EC361,Introduction to 5G Networks,4,END SEM,3_hours
+DSAI,Sem6,EC363,CMOS RF Circuit Design,4,END SEM,3_hours
+DSAI,Sem6,HS161,Introduction to Personal Finance,2,END SEM,3_hours
+DSAI,Sem6,HS162,Economics,3,END SEM,3_hours
+DSAI,Sem6,HS161,English Language and Communication,3,END SEM,3_hours
+DSAI,Sem6,HS204,Economics,3,END SEM,3_hours
+DSAI,Sem6,HS205,Sociology,4,END SEM,3_hours
+ECE,Sem2,HS808,Industrial Social Psychology,3,END SEM,3_hours
+ECE,Sem2,EC279,Literature Review and Seminar,2,END SEM,3_hours
+ECE,Sem2,MA163,Linear Algebra,4,END SEM,3_hours
+ECE,Sem4,EC301,Digital Signal Processing,4,END SEM,3_hours
+ECE,Sem4,EC302,Communication Systems,4,END SEM,3_hours
+ECE,Sem4,EC303,Microprocessors and Microcontrollers,5,END SEM,3_hours
+ECE,Sem4,EC304,Electromagnetic Fields,4,END SEM,3_hours
+ECE,Sem4,EC305,Control Systems,4,END SEM,3_hours
+ECE,Sem4,EC306,VLSI Design,4,END SEM,3_hours
+ECE,Sem6,EC401,Antenna Theory and Design,4,END SEM,3_hours
+ECE,Sem6,EC402,Digital Communication,4,END SEM,3_hours
+ECE,Sem6,EC403,Embedded Systems,4,END SEM,3_hours
+ECE,Sem6,EC404,RF and Microwave Engineering,4,END SEM,3_hours
+ECE,Sem6,EC405,Image Processing,4,END SEM,3_hours

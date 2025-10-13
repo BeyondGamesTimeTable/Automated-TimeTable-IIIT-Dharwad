@@ -1,0 +1,685 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT Dharwad - Timetable System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .particle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+        }
+        
+        .particle:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            left: 70%;
+            top: 30%;
+            animation-delay: 2s;
+        }
+        
+        .particle:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            left: 50%;
+            top: 60%;
+            animation-delay: 4s;
+        }
+        
+        .particle:nth-child(4) {
+            width: 50px;
+            height: 50px;
+            left: 20%;
+            top: 70%;
+            animation-delay: 6s;
+        }
+        
+        .particle:nth-child(5) {
+            width: 70px;
+            height: 70px;
+            left: 80%;
+            top: 80%;
+            animation-delay: 8s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-50px) rotate(180deg);
+                opacity: 0.6;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero-section {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 100px rgba(102, 126, 234, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        
+        .logo-container {
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .logo {
+            font-size: 80px;
+            display: inline-block;
+            text-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            animation: rotate 4s ease-in-out infinite;
+        }
+        
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        
+        h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            animation: fadeInDown 0.8s ease 0.2s both;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .subtitle {
+            font-size: 1.4em;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 400;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+        
+        .institute-name {
+            font-size: 1.1em;
+            color: #94a3b8;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 25px;
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 3px solid transparent;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease both;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .card:nth-child(1) {
+            animation-delay: 0.8s;
+        }
+        
+        .card:nth-child(2) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .card.daily {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        }
+        
+        .card.daily:hover {
+            border-color: #0ea5e9;
+            box-shadow: 0 25px 60px rgba(14, 165, 233, 0.3);
+        }
+        
+        .card.exam {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+        
+        .card.exam:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 25px 60px rgba(245, 158, 11, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 70px;
+            margin-bottom: 25px;
+            display: inline-block;
+            transition: all 0.4s ease;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        }
+        
+        .card:hover .card-icon {
+            transform: scale(1.2) rotate(5deg);
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+        }
+        
+        .card-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .card.daily .card-title {
+            color: #0c4a6e;
+        }
+        
+        .card.exam .card-title {
+            color: #78350f;
+        }
+        
+        .card-description {
+            font-size: 1.05em;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+        
+        .card-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .card-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .card-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        }
+        
+        .card.daily .card-button {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+        
+        .card.daily .card-button:hover {
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.6);
+        }
+        
+        .card.exam .card-button {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .card.exam .card-button:hover {
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.6);
+        }
+        
+        .button-text {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .arrow {
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-button:hover .arrow {
+            transform: translateX(5px);
+        }
+        
+        /* Dropdown menu for exam card */
+        .exam-options {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(245, 158, 11, 0.3);
+            animation: slideDown 0.4s ease;
+        }
+        
+        .exam-options.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .exam-option-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .exam-option-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+        
+        .exam-option-icon {
+            font-size: 30px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .exam-option-content {
+            flex: 1;
+        }
+        
+        .exam-option-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #78350f;
+            margin-bottom: 3px;
+        }
+        
+        .exam-option-desc {
+            font-size: 0.9em;
+            color: #64748b;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            animation: fadeInUp 0.8s ease 1.2s both;
+        }
+        
+        .footer-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer p {
+            color: #64748b;
+            font-size: 1em;
+            margin: 8px 0;
+        }
+        
+        .footer .team {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        .heart {
+            color: #ef4444;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+        }
+        
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .feature-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-size: 0.95em;
+            color: #64748b;
+            font-weight: 500;
+            animation: fadeInUp 0.8s ease both;
+        }
+        
+        .feature-badge:nth-child(1) { animation-delay: 1.4s; }
+        .feature-badge:nth-child(2) { animation-delay: 1.5s; }
+        .feature-badge:nth-child(3) { animation-delay: 1.6s; }
+        
+        .feature-badge span {
+            font-size: 1.3em;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .subtitle {
+                font-size: 1.2em;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-icon {
+                font-size: 60px;
+            }
+            
+            .card-title {
+                font-size: 1.8em;
+            }
+            
+            .hero-section {
+                padding: 40px 25px;
+            }
+            
+            .features {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero-section">
+            <div class="logo-container">
+                <div class="logo">🎓</div>
+            </div>
+            
+            <h1>Timetable System</h1>
+            <p class="subtitle">Seamless Scheduling, Simplified</p>
+            <p class="institute-name">Indian Institute of Information Technology, Dharwad</p>
+            
+            <div class="cards-container">
+                <!-- Daily Timetable Card -->
+                <a href="timetable_generator/timetable_html/index.html" class="card daily">
+                    <div class="card-icon">📅</div>
+                    <h2 class="card-title">Daily Timetable</h2>
+                    <p class="card-description">
+                        Access weekly class schedules for all departments, semesters, and sections with ease
+                    </p>
+                    <div class="card-button">
+                        <span class="button-text">View Schedule</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                
+                <!-- Exam Timetable Card -->
+                <a href="exam_timetable/outputs/exam_timetable.html" class="card exam" style="text-decoration: none;">
+                    <div class="card-icon">📝</div>
+                    <h2 class="card-title">Exam Timetable</h2>
+                    <p class="card-description">
+                        View exam schedules, seating arrangements, and classroom allocations
+                    </p>
+                    <div class="card-button">
+                        <span class="button-text">View Exam Schedule</span>
+                        <span class="arrow">→</span>
+                    </div>
+                    
+                    <!-- Exam Options Dropdown -->
+                    <div class="exam-options" id="examOptions" style="display: none;">
+                        <a href="exam_timetable/outputs/exam_timetable.html" class="exam-option-item" onclick="event.stopPropagation()">
+                            <div class="exam-option-icon">📋</div>
+                            <div class="exam-option-content">
+                                <div class="exam-option-title">View Exam Timetable</div>
+                                <div class="exam-option-desc">See complete exam schedule with navigation</div>
+                            </div>
+                        </a>
+                        
+                        <a href="exam_timetable/outputs/seating_charts_viewer.html" class="exam-option-item" onclick="event.stopPropagation()">
+                            <div class="exam-option-icon">🪑</div>
+                            <div class="exam-option-content">
+                                <div class="exam-option-title">Direct to Seating Charts</div>
+                                <div class="exam-option-desc">Browse all 324 classroom seating arrangements</div>
+                            </div>
+                        </a>
+                        
+                        <a href="exam_timetable/outputs/exam_schedule.csv" class="exam-option-item" onclick="event.stopPropagation()" download>
+                            <div class="exam-option-icon">📊</div>
+                            <div class="exam-option-content">
+                                <div class="exam-option-title">Download Schedule CSV</div>
+                                <div class="exam-option-desc">Get exam schedule data file</div>
+                            </div>
+                        </a>
+                        
+                        <a href="exam_timetable/outputs/seating_summary.csv" class="exam-option-item" onclick="event.stopPropagation()" download>
+                            <div class="exam-option-icon">📄</div>
+                            <div class="exam-option-content">
+                                <div class="exam-option-title">Download Seating CSV</div>
+                                <div class="exam-option-desc">Get seating arrangement data file</div>
+                            </div>
+                        </a>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="features">
+                <div class="feature-badge">
+                    <span>⚡</span>
+                    <span>Fast & Efficient</span>
+                </div>
+                <div class="feature-badge">
+                    <span>📊</span>
+                    <span>18 Departments</span>
+                </div>
+                <div class="feature-badge">
+                    <span>✨</span>
+                    <span>Zero Conflicts</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-content">
+                <p class="team">✨ Made with <span class="heart">❤️</span> by BeyondGames Team</p>
+                <p>Automated Timetable Generation System</p>
+                <p>© 2025 IIIT Dharwad. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript no longer needed - direct links used -->
+</body>
+</html>
