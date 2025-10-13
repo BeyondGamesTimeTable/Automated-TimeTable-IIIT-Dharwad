@@ -291,9 +291,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-** Star this repository if you find it helpful!**
+**⭐ Star this repository if you find it helpful!**
 
-**Built with  by Team BeyondGames**
+**Built with ❤️ by Team BeyondGames**
 
 *Automated Academic Scheduling Made Simple*
 
