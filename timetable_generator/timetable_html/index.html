@@ -29,6 +29,36 @@
             color: white;
             padding: 40px 20px;
             margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-button::before {
+            content: "←";
+            font-size: 1.5em;
         }
         
         .header h1 {
@@ -141,12 +171,23 @@
             .departments {
                 grid-template-columns: 1fr;
             }
+            
+            .back-button {
+                position: static;
+                margin: 0 auto 20px;
+                width: fit-content;
+            }
+            
+            .header {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <a href="../../index.html" class="back-button">Back to Home</a>
             <h1>🎓 BeyondGames Timetable Viewer</h1>
             <p>Select your department, semester, and section to view timetable</p>
         </div>

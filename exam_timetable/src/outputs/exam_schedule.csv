@@ -1,0 +1,19 @@
+Date,Day,Session,Time,Course_Code,Course_Name,Department,Semester,Student_Count
+15/04/2025,Tuesday,FN,10:00 - 13:00,CS163 + CS301,Concurrency and Computation + Software Engineering,CSE,Sem2/Sem4,460
+15/04/2025,Tuesday,AN,14:00 - 17:00,CS162 + CS302,Optimization + Machine Learning,CSE,Sem2/Sem4,460
+16/04/2025,Wednesday,FN,10:00 - 13:00,CS161 + CS310,Data Structures and Algorithms + Database Management System,CSE,Sem2/Sem4,460
+16/04/2025,Wednesday,AN,14:00 - 17:00,MA163 + CS495,Foundations of Mathematics + Data Processing,CSE,Sem2/Sem4,460
+17/04/2025,Thursday,FN,10:00 - 13:00,CS165 + CS455 + EC405,Mathematical Foundations of Computing + Blockchain Technology,CSE,Sem2/Sem4,460
+17/04/2025,Thursday,AN,14:00 - 17:00,CS164 + CS458 + EC404,Operating Systems + Natural Language Processing,CSE,Sem2/Sem4,460
+18/04/2025,Friday,FN,10:00 - 13:00,CS206 + CS462 + EC403,Theory of Computing + Computer Graphics,CSE,Sem2/Sem4,460
+18/04/2025,Friday,AN,14:00 - 17:00,CS471 + CS464 + EC402,"Security, Governance, Risk and Policy Management + Deep Learning for Computer Vision",CSE,Sem2/Sem4,460
+21/04/2025,Monday,FN,10:00 - 13:00,CS469 + DS504 + EC310 + EC401,Virtualization and Cloud Computing + Software Engineering and Services + Embedded Systems Design,CSE/DSAI,Sem2/Sem6,560
+21/04/2025,Monday,AN,14:00 - 17:00,CS472 + DS505 + EC361 + EC306,Bioinformatics + Game Business Perspectives + Introduction to 5G Networks,CSE/DSAI,Sem2/Sem6,560
+22/04/2025,Tuesday,FN,10:00 - 13:00,DS162 + DS506 + EC363 + EC305,Computer Interface Statistical Methods + Financial Data Analytics + CMOS RF Circuit Design,CSE/DSAI,Sem2/Sem6,560
+22/04/2025,Tuesday,AN,14:00 - 17:00,DS163 + DS508 + HS161 + EC304,Data Curation Techniques + Data Security and Privacy + Introduction to Personal Finance,CSE/DSAI,Sem2/Sem6,560
+23/04/2025,Wednesday,FN,10:00 - 13:00,DS509 + DS357 + HS162 + EC303,Cloud Computing + Large Language Models + Economics,DSAI,Sem2/Sem4/Sem6,540
+23/04/2025,Wednesday,AN,14:00 - 17:00,DS551 + DS358 + HS161 + EC302,Statistics for Health Technology + Deep Speech Processing + English Language and Communication,DSAI,Sem2/Sem4/Sem6,540
+24/04/2025,Thursday,FN,10:00 - 13:00,DS554 + DS359 + HS204 + EC301,Data Analytics and Visualization + Computational Internet of Things + Economics,DSAI,Sem2/Sem4/Sem6,540
+24/04/2025,Thursday,AN,14:00 - 17:00,DS556 + EC162 + HS205 + MA163,Medical Image Analysis + Network Analysis + Sociology,DSAI,Sem2/Sem4/Sem6,540
+25/04/2025,Friday,FN,10:00 - 13:00,EC364 + HS808 + EC207,Analog & Digital Communication + Industrial Social Psychology,DSAI/ECE,Sem2/Sem4,400
+25/04/2025,Friday,AN,14:00 - 17:00,EC305 + EC279 + EC372,Control Systems + Literature Review and Seminar,DSAI/ECE,Sem2/Sem4,400
