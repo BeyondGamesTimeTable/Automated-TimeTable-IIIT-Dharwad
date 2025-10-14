@@ -38,9 +38,9 @@
 
 | Test Case Input | Description | Expected Outcome |
 |-----------------|-------------|------------------|
-| Generate 600 CSE students | Create CS roll numbers | Generate CS21B1001 to CS21B1600 |
-| Generate 600 DSAI students | Create DSAI roll numbers | Generate DS21B2001 to DS21B2600 |
-| Generate 600 ECE students | Create ECE roll numbers | Generate EC21B3001 to EC21B3600 |
+| Generate 600 CSE students | Create CSE roll numbers | Generate 21BCS001 to 21BCS600 |
+| Generate 600 DSAI students | Create DSAI roll numbers | Generate 21BDS001 to 21BDS600 |
+| Generate 600 ECE students | Create ECE roll numbers | Generate 21BEC001 to 21BEC600 |
 | Total student count | Count all departments | Total equals 1,800 students |
 
 ### Exam Scheduling Tests
