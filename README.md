@@ -390,7 +390,7 @@ Update classroom list in configuration for exam seating optimization.
 **GitHub**: [BeyondGamesTimeTable/Automated-TimeTable-IIIT-Dharwad](https://github.com/BeyondGamesTimeTable/Automated-TimeTable-IIIT-Dharwad)
 
 **Team**: BeyondGames  
-**Academic Year**: 2025-26
+**Academic Year**: 2024-2025
 
 ---
 

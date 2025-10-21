@@ -21,43 +21,43 @@ class TestStudentGeneration(unittest.TestCase):
     
     def test_cse_roll_numbers(self):
         """Test Case 3.1.1: Generate 600 CSE student roll numbers"""
-        # Expected format: CS21B1001 to CS21B1600
+        # Expected format: 21BCS001 to 21BCS600
         roll_numbers = []
         for i in range(1, 601):
-            roll_num = f"CS21B{1000 + i}"
+            roll_num = f"21BCS{i:03d}"
             roll_numbers.append(roll_num)
         
         self.assertEqual(len(roll_numbers), 600, "Should generate 600 CSE students")
-        self.assertEqual(roll_numbers[0], "CS21B1001", "First roll should be CS21B1001")
-        self.assertEqual(roll_numbers[-1], "CS21B1600", "Last roll should be CS21B1600")
+        self.assertEqual(roll_numbers[0], "21BCS001", "First roll should be 21BCS001")
+        self.assertEqual(roll_numbers[-1], "21BCS600", "Last roll should be 21BCS600")
         
         print("✓ Test 3.1.1 passed: CSE roll numbers generated correctly")
     
     def test_dsai_roll_numbers(self):
         """Test Case 3.1.2: Generate 600 DSAI student roll numbers"""
-        # Expected format: DS21B2001 to DS21B2600
+        # Expected format: 21BDS001 to 21BDS600
         roll_numbers = []
         for i in range(1, 601):
-            roll_num = f"DS21B{2000 + i}"
+            roll_num = f"21BDS{i:03d}"
             roll_numbers.append(roll_num)
         
         self.assertEqual(len(roll_numbers), 600, "Should generate 600 DSAI students")
-        self.assertEqual(roll_numbers[0], "DS21B2001", "First roll should be DS21B2001")
-        self.assertEqual(roll_numbers[-1], "DS21B2600", "Last roll should be DS21B2600")
+        self.assertEqual(roll_numbers[0], "21BDS001", "First roll should be 21BDS001")
+        self.assertEqual(roll_numbers[-1], "21BDS600", "Last roll should be 21BDS600")
         
         print("✓ Test 3.1.2 passed: DSAI roll numbers generated correctly")
     
     def test_ece_roll_numbers(self):
         """Test Case 3.1.3: Generate 600 ECE student roll numbers"""
-        # Expected format: EC21B3001 to EC21B3600
+        # Expected format: 21BEC001 to 21BEC600
         roll_numbers = []
         for i in range(1, 601):
-            roll_num = f"EC21B{3000 + i}"
+            roll_num = f"21BEC{i:03d}"
             roll_numbers.append(roll_num)
         
         self.assertEqual(len(roll_numbers), 600, "Should generate 600 ECE students")
-        self.assertEqual(roll_numbers[0], "EC21B3001", "First roll should be EC21B3001")
-        self.assertEqual(roll_numbers[-1], "EC21B3600", "Last roll should be EC21B3600")
+        self.assertEqual(roll_numbers[0], "21BEC001", "First roll should be 21BEC001")
+        self.assertEqual(roll_numbers[-1], "21BEC600", "Last roll should be 21BEC600")
         
         print("✓ Test 3.1.3 passed: ECE roll numbers generated correctly")
     
@@ -112,11 +112,11 @@ class TestExamScheduling(unittest.TestCase):
         """Test Case 3.2.4: Ensure no student has overlapping exams"""
         # Simulate student exam schedule
         student_schedule = {
-            'CS21B1001': ['15_04_2025_FN', '16_04_2025_AN', '17_04_2025_FN']
+            '21BCS001': ['15_04_2025_FN', '16_04_2025_AN', '17_04_2025_FN']
         }
         
         # Check for duplicate sessions
-        sessions = student_schedule['CS21B1001']
+        sessions = student_schedule['21BCS001']
         unique_sessions = set(sessions)
         
         self.assertEqual(len(sessions), len(unique_sessions), "No student should have duplicate exam sessions")
@@ -131,10 +131,10 @@ class TestSeatingArrangement(unittest.TestCase):
         """Test Case 3.3.1: Verify anti-adjacency (no same-exam students adjacent)"""
         # Simulate seating with alternating courses
         seating = [
-            ('CS21B1001', 'CS162'),
-            ('DS21B2001', 'DS163'),
-            ('CS21B1002', 'CS162'),
-            ('EC21B3001', 'EC162')
+            ('21BCS001', 'CS162'),
+            ('21BDS001', 'DS163'),
+            ('21BCS002', 'CS162'),
+            ('21BEC001', 'EC162')
         ]
         
         # Check adjacency
