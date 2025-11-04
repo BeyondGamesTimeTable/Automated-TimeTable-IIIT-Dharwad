@@ -10,6 +10,12 @@ Basket B1:
     Classroom: C004
   • CS458: Natural Language Processing
     Classroom: C303
+  • CS464: Deep Learning for Computer Vision
+    Classroom: C302
+  • DS357: Large Languange Models
+    Classroom: C004
+  • CS458: Natural Language Processing
+    Classroom: C303
 
 
 ================================================================================
@@ -18,6 +24,12 @@ AFTER MIDSEMS - These electives will be offered after mid-semester exams
 
 Basket B2 (After Midsems):
 ----------------------------------------
+  • CS455: Blockchain Technology
+    Classroom: C302
+  • EC361: Introduction to 5G Network
+    Classroom: C303
+  • ASD351: Design Thinking and Innovation
+    Classroom: C204
   • CS455: Blockchain Technology
     Classroom: C302
   • EC361: Introduction to 5G Network
@@ -33,6 +45,8 @@ Basket B2 (After Midsems):
 
 Basket Minor (After Midsems):
 ----------------------------------------
+  • DS358: Deep Speech Processing
+    Classroom: C305
   • DS358: Deep Speech Processing
     Classroom: C305
 

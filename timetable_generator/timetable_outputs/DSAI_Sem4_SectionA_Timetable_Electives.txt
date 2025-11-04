@@ -6,4 +6,6 @@ Basket Minor:
 ----------------------------------------
   • DS357: Large Languange Models
     Classroom: C004
+  • DS357: Large Languange Models
+    Classroom: C004
 

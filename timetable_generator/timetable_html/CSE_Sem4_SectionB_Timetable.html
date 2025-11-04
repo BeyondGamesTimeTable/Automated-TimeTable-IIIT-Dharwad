@@ -442,6 +442,40 @@
             width: 100%;
             gap: 6px;
         }
+        /* Cell inner wrapper for regular slots to show fractional duration */
+        .cell-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .duration-segment {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            opacity: 0.95;
+            z-index: 1;
+        }
+
+        .tutorial-seg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-left: 4px solid #047857;
+        }
+
+        .cell-text {
+            position: relative;
+            z-index: 2;
+            padding: 6px 8px;
+            font-weight: 600;
+            color: #0f172a; /* dark text over colored background */
+            text-align: center;
+        }
         
         /* Lab - Full 2 hours (100%) */
         .lab-duration {
@@ -541,7 +575,10 @@
             <div class="subtitle">Sem4 - SectionB</div>
         </div>
         
-        <a href="index.html" class="back-button">← Back to Selection</a>
+        <div style="display: flex; gap: 15px; margin: 20px; flex-wrap: wrap;">
+            <a href="index.html" class="back-button">← Back to Selection</a>
+            <a href="../../index.html" class="back-button" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);">🏠 Main Menu</a>
+        </div>
         
         <div class="download-section">
             <h3>📥 Download Timetable</h3>
@@ -593,32 +630,21 @@
 <th class="time-slot">⏰ 13:00-14:30</th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 14:30-16:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 16:30-18:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
-<th class="time-slot">⏰ 18:30-20:00</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="day-column">Monday</td>
-<td class="course-slot">CS206-B | C102</td>
+<td class="common-course">HS205 (Common) | C101</td>
 <td class="course-slot">MA202-B | C102</td>
-<td class="course-slot">CS301-B | C102</td>
+<td class="tutorial-slot"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">CS301B | C102 — Tutorial (1 hour)</div></div></td>
 <td class="lunch-break">LUNCH BREAK</td>
 <td class="afternoon-flex-slot">
     <div class="session-container">
         <div class="duration-bar-wrapper">
-            <div class="duration-bar lab-duration">
-                <div class="course-info">CS204-Lab-B  | Lab-2</div>
-                <div class="duration-tag">2 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lab-duration">
-                <div class="course-info">CS310-Lab-B  | Lab-2</div>
-                <div class="duration-tag">2 Hours</div>
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">CS310-B  | C102</div>
+                <div class="duration-tag">1.5 Hours</div>
             </div>
         </div>
     </div>
@@ -627,65 +653,8 @@
 </tr>
 <tr>
 <td class="day-column">Tuesday</td>
-<td class="course-slot">CS206-B | C102</td>
+<td class="common-course">HS205 (Common) | C101</td>
 <td class="course-slot">MA202-B | C102</td>
-<td class="tutorial-slot">CS301-T-B | C102</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">CS310-B  | C102</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="free-slot">Free</td>
-<td class="course-slot">HS205-B  | C004</td>
-</tr>
-<tr>
-<td class="day-column">Wednesday</td>
-<td class="course-slot">CS206-B | C102</td>
-<td class="tutorial-slot">MA202-T-B | C102</td>
-<td class="course-slot">CS204-B | C102</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">CS310-B  | C102</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="free-slot">Free</td>
-<td class="course-slot">HS205-B  | C004</td>
-</tr>
-<tr>
-<td class="day-column">Thursday</td>
-<td class="tutorial-slot">CS206-T-B | C102</td>
-<td class="course-slot">CS301-B | C102</td>
-<td class="course-slot">CS204-B | C102</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">CS310-B  | C102</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="free-slot">Free</td>
-<td class="course-slot">HS205-B  | C004</td>
-</tr>
-<tr>
-<td class="day-column">Friday</td>
-<td class="course-slot">MA202-B | C102</td>
-<td class="course-slot">CS301-B | C102</td>
 <td class="course-slot">CS204-B | C102</td>
 <td class="lunch-break">LUNCH BREAK</td>
 <td class="afternoon-flex-slot">
@@ -698,6 +667,50 @@
         </div>
     </div>
 </td>
+<td class="free-slot">Free</td>
+</tr>
+<tr>
+<td class="day-column">Wednesday</td>
+<td class="course-slot">CS206-B | C102</td>
+<td class="tutorial-slot"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">MA202B | C102 — Tutorial (1 hour)</div></div></td>
+<td class="course-slot">CS204-B | C102</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lab-duration">
+                <div class="course-info">CS310-Lab-B  | Lab-4</div>
+                <div class="duration-tag">2 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="free-slot">Free</td>
+</tr>
+<tr>
+<td class="day-column">Thursday</td>
+<td class="course-slot">CS206-B | C102</td>
+<td class="course-slot">CS301-B | C102</td>
+<td class="free-slot">Free</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lab-duration">
+                <div class="course-info">CS204-Lab-B  | Lab-2</div>
+                <div class="duration-tag">2 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="free-slot">Free</td>
+</tr>
+<tr>
+<td class="day-column">Friday</td>
+<td class="tutorial-slot"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">CS206B | C102 — Tutorial (1 hour)</div></div></td>
+<td class="course-slot">CS301-B | C102</td>
+<td class="course-slot">CS310-B | C102</td>
+<td class="lunch-break">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 </tr>

@@ -19,6 +19,14 @@ class TimetableGenerator:
         self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']  # Default: Monday to Friday
         # Note: Saturday is added dynamically in generate_timetable() for ECE Sem 4
         
+        # Track cross-department shared courses (DSAI + ECE)
+        # Format: {semester: {course_code: {day: ..., time: ..., classroom: ...}}}
+        self.cross_dept_shared_schedule = {}
+        
+        # Track global elective schedule - all departments/sections use same slots per basket per semester
+        # Format: {semester: {basket: [(day, time_str, duration_minutes), ...]}}
+        self.global_elective_schedule = {}
+        
         # Elective rotation strategy: Only schedule certain baskets per semester
         # Even semesters (2, 4, 6): Baskets B1, B3, E1 (+ Minor for Sem 4 only)
         # Odd semesters would get: Baskets B2, B4, E2 (if implemented)
@@ -47,13 +55,8 @@ class TimetableGenerator:
             ('16:30', '18:30'),  # 2 hours - Flexible slot 2
         ]
         
-        # Evening slot (1.5 hours) - for overflow classes
-        self.evening_slot = [
-            ('18:30', '20:00'),  # 1.5 hours - Evening slot
-        ]
-        
-        # Combined time slots for timetable display
-        self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots + self.evening_slot
+        # Combined time slots for timetable display (removed evening slot 18:30-20:00)
+        self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots
         self.large_auditorium = 'C004'  # 240-seater for common courses (primary)
         
         # Backup large classrooms for common courses when C004 is unavailable
@@ -68,6 +71,10 @@ class TimetableGenerator:
         # GLOBAL classroom tracker - shared across ALL semesters and sections
         # Format: global_classroom_usage[day][time_str][classroom] = {'dept': ..., 'semester': ..., 'section': ..., 'course': ...}
         self.global_classroom_usage = {}
+        
+        # COMMON COURSE SCHEDULE - shared within department across sections (e.g., CSE A+B together)
+        # Format: common_course_schedule[dept][semester] = {course_code: [(day, time_str, classroom, label), ...]}
+        self.common_course_schedule = {}
         
         # Strict scheduling rules: max 1 lecture/tutorial/lab per course per day
         # But allow lecture+lab or tutorial+lab on same day
@@ -91,13 +98,52 @@ class TimetableGenerator:
         """Filter courses for a specific semester"""
         return df[df['Semester'] == semester].copy()
     
+    def find_cross_dept_shared_courses(self, semester):
+        """
+        Find courses that are shared between DSAI and ECE for a given semester.
+        Returns dict of {course_code: course_details_from_either_dept}
+        """
+        dsai_df = self.load_department_data('DSAI')
+        ece_df = self.load_department_data('ECE')
+        
+        if dsai_df is None or ece_df is None:
+            return {}
+        
+        dsai_courses = self.get_courses_by_semester(dsai_df, semester)
+        ece_courses = self.get_courses_by_semester(ece_df, semester)
+        
+        if dsai_courses.empty or ece_courses.empty:
+            return {}
+        
+        # Find common course codes
+        dsai_codes = set(dsai_courses['Course Code'].str.strip())
+        ece_codes = set(ece_courses['Course Code'].str.strip())
+        
+        shared_codes = dsai_codes.intersection(ece_codes)
+        
+        # Get course details for shared courses (use DSAI version)
+        shared_courses = {}
+        for code in shared_codes:
+            course_row = dsai_courses[dsai_courses['Course Code'].str.strip() == code].iloc[0]
+            shared_courses[code] = course_row.to_dict()
+        
+        if shared_courses:
+            print(f"\n   >> Found {len(shared_courses)} shared courses between DSAI and ECE:")
+            for code in shared_courses.keys():
+                print(f"      - {code}: {shared_courses[code].get('Course Title', 'N/A')}")
+        
+        return shared_courses
+    
     def is_common_course(self, row):
         """Check if course is common across sections"""
+        import pandas as pd
         elective = str(row.get('Electives', '')).strip().upper()
-        section = str(row.get('Section', '')).strip()
+        section = row.get('Section', '')
         
         # Common if it's a foundation course (F) without specific section
-        return elective == 'F' and section == ''
+        # Section is empty if it's NaN, None, or empty string
+        section_empty = pd.isna(section) or str(section).strip() == ''
+        return elective == 'F' and section_empty
     
     def is_elective_course(self, row):
         """Check if course is an elective (Type elective)"""
@@ -109,11 +155,40 @@ class TimetableGenerator:
         return str(row.get('Basket', '')).strip()
     
     def parse_ltpsc(self, row):
-        """Parse LTPSC values"""
-        lectures = int(row.get('Lectures', 0))
-        tutorials = int(row.get('Tutorials', 0))
-        practicals = int(row.get('Practicals', 0))
-        return lectures, tutorials, practicals
+        """
+        Parse LTPSC values and convert to number of sessions per week.
+        
+        LTPSC Interpretation:
+        - L (Lectures): Total lecture HOURS per week
+          Each lecture session = 1.5 hours (90 minutes)
+          Number of lecture sessions = L / 1.5 = L * 2 / 3
+          Example: L=3 means 3 hours/week = 2 sessions of 1.5 hours each
+        
+        - T (Tutorials): Total tutorial HOURS per week
+          Each tutorial session = 1 hour (60 minutes)
+          Number of tutorial sessions = T / 1 = T
+          Example: T=1 means 1 hour/week = 1 session of 1 hour
+        
+        - P (Practicals): Total practical/lab HOURS per week
+          Each lab session = 2 hours (120 minutes)
+          Number of lab sessions = P / 2
+          Example: P=2 means 2 hours/week = 1 session of 2 hours
+        """
+        lecture_hours = int(row.get('Lectures', 0))
+        tutorial_hours = int(row.get('Tutorials', 0))
+        practical_hours = int(row.get('Practicals', 0))
+        
+        # Convert hours to number of sessions
+        # L=3 hours/week → 3/1.5 = 2 sessions of 1.5 hours each
+        num_lecture_sessions = int(lecture_hours * 2 / 3) if lecture_hours > 0 else 0
+        
+        # T=1 hour/week → 1/1 = 1 session of 1 hour
+        num_tutorial_sessions = tutorial_hours
+        
+        # P=2 hours/week → 2/2 = 1 session of 2 hours
+        num_lab_sessions = practical_hours // 2
+        
+        return num_lecture_sessions, num_tutorial_sessions, num_lab_sessions
     
     def _get_day_priority_order(self, timetable):
         """
@@ -219,29 +294,71 @@ class TimetableGenerator:
             for time_slot in self.time_slots:
                 lab_usage[day][f"{time_slot[0]}-{time_slot[1]}"] = []
         
+        # Handle cross-department shared courses for DSAI and ECE
+        if department in ['DSAI', 'ECE'] and semester in self.cross_dept_shared_schedule:
+            # Find which courses in this department's schedule are shared
+            shared_course_codes = self.find_cross_dept_shared_courses(semester).keys()
+            courses_df['Course Code Stripped'] = courses_df['Course Code'].str.strip()
+            cross_dept_courses = courses_df[courses_df['Course Code Stripped'].isin(shared_course_codes)]
+            print(f"\n   >> {len(cross_dept_courses)} cross-department shared courses found for {department}")
+        else:
+            # For CSE or when no shared courses exist, use empty DataFrame
+            cross_dept_courses = courses_df[courses_df['Course Code'] == 'NONEXISTENT']  # Empty DataFrame
+        
         # First, schedule common courses (both sections together)
         common_courses = courses_df[courses_df.apply(self.is_common_course, axis=1)]
         section_courses = courses_df[~courses_df.apply(self.is_common_course, axis=1)]
         
+        # IMPORTANT: Exclude cross-department courses from common courses to avoid double-scheduling
+        if not cross_dept_courses.empty:
+            cross_dept_course_codes = cross_dept_courses['Course Code'].str.strip().tolist()
+            common_courses = common_courses[~common_courses['Course Code'].str.strip().isin(cross_dept_course_codes)]
+        
         # Filter section-specific courses
+        # Include: courses with matching section OR courses that are electives (empty section but Type=T)
         if not section_courses.empty and 'Section' in section_courses.columns:
             section_letter = str(semester) + section
             section_courses = section_courses[
                 (section_courses['Section'].str.strip() == section_letter) |
-                (section_courses['Section'].str.strip() == '') |
-                (section_courses['Section'].isna())
+                ((section_courses['Section'].str.strip() == '') & (section_courses['Electives'].str.strip().str.upper() == 'T')) |
+                (section_courses['Section'].isna() & (section_courses['Electives'].str.strip().str.upper() == 'T'))
             ]
         
         print(f"\nTotal courses to schedule:")
-        print(f"   Common courses: {len(common_courses)}")
+        print(f"   Cross-department shared (DSAI+ECE): {len(cross_dept_courses)}")
+        print(f"   Common courses (within dept): {len(common_courses)}")
         print(f"   Section-specific courses: {len(section_courses)}")
         
-        # Schedule common courses first
-        self._schedule_courses(common_courses, timetable, used_slots, 
-                              lecture_schedule, tutorial_schedule, lab_schedule,
-                              lab_usage, section, semester, is_common=True)
+        # PRIORITY 1: Schedule cross-department shared courses (DSAI + ECE together)
+        if not cross_dept_courses.empty:
+            self._schedule_cross_dept_courses(cross_dept_courses, timetable, used_slots, 
+                                             lecture_schedule, tutorial_schedule, lab_schedule,
+                                             lab_usage, section, semester, department)
         
-        # Schedule section-specific courses
+        # PRIORITY 2: Schedule common courses (within department, both sections together)
+        # For DSAI/ECE (no sections), don't mark as "common" - they're just regular courses
+        is_truly_common = True if department not in ['DSAI', 'ECE'] else False
+        
+        if is_truly_common and not common_courses.empty:
+            # Check if common courses are already scheduled (for Section B, copy from Section A)
+            if section == 'B' and department in self.common_course_schedule and semester in self.common_course_schedule[department]:
+                # Copy Section A's common course schedule to Section B
+                print(f"   >> Reusing common course schedule from Section A (same times + classrooms)")
+                self._copy_common_course_schedule(timetable, used_slots, department, semester)
+            elif section == 'A':
+                # For Section A, schedule common courses and save the schedule
+                self._schedule_courses(common_courses, timetable, used_slots, 
+                                      lecture_schedule, tutorial_schedule, lab_schedule,
+                                      lab_usage, section, semester, is_common=True)
+                # Save the scheduled common courses for Section B to reuse
+                self._save_common_course_schedule(timetable, common_courses, department, semester)
+        else:
+            # For DSAI/ECE or non-common courses, schedule normally
+            self._schedule_courses(common_courses, timetable, used_slots, 
+                                  lecture_schedule, tutorial_schedule, lab_schedule,
+                                  lab_usage, section, semester, is_common=False)
+        
+        # PRIORITY 3: Schedule section-specific courses
         self._schedule_courses(section_courses, timetable, used_slots,
                               lecture_schedule, tutorial_schedule, lab_schedule,
                               lab_usage, section, semester, is_common=False)
@@ -269,6 +386,176 @@ class TimetableGenerator:
                 else:
                     timetable[day][time_str] = 'Free'
         return timetable
+    
+    def _schedule_cross_dept_courses(self, courses_df, timetable, used_slots,
+                                     lecture_schedule, tutorial_schedule, lab_schedule,
+                                     lab_usage, section, semester, department):
+        """
+        Schedule courses that are shared between DSAI and ECE departments.
+        These courses must be scheduled at the same time for both departments.
+        """
+        for _, course in courses_df.iterrows():
+            course_code = course['Course Code'].strip()
+            
+            # Check if this course has already been scheduled by the other department
+            if semester in self.cross_dept_shared_schedule and \
+               course_code in self.cross_dept_shared_schedule[semester]:
+                # Use ALL pre-scheduled time slots
+                scheduled_slots = self.cross_dept_shared_schedule[semester][course_code]
+                
+                print(f"   [OK] {course_code} - Using {len(scheduled_slots)} pre-scheduled slots (Shared with {'ECE' if department=='DSAI' else 'DSAI'})")
+                
+                for slot_info in scheduled_slots:
+                    day = slot_info['day']
+                    time_slot = slot_info['time_slot']
+                    classroom = slot_info['classroom']
+                    session_type = slot_info['session_type']
+                    time_str = slot_info['time_str']
+                    
+                    # Add to timetable
+                    timetable[day][time_str] = f"{course_code}\n({session_type})\n{classroom}\n[Shared: DSAI+ECE]"
+                    
+                    # Mark slot as used
+                    if day not in used_slots:
+                        used_slots[day] = {}
+                    used_slots[day][time_str] = {'room': classroom, 'course': course_code}
+                    
+                    print(f"       • {day} {time_str} ({session_type}) in {classroom}")
+                continue
+            
+            # This is the first department scheduling this course - schedule it normally
+            # but save the schedule for the other department to use
+            # Schedule with highest priority using large classrooms
+            # Create a single-row DataFrame for this course
+            single_course_df = pd.DataFrame([course])
+            self._schedule_courses(single_course_df, timetable, used_slots,
+                                 lecture_schedule, tutorial_schedule, lab_schedule,
+                                 lab_usage, section, semester, is_common=True)
+            
+            # After scheduling, save ALL schedules for the other department
+            # Find ALL slots where this course was scheduled in the timetable
+            course_slots = []
+            for day in timetable:
+                for time_str, entry in timetable[day].items():
+                    if course_code in str(entry) and entry != 'Free' and time_str != '13:00-14:30':
+                        # Parse time_str back to time_slot tuple
+                        start_time, end_time = time_str.split('-')
+                        time_slot = (start_time, end_time)
+                        
+                        # Extract classroom and session type from entry
+                        # Format is: "CS162 (Common) | C004" or "CS162-Lecture | C101"
+                        entry_str = str(entry)
+                        
+                        # Extract classroom (after the | symbol)
+                        if '|' in entry_str:
+                            classroom = entry_str.split('|')[-1].strip()
+                        else:
+                            classroom = 'C004'  # Default to large auditorium
+                        
+                        # Extract session type (from parentheses or dash)
+                        if '(Common)' in entry_str:
+                            session_type = 'Lecture'
+                        elif '-Lab' in entry_str:
+                            session_type = 'Lab'
+                        elif '-T-' in entry_str:
+                            session_type = 'Tutorial'
+                        else:
+                            session_type = 'Lecture'
+                        
+                        course_slots.append({
+                            'day': day,
+                            'time_slot': time_slot,
+                            'time_str': time_str,
+                            'classroom': classroom,
+                            'session_type': session_type
+                        })
+            
+            # Save ALL slots for other department
+            if course_slots:
+                if semester not in self.cross_dept_shared_schedule:
+                    self.cross_dept_shared_schedule[semester] = {}
+                
+                self.cross_dept_shared_schedule[semester][course_code] = course_slots
+                
+                print(f"   [OK] {course_code} - Scheduled {len(course_slots)} sessions for both DSAI and ECE")
+                for slot in course_slots:
+                    print(f"       • {slot['day']} {slot['time_str']} ({slot['session_type']}) in {slot['classroom']}")
+    
+    def _save_common_course_schedule(self, timetable, common_courses_df, department, semester):
+        """
+        Save common course schedule from Section A for Section B to reuse.
+        Ensures both sections have SAME time slots AND classrooms.
+        """
+        if department not in self.common_course_schedule:
+            self.common_course_schedule[department] = {}
+        if semester not in self.common_course_schedule[department]:
+            self.common_course_schedule[department][semester] = {}
+        
+        # Extract all common course slots from the current timetable
+        for _, course in common_courses_df.iterrows():
+            course_code = course['Course Code'].strip()
+            course_slots = []
+            
+            for day in timetable:
+                for time_str, entry in timetable[day].items():
+                    if course_code in str(entry) and entry not in ['Free', 'LUNCH BREAK']:
+                        # Parse classroom from entry
+                        entry_str = str(entry)
+                        if '|' in entry_str:
+                            classroom = entry_str.split('|')[-1].strip()
+                        else:
+                            classroom = 'C004'
+                        
+                        course_slots.append({
+                            'day': day,
+                            'time_str': time_str,
+                            'classroom': classroom,
+                            'entry': entry_str
+                        })
+            
+            if course_slots:
+                self.common_course_schedule[department][semester][course_code] = course_slots
+                print(f"   [SAVED] {course_code} - {len(course_slots)} slots saved for Section B reuse")
+    
+    def _copy_common_course_schedule(self, timetable, used_slots, department, semester):
+        """
+        Copy Section A's common course schedule to Section B.
+        Both sections will have identical time slots and classrooms.
+        """
+        if department not in self.common_course_schedule or semester not in self.common_course_schedule[department]:
+            return
+        
+        saved_schedule = self.common_course_schedule[department][semester]
+        
+        for course_code, course_slots in saved_schedule.items():
+            for slot_info in course_slots:
+                day = slot_info['day']
+                time_str = slot_info['time_str']
+                classroom = slot_info['classroom']
+                entry = slot_info['entry']
+                
+                # Copy to timetable
+                timetable[day][time_str] = entry
+                
+                # Mark slot as used
+                if day not in used_slots:
+                    used_slots[day] = {}
+                used_slots[day][time_str] = {'room': classroom, 'course': course_code}
+                
+                # Mark classroom as used globally
+                if day not in self.global_classroom_usage:
+                    self.global_classroom_usage[day] = {}
+                if time_str not in self.global_classroom_usage[day]:
+                    self.global_classroom_usage[day][time_str] = {}
+                
+                self.global_classroom_usage[day][time_str][classroom] = {
+                    'dept': department,
+                    'semester': semester,
+                    'section': 'B',
+                    'course': course_code
+                }
+            
+            print(f"   [COPIED] {course_code} - {len(course_slots)} slots copied from Section A")
     
     def _schedule_courses(self, courses_df, timetable, used_slots,
                          lecture_schedule, tutorial_schedule, lab_schedule,
@@ -315,13 +602,60 @@ class TimetableGenerator:
                     'semester': semester
                 })
                 
-                # Skip scheduling if we've already scheduled this basket
+                # Skip scheduling if we've already scheduled this basket IN THIS TIMETABLE
                 if basket in scheduled_baskets:
                     continue
                 
                 # Mark basket as scheduled and use basket name as "course code" for scheduling
                 scheduled_baskets.add(basket)
+                course_code_original = course_code  # Store original course code
                 course_code = f"ELECTIVE_{basket}"  # Use basket as unique identifier
+                
+                # CHECK GLOBAL ELECTIVE SCHEDULE: If this basket is already scheduled globally,
+                # reuse those slots for consistency across all departments/sections
+                if semester in self.global_elective_schedule and basket in self.global_elective_schedule[semester]:
+                    print(f"   [GLOBAL] Reusing existing slots for {basket} from global schedule")
+                    existing_slots = self.global_elective_schedule[semester][basket]
+                    
+                    # Place the elective in the same slots as other departments/sections
+                    for slot_info in existing_slots:
+                        day, time_str, duration_minutes, session_type, classroom_used = slot_info
+                        
+                        # Create the session label (using section since electives are per timetable)
+                        session_label = self._create_session_label(course_code, session_type, section, 
+                                                                   is_common=False, is_elective=True, basket=basket)
+                        
+                        # Add classroom to the label
+                        full_label = f"{session_label} | {classroom_used}"
+                        
+                        # Mark the slot as used in timetable
+                        if day not in timetable:
+                            timetable[day] = {}
+                        timetable[day][time_str] = full_label
+                        
+                        # Mark slot as used in the nested dict structure
+                        if day not in used_slots:
+                            used_slots[day] = {}
+                        if time_str not in used_slots[day]:
+                            used_slots[day][time_str] = {}
+                        used_slots[day][time_str][course_code] = {
+                            'room': classroom_used,
+                            'course': course_code,
+                            'type': session_type,
+                            'duration_minutes': duration_minutes,
+                            'is_elective': True,
+                            'basket': basket
+                        }
+                        
+                        # Mark classroom as used globally
+                        if day not in self.global_classroom_usage:
+                            self.global_classroom_usage[day] = {}
+                        if time_str not in self.global_classroom_usage[day]:
+                            self.global_classroom_usage[day][time_str] = {}
+                        self.global_classroom_usage[day][time_str][classroom_used] = True
+                    
+                    # Skip normal scheduling - we've already placed this elective
+                    continue
             
             # For common courses, we'll find available large classroom dynamically during scheduling
             # Don't assign C004 upfront - let the scheduler find the best available classroom
@@ -371,9 +705,8 @@ class TimetableGenerator:
                     self.unscheduled_courses.append(f"{course_code} - Tutorial {tut_num+1}")
             
             # Schedule practicals/labs (2 hours per lab session)
-            # Practicals value represents credits: 2 credits = 1 lab session (2 hours), 4 credits = 2 lab sessions
-            num_lab_sessions = practicals // 2  # Each lab session is 2 hours (2 credits)
-            for prac_num in range(num_lab_sessions):
+            # Note: 'practicals' is already converted to number of sessions in parse_ltpsc()
+            for prac_num in range(practicals):
                 success = self._schedule_lab_session(
                     timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                     lab_usage, course_code, course_title, classroom,
@@ -381,6 +714,54 @@ class TimetableGenerator:
                 )
                 if not success:
                     self.unscheduled_courses.append(f"{course_code} - Lab {prac_num+1}")
+            
+            # SAVE ELECTIVE SLOTS TO GLOBAL SCHEDULE: After scheduling all sessions for this basket,
+            # save the slots so other departments/sections can reuse them
+            if is_elective and basket:
+                # Check if this basket was NOT in the global schedule (i.e., we just scheduled it fresh)
+                if semester not in self.global_elective_schedule:
+                    self.global_elective_schedule[semester] = {}
+                
+                if basket not in self.global_elective_schedule[semester]:
+                    # Collect all slots used by this basket from the timetable
+                    basket_slots = []
+                    for day in timetable:
+                        for time_str in timetable[day]:
+                            entry = timetable[day][time_str]
+                            # Check if this slot contains this basket (format: "Elective (B3)" or "Elective (B3) [90min]")
+                            if isinstance(entry, str) and f"Elective ({basket})" in entry:
+                                # Parse the entry to extract session type and classroom
+                                # Format: "ELECTIVE_B3 [Basket B3] - <courses> [90min] | C004"
+                                # or without classroom for some entries
+                                
+                                # Determine session type from the entry
+                                if '(L)' in entry:
+                                    session_type = 'Lecture'
+                                    duration_minutes = 90
+                                elif '(T)' in entry:
+                                    session_type = 'Tutorial'
+                                    duration_minutes = 60
+                                elif '(P)' in entry:
+                                    session_type = 'Lab'
+                                    duration_minutes = 120
+                                else:
+                                    # Default to lecture if unclear
+                                    session_type = 'Lecture'
+                                    duration_minutes = 90
+                                
+                                # Extract classroom if present
+                                if '|' in entry:
+                                    classroom_used = entry.split('|')[-1].strip()
+                                else:
+                                    # No classroom specified - use a default large classroom
+                                    classroom_used = 'C004'
+                                
+                                basket_slots.append((day, time_str, duration_minutes, session_type, classroom_used))
+                    
+                    # Save to global schedule
+                    if basket_slots:
+                        self.global_elective_schedule[semester][basket] = basket_slots
+                        print(f"   [GLOBAL] Saved {len(basket_slots)} slots for {basket} to global schedule")
     
     def _schedule_session(self, timetable, used_slots, lecture_schedule, tutorial_schedule,
                          lab_schedule, lab_usage, course_code, course_title, classroom,
@@ -450,7 +831,14 @@ class TimetableGenerator:
                 
                 # Schedule in regular slot
                 label = self._create_session_label(course_code, session_type, section, is_common, is_elective, basket)
-                timetable[day][time_str] = f"{label} | {actual_classroom}" if not (is_elective and basket) else label
+                
+                # Add duration indicator for tutorials (60 min) in 90-min slots to show actual duration
+                if session_type == 'Tutorial' and duration_minutes == 60:
+                    label_with_duration = f"{label} [60min]"
+                else:
+                    label_with_duration = label
+                
+                timetable[day][time_str] = f"{label_with_duration} | {actual_classroom}" if not (is_elective and basket) else label_with_duration
                 
                 # Mark as used
                 if day not in used_slots:
@@ -529,66 +917,6 @@ class TimetableGenerator:
                     'type': session_type,
                     'duration_minutes': duration_minutes,
                     'slot_capacity_minutes': 120,  # Afternoon flex slots are 2 hours
-                    'is_elective': is_elective,
-                    'basket': basket
-                }
-                
-                # Record GLOBAL classroom usage to prevent double-booking across semesters
-                self._record_global_classroom_usage(
-                    day, time_str, actual_classroom,
-                    self.current_department, self.current_semester, self.current_section, course_code
-                )
-                
-                session_schedule[course_code][day] += 1
-                return True
-            
-            # Try evening slot as last resort (1.5 hours)
-            for time_slot in self.evening_slot:
-                time_str = f"{time_slot[0]}-{time_slot[1]}"
-                
-                # Check if slot is free
-                if timetable[day][time_str] != 'Free':
-                    continue
-                
-                # For common courses (classroom=None), find an available large classroom dynamically
-                actual_classroom = classroom
-                if is_common and classroom is None:
-                    actual_classroom = self._find_available_large_classroom(day, time_str)
-                    if actual_classroom is None:
-                        continue  # No large classroom available in this slot
-                
-                # Check classroom conflict (local within this timetable)
-                conflict = False
-                if day in used_slots and time_str in used_slots[day]:
-                    for existing_slot in used_slots[day][time_str].values():
-                        if existing_slot.get('room') == actual_classroom:
-                            conflict = True
-                            break
-                
-                # Check GLOBAL classroom conflict (across all semesters)
-                if not conflict and day in self.global_classroom_usage and time_str in self.global_classroom_usage[day]:
-                    if actual_classroom in self.global_classroom_usage[day][time_str]:
-                        conflict = True
-                
-                if conflict:
-                    continue
-                
-                # Schedule in evening slot
-                label = self._create_session_label(course_code, session_type, section, is_common, is_elective, basket)
-                timetable[day][time_str] = f"{label} [EVENING] | {actual_classroom}" if not (is_elective and basket) else f"{label} [EVENING]"
-                
-                # Mark as used
-                if day not in used_slots:
-                    used_slots[day] = {}
-                if time_str not in used_slots[day]:
-                    used_slots[day][time_str] = {}
-                
-                used_slots[day][time_str][course_code] = {
-                    'room': actual_classroom,
-                    'course': course_code,
-                    'type': session_type,
-                    'duration_minutes': duration_minutes,
-                    'slot_capacity_minutes': 90,  # Evening slots are 1.5 hours
                     'is_elective': is_elective,
                     'basket': basket
                 }
@@ -777,18 +1105,40 @@ def main():
     print("Generating timetables from CSV files...")
     print("="*80)
     
+    # PRE-STEP: Identify cross-department shared courses for DSAI and ECE
+    print("\nPhase 1: Identifying cross-department shared courses (DSAI + ECE)...")
+    print("="*80)
+    for sem in semesters:
+        shared_courses = generator.find_cross_dept_shared_courses(sem)
+        if shared_courses:
+            generator.cross_dept_shared_schedule[sem] = {}
+    
+    print("\nPhase 2: Generating individual timetables...")
+    print("="*80)
+    
     for dept in departments:
         for sem in semesters:
-            for sec in sections:
-                result = generator.generate_timetable(dept, sem, sec)
+            # DSAI and ECE don't have sections - generate only Section A
+            if dept in ['DSAI', 'ECE']:
+                result = generator.generate_timetable(dept, sem, 'A')
                 
                 if result:
                     timetable, electives, rotated_out = result
                     generator.print_timetable(timetable)
-                    filename = f"{dept}_Sem{sem}_Section{sec}_Timetable.csv"
+                    filename = f"{dept}_Sem{sem}_SectionA_Timetable.csv"
                     generator.export_to_csv(timetable, filename, electives, rotated_out)
+            else:
+                # CSE has sections A and B
+                for sec in sections:
+                    result = generator.generate_timetable(dept, sem, sec)
+                    
+                    if result:
+                        timetable, electives, rotated_out = result
+                        generator.print_timetable(timetable)
+                        filename = f"{dept}_Sem{sem}_Section{sec}_Timetable.csv"
+                        generator.export_to_csv(timetable, filename, electives, rotated_out)
     
-    print("\nAll timetables generated successfully!")
+    print("\n>> All timetables generated successfully!")
     print(f"CSV Output location: timetable_outputs/")
     print(f"HTML Output location: timetable_html/")
 

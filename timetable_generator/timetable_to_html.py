@@ -469,6 +469,40 @@ class TimetableHTMLConverter:
             width: 100%;
             gap: 6px;
         }}
+        /* Cell inner wrapper for regular slots to show fractional duration */
+        .cell-inner {{
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+
+        .duration-segment {{
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            opacity: 0.95;
+            z-index: 1;
+        }}
+
+        .tutorial-seg {{
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-left: 4px solid #047857;
+        }}
+
+        .cell-text {{
+            position: relative;
+            z-index: 2;
+            padding: 6px 8px;
+            font-weight: 600;
+            color: #0f172a; /* dark text over colored background */
+            text-align: center;
+        }}
         
         /* Lab - Full 2 hours (100%) */
         .lab-duration {{
@@ -568,7 +602,10 @@ class TimetableHTMLConverter:
             <div class="subtitle">{semester} - {section}</div>
         </div>
         
-        <a href="index.html" class="back-button">← Back to Selection</a>
+        <div style="display: flex; gap: 15px; margin: 20px; flex-wrap: wrap;">
+            <a href="index.html" class="back-button">← Back to Selection</a>
+            <a href="../../index.html" class="back-button" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);">🏠 Main Menu</a>
+        </div>
         
         <div class="download-section">
             <h3>📥 Download Timetable</h3>
@@ -624,7 +661,9 @@ class TimetableHTMLConverter:
             
             return True
         except Exception as e:
+            import traceback
             print(f"Error converting {csv_file}: {e}")
+            traceback.print_exc()
             return False
     
     def _load_electives(self, elective_file):
@@ -801,7 +840,38 @@ class TimetableHTMLConverter:
                     cell_class = self._get_cell_class(cell_value)
                     # Clean display value (remove [EVENING] label)
                     display_value = cell_value.replace('[EVENING]', '').strip()
-                    html += f'<td class="{cell_class}">{display_value}</td>\n'
+                    # For regular slots (non-flex), show tutorials with fractional colored bar
+                    # Clean display value (remove duration markers and EVENING label)
+                    display_clean = display_value.replace('[120min]', '').replace('[90min]', '').replace('[60min]', '').replace('[EVENING]', '').strip()
+
+                    # Robust tutorial detection (case-insensitive) for regular slots
+                    val_lower = cell_value.lower()
+                    is_tutorial = ('[60min]' in val_lower) or ('-t-' in val_lower) or ('tutorial' in val_lower)
+
+                    if is_tutorial:
+                        # Regular slot capacity is 90 minutes
+                        slot_capacity = 90
+                        dur = 60
+
+                        width_pct = round((dur / slot_capacity) * 100, 2)
+
+                        # Build a clean display label: show course and explicit "Tutorial (1 hour)"
+                        # Remove any bracketed duration markers and tutorial markers from the raw text
+                        cleaned = display_clean.replace('[60min]', '').replace('[90min]', '').replace('[120min]', '')
+                        cleaned = cleaned.replace('-T-', '').replace('-t-', '').replace('  ', ' ').strip()
+
+                        # If classroom info is present around a pipe '|' keep it
+                        display_label = f"{cleaned} \u2014 Tutorial (1 hour)"
+
+                        html += (
+                            f'<td class="{cell_class}">'
+                            f'<div class="cell-inner">'
+                            f'<div class="duration-segment tutorial-seg" style="width:{width_pct}%;"></div>'
+                            f'<div class="cell-text">{display_label}</div>'
+                            f'</div></td>\n'
+                        )
+                    else:
+                        html += f'<td class="{cell_class}">{display_clean}</td>\n'
             
             html += '</tr>\n'
         
@@ -1091,13 +1161,30 @@ class TimetableHTMLConverter:
                 html_content += f"""
                 <div class="semester-group">
                     <div class="semester-title">📚 {semester}</div>
-                    <div class="section-buttons">
 """
                 
-                for section_info in dept_data[dept][semester]:
-                    section = section_info['section']
+                # Check if DSAI or ECE (they don't have sections)
+                if dept in ['DSAI', 'ECE'] and len(dept_data[dept][semester]) == 1:
+                    html_content += """
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 10px; font-style: italic;">
+                        No sections • Some courses shared with """ + ('ECE' if dept == 'DSAI' else 'DSAI') + """
+                    </p>
+                    <div class="section-buttons">
+"""
+                    section_info = dept_data[dept][semester][0]
                     file = section_info['file']
                     html_content += f"""
+                        <a href="{file}" class="timetable-link">View Timetable</a>
+"""
+                else:
+                    # CSE has sections
+                    html_content += """
+                    <div class="section-buttons">
+"""
+                    for section_info in dept_data[dept][semester]:
+                        section = section_info['section']
+                        file = section_info['file']
+                        html_content += f"""
                         <a href="{file}" class="timetable-link">Section {section}</a>
 """
                 
