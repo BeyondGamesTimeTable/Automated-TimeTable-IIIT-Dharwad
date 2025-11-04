@@ -18,7 +18,7 @@ CORS(app, origins=[
 ])
 
 # Configuration
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'timetable_generator', 'input_files', 'sdtt_inputs')
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'sdtt_inputs')
 ALLOWED_EXTENSIONS = {'csv'}
 MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
 
@@ -26,7 +26,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 # Create upload folder if it doesn't exist
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    print(f"✅ Upload folder ready: {UPLOAD_FOLDER}")
+except Exception as e:
+    print(f"⚠️ Warning: Could not create upload folder: {e}")
+    # Create a temporary uploads folder as fallback
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    print(f"✅ Using fallback folder: {UPLOAD_FOLDER}")
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
