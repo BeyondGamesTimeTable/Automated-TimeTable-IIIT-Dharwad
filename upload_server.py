@@ -10,7 +10,12 @@ import os
 import json
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for cross-origin requests
+# Enable CORS for Netlify frontend
+CORS(app, origins=[
+    'https://beyondgamesclasssync.netlify.app',
+    'http://localhost:5000',
+    'http://127.0.0.1:5000'
+])
 
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'timetable_generator', 'input_files', 'sdtt_inputs')
