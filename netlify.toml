@@ -1,0 +1,14 @@
+[build]
+  # No build command needed - this is a static site
+  command = "echo 'Static site - no build needed'"
+  publish = "."
+
+[build.environment]
+  # Don't try to install Python dependencies
+  PYTHON_VERSION = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
