@@ -44,7 +44,7 @@ def serve_static(path):
 
 @app.route('/api/upload', methods=['POST'])
 def upload_files():
-    """Handle file upload"""
+    """Handle file upload - Deletes old files before uploading new ones"""
     try:
         # Check if files were sent
         if 'files[]' not in request.files:
@@ -60,6 +60,17 @@ def upload_files():
                 'success': False,
                 'error': 'No files selected'
             }), 400
+        
+        # DELETE ALL OLD CSV FILES BEFORE UPLOADING NEW ONES
+        deleted_count = 0
+        for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+            if filename.endswith('.csv'):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                try:
+                    os.remove(file_path)
+                    deleted_count += 1
+                except Exception as e:
+                    print(f"Error deleting {filename}: {e}")
         
         uploaded_files = []
         errors = []
@@ -87,8 +98,9 @@ def upload_files():
         if uploaded_files:
             return jsonify({
                 'success': True,
-                'message': f'Successfully uploaded {len(uploaded_files)} file(s)',
+                'message': f'Deleted {deleted_count} old file(s), uploaded {len(uploaded_files)} new file(s)',
                 'files': uploaded_files,
+                'deleted_count': deleted_count,
                 'errors': errors if errors else None
             }), 200
         else:
@@ -170,6 +182,54 @@ def health_check():
         'upload_folder': app.config['UPLOAD_FOLDER'],
         'folder_exists': os.path.exists(app.config['UPLOAD_FOLDER'])
     }), 200
+
+@app.route('/api/regenerate', methods=['POST'])
+def regenerate_timetables():
+    """Regenerate timetables from uploaded CSV files"""
+    try:
+        import subprocess
+        import sys
+        
+        # Path to main.py
+        main_script = os.path.join(os.path.dirname(__file__), 'timetable_generator', 'main.py')
+        
+        if not os.path.exists(main_script):
+            return jsonify({
+                'success': False,
+                'error': 'main.py not found'
+            }), 404
+        
+        # Run the timetable generation script
+        result = subprocess.run(
+            [sys.executable, main_script],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minutes timeout
+        )
+        
+        if result.returncode == 0:
+            return jsonify({
+                'success': True,
+                'message': 'Timetables regenerated successfully!',
+                'output': result.stdout
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Timetable generation failed',
+                'details': result.stderr
+            }), 500
+            
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            'success': False,
+            'error': 'Timetable generation timed out (>5 minutes)'
+        }), 500
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error regenerating timetables: {str(e)}'
+        }), 500
 
 if __name__ == '__main__':
     print("\n" + "="*80)

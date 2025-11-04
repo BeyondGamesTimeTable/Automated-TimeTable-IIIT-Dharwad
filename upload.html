@@ -545,20 +545,51 @@
                         badge.textContent = '✓ Uploaded';
                     });
                     
-                    uploadButton.innerHTML = '✓ Files Uploaded!';
-                    uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
+                    uploadButton.innerHTML = '🔄 Regenerating Timetables...';
+                    uploadButton.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
                     
-                    showAlert('success', `Successfully uploaded ${result.files.length} file(s) to server! Files saved to: ${result.files[0].path.split('sdtt_inputs')[0]}sdtt_inputs/`);
+                    const deleteMsg = result.deleted_count > 0 ? `Deleted ${result.deleted_count} old file(s). ` : '';
+                    showAlert('success', `${deleteMsg}Uploaded ${result.files.length} new file(s). Regenerating timetables...`);
                     
-                    // Reset after 3 seconds
-                    setTimeout(() => {
-                        selectedFiles = [];
-                        fileList.style.display = 'none';
-                        fileInput.value = '';
-                        uploadButton.disabled = false;
-                        uploadButton.innerHTML = '🚀 Upload Files';
-                        uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
-                    }, 3000);
+                    // AUTOMATICALLY REGENERATE TIMETABLES
+                    try {
+                        const regenResponse = await fetch('https://automated-timetable-iiit-dharwad.onrender.com/api/regenerate', {
+                            method: 'POST'
+                        });
+                        
+                        const regenResult = await regenResponse.json();
+                        
+                        if (regenResult.success) {
+                            uploadButton.innerHTML = '✓ Timetables Updated!';
+                            uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
+                            showAlert('success', '🎉 Timetables regenerated successfully! Refresh the timetable pages to see updates.');
+                            
+                            // Reset after 5 seconds
+                            setTimeout(() => {
+                                selectedFiles = [];
+                                fileList.style.display = 'none';
+                                fileInput.value = '';
+                                uploadButton.disabled = false;
+                                uploadButton.innerHTML = '🚀 Upload Files';
+                                uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
+                            }, 5000);
+                        } else {
+                            throw new Error(regenResult.error || 'Regeneration failed');
+                        }
+                    } catch (regenError) {
+                        uploadButton.innerHTML = '⚠️ Upload OK, Regen Failed';
+                        uploadButton.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
+                        showAlert('warning', `Files uploaded but timetable regeneration failed: ${regenError.message}. You may need to regenerate manually.`);
+                        
+                        setTimeout(() => {
+                            selectedFiles = [];
+                            fileList.style.display = 'none';
+                            fileInput.value = '';
+                            uploadButton.disabled = false;
+                            uploadButton.innerHTML = '🚀 Upload Files';
+                            uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
+                        }, 5000);
+                    }
                 } else {
                     throw new Error(result.error || 'Upload failed');
                 }
