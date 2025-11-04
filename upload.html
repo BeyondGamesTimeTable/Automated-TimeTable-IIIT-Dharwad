@@ -367,11 +367,17 @@
             <p>Add or update CSV files for timetable generation</p>
         </div>
         
-        <div class="alert alert-info" id="infoAlert">
-            <div class="alert-icon">ℹ️</div>
+        <div class="alert alert-success" id="serverStatus" style="display: none;">
+            <div class="alert-icon">✓</div>
             <div>
-                <strong>Note:</strong> This is a demo interface. To actually upload files to the server, you'll need backend support (Node.js/Python server).
-                For now, you can view selected files and download the template.
+                <strong>Server Connected!</strong> Upload functionality is active. Files will be saved to input_files/sdtt_inputs/
+            </div>
+        </div>
+        
+        <div class="alert alert-warning" id="serverError" style="display: none;">
+            <div class="alert-icon">⚠️</div>
+            <div>
+                <strong>Server Offline:</strong> Please start the backend server by running: <code>py upload_server.py</code>
             </div>
         </div>
         
@@ -518,34 +524,88 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
         
-        function simulateUpload() {
-            // This is a simulation - in production, you'd send files to a server
+        async function simulateUpload() {
+            // Upload files to backend server
             uploadButton.disabled = true;
-            uploadButton.innerHTML = '⏳ Processing...';
+            uploadButton.innerHTML = '⏳ Uploading...';
             
             const statusBadges = document.querySelectorAll('.status-badge');
             statusBadges.forEach(badge => {
                 badge.className = 'status-badge status-uploading';
-                badge.textContent = 'Processing...';
+                badge.textContent = 'Uploading...';
             });
             
-            setTimeout(() => {
-                statusBadges.forEach(badge => {
-                    badge.className = 'status-badge status-success';
-                    badge.textContent = '✓ Processed';
+            try {
+                // Create FormData object
+                const formData = new FormData();
+                selectedFiles.forEach(file => {
+                    formData.append('files[]', file);
                 });
                 
-                uploadButton.innerHTML = '✓ Files Processed!';
-                uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
+                // Send to backend
+                const response = await fetch('http://localhost:5000/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
                 
-                showAlert('success', `Successfully processed ${selectedFiles.length} file(s)! You can now generate timetables.`);
+                const result = await response.json();
                 
-                // Show instructions to actually use the files
-                setTimeout(() => {
-                    showAlert('info', 'To use these files: Copy them to timetable_generator/input_files/sdtt_inputs/ folder and run main.py');
-                }, 2000);
-            }, 2000);
+                if (result.success) {
+                    statusBadges.forEach(badge => {
+                        badge.className = 'status-badge status-success';
+                        badge.textContent = '✓ Uploaded';
+                    });
+                    
+                    uploadButton.innerHTML = '✓ Files Uploaded!';
+                    uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
+                    
+                    showAlert('success', `Successfully uploaded ${result.files.length} file(s) to server! Files saved to: ${result.files[0].path.split('sdtt_inputs')[0]}sdtt_inputs/`);
+                    
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        selectedFiles = [];
+                        fileList.style.display = 'none';
+                        fileInput.value = '';
+                        uploadButton.disabled = false;
+                        uploadButton.innerHTML = '🚀 Upload Files';
+                        uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
+                    }, 3000);
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                
+                statusBadges.forEach(badge => {
+                    badge.className = 'status-badge status-error';
+                    badge.textContent = '✕ Failed';
+                });
+                
+                uploadButton.disabled = false;
+                uploadButton.innerHTML = '🚀 Retry Upload';
+                
+                showAlert('error', `Upload failed: ${error.message}. Make sure the server is running (py upload_server.py)`);
+            }
         }
+        
+        // Check if server is running on page load
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    document.getElementById('serverStatus').style.display = 'flex';
+                    document.getElementById('serverError').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').style.display = 'none';
+                document.getElementById('serverError').style.display = 'flex';
+            }
+        }
+        
+        // Check server status when page loads
+        window.addEventListener('load', checkServerStatus);
         
         function showAlert(type, message) {
             const existingAlerts = document.querySelectorAll('.alert:not(#infoAlert)');
