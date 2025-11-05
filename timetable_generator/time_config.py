@@ -161,6 +161,165 @@ PRESET_CONFIGURATIONS = {
 ACTIVE_PRESET = 'standard'  # Options: 'standard', 'extended', 'compact', 'morning_heavy'
 
 # ============================================================================
+# COURSE-SPECIFIC TIME SLOT PINNING
+# ============================================================================
+"""
+Pin specific courses to specific time slots.
+This allows you to force a course to be scheduled at a particular day/time.
+
+Format:
+COURSE_TIME_PINNING = {
+    'CourseCode': {
+        'day': 'DayName',           # Monday, Tuesday, etc.
+        'slot': ('HH:MM', 'HH:MM'), # Time slot tuple
+        'type': 'Lecture' or 'Tutorial' or 'Lab',  # Session type (optional)
+        'classroom': 'RoomCode',    # Specific classroom (optional)
+    }
+}
+
+Examples below show different use cases:
+"""
+
+COURSE_TIME_PINNING = {
+    # Example 1: Pin CS165 (Common course) to Monday 8:00-9:30
+    # 'CS165': {
+    #     'day': 'Monday',
+    #     'slot': ('08:00', '09:30'),
+    #     'type': 'Lecture',
+    #     'classroom': 'C004',  # Optional: specify classroom
+    # },
+    
+    # Example 2: Pin HS205 lectures to specific slots
+    # 'HS205': {
+    #     'day': 'Tuesday',
+    #     'slot': ('09:45', '11:15'),
+    #     'type': 'Lecture',
+    # },
+    
+    # Example 3: Pin a lab to afternoon slot
+    # 'CS163': {
+    #     'day': 'Wednesday',
+    #     'slot': ('14:30', '16:30'),
+    #     'type': 'Lab',
+    #     'classroom': 'Lab-1',
+    # },
+    
+    # Example 4: Pin multiple sessions of same course (use course-type key)
+    # 'MA163-Lecture-1': {
+    #     'course_code': 'MA163',
+    #     'day': 'Monday',
+    #     'slot': ('08:00', '09:30'),
+    #     'type': 'Lecture',
+    # },
+    # 'MA163-Lecture-2': {
+    #     'course_code': 'MA163',
+    #     'day': 'Tuesday',
+    #     'slot': ('08:00', '09:30'),
+    #     'type': 'Lecture',
+    # },
+    # 'MA163-Tutorial': {
+    #     'course_code': 'MA163',
+    #     'day': 'Friday',
+    #     'slot': ('09:45', '11:15'),
+    #     'type': 'Tutorial',
+    # },
+}
+
+# ============================================================================
+# DEPARTMENT/SEMESTER SPECIFIC COURSE PINNING
+# ============================================================================
+"""
+Pin courses for specific departments and semesters.
+This is useful when you want different pinning rules for different sections.
+
+Format:
+DEPT_COURSE_PINNING = {
+    ('Department', Semester, 'Section'): {
+        'CourseCode': {...pinning config...}
+    }
+}
+"""
+
+DEPT_COURSE_PINNING = {
+    # Example: CSE Semester 2, Section A
+    # ('CSE', 2, 'A'): {
+    #     'CS165': {
+    #         'day': 'Monday',
+    #         'slot': ('08:00', '09:30'),
+    #         'type': 'Lecture',
+    #         'classroom': 'C004',
+    #     },
+    #     'MA163': {
+    #         'day': 'Tuesday',
+    #         'slot': ('09:45', '11:15'),
+    #         'type': 'Lecture',
+    #     },
+    # },
+    
+    # Example: ECE Semester 4, Section A
+    # ('ECE', 4, 'A'): {
+    #     'HS205': {
+    #         'day': 'Thursday',
+    #         'slot': ('14:30', '16:30'),
+    #         'type': 'Lecture',
+    #     },
+    # },
+}
+
+# ============================================================================
+# AVOID SPECIFIC TIME SLOTS FOR COURSES
+# ============================================================================
+"""
+Specify time slots that should be avoided for specific courses.
+This is useful when you want to ensure a course is NOT scheduled at certain times.
+
+Format:
+COURSE_AVOID_SLOTS = {
+    'CourseCode': [
+        {'day': 'DayName', 'slot': ('HH:MM', 'HH:MM')},
+        ...
+    ]
+}
+"""
+
+COURSE_AVOID_SLOTS = {
+    # Example: Don't schedule CS307 on Monday mornings
+    # 'CS307': [
+    #     {'day': 'Monday', 'slot': ('08:00', '09:30')},
+    #     {'day': 'Monday', 'slot': ('09:45', '11:15')},
+    # ],
+    
+    # Example: Avoid Friday afternoon for DS309
+    # 'DS309': [
+    #     {'day': 'Friday', 'slot': ('14:30', '16:30')},
+    #     {'day': 'Friday', 'slot': ('16:30', '18:30')},
+    # ],
+}
+
+# ============================================================================
+# PREFERRED TIME SLOTS FOR COURSE TYPES
+# ============================================================================
+"""
+Specify preferred time slots for different types of courses.
+The scheduler will try to use these slots first (but not force them).
+"""
+
+PREFERRED_SLOTS = {
+    'Lab': [
+        ('14:30', '16:30'),  # Prefer afternoon slots for labs
+        ('16:30', '18:30'),
+    ],
+    'Tutorial': [
+        ('09:45', '11:15'),  # Prefer mid-morning for tutorials
+        ('11:30', '13:00'),
+    ],
+    'Lecture': [
+        ('08:00', '09:30'),  # Prefer early morning for lectures
+        ('09:45', '11:15'),
+    ],
+}
+
+# ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================
 
@@ -247,6 +406,116 @@ def print_time_config():
     
     print("\n" + "="*80)
 
+def get_course_pinning(course_code, department=None, semester=None, section=None):
+    """
+    Get pinning configuration for a specific course.
+    
+    Args:
+        course_code: The course code to look up
+        department: Department name (optional, for dept-specific pinning)
+        semester: Semester number (optional, for dept-specific pinning)
+        section: Section name (optional, for dept-specific pinning)
+    
+    Returns:
+        dict: Pinning configuration if found, None otherwise
+    """
+    # First check department-specific pinning
+    if department and semester and section:
+        dept_key = (department, semester, section)
+        if dept_key in DEPT_COURSE_PINNING:
+            if course_code in DEPT_COURSE_PINNING[dept_key]:
+                return DEPT_COURSE_PINNING[dept_key][course_code]
+    
+    # Then check global course pinning
+    if course_code in COURSE_TIME_PINNING:
+        return COURSE_TIME_PINNING[course_code]
+    
+    # Check with course_code key in case of multi-session pinning
+    for key, config in COURSE_TIME_PINNING.items():
+        if 'course_code' in config and config['course_code'] == course_code:
+            return config
+    
+    return None
+
+def should_avoid_slot(course_code, day, slot):
+    """
+    Check if a course should avoid a specific time slot.
+    
+    Args:
+        course_code: The course code to check
+        day: Day name (e.g., 'Monday')
+        slot: Time slot tuple (e.g., ('08:00', '09:30'))
+    
+    Returns:
+        bool: True if this slot should be avoided, False otherwise
+    """
+    if course_code not in COURSE_AVOID_SLOTS:
+        return False
+    
+    avoid_list = COURSE_AVOID_SLOTS[course_code]
+    for avoid_config in avoid_list:
+        if avoid_config['day'] == day and avoid_config['slot'] == slot:
+            return True
+    
+    return False
+
+def get_preferred_slots(session_type):
+    """
+    Get preferred time slots for a specific session type.
+    
+    Args:
+        session_type: 'Lecture', 'Tutorial', or 'Lab'
+    
+    Returns:
+        list: List of preferred time slot tuples, or None if no preference
+    """
+    return PREFERRED_SLOTS.get(session_type, None)
+
+def print_course_pinning_config():
+    """Print all course pinning configurations"""
+    print("\n" + "="*80)
+    print("COURSE-SPECIFIC TIME SLOT PINNING CONFIGURATION")
+    print("="*80)
+    
+    if COURSE_TIME_PINNING:
+        print("\nGlobal Course Pinning:")
+        for course, config in COURSE_TIME_PINNING.items():
+            course_code = config.get('course_code', course)
+            day = config.get('day', 'Not specified')
+            slot = config.get('slot', ('?', '?'))
+            session_type = config.get('type', 'Any')
+            classroom = config.get('classroom', 'Any')
+            print(f"  • {course_code}: {day} {slot[0]}-{slot[1]} ({session_type}) in {classroom}")
+    else:
+        print("\n  No global course pinning configured.")
+    
+    if DEPT_COURSE_PINNING:
+        print("\nDepartment-Specific Course Pinning:")
+        for dept_key, courses in DEPT_COURSE_PINNING.items():
+            dept, sem, sec = dept_key
+            print(f"\n  {dept} Semester {sem}, Section {sec}:")
+            for course, config in courses.items():
+                day = config.get('day', 'Not specified')
+                slot = config.get('slot', ('?', '?'))
+                session_type = config.get('type', 'Any')
+                classroom = config.get('classroom', 'Any')
+                print(f"    • {course}: {day} {slot[0]}-{slot[1]} ({session_type}) in {classroom}")
+    else:
+        print("\n  No department-specific course pinning configured.")
+    
+    if COURSE_AVOID_SLOTS:
+        print("\nCourses with Avoided Time Slots:")
+        for course, avoid_list in COURSE_AVOID_SLOTS.items():
+            print(f"  • {course}:")
+            for avoid_config in avoid_list:
+                day = avoid_config['day']
+                slot = avoid_config['slot']
+                print(f"    - Avoid: {day} {slot[0]}-{slot[1]}")
+    else:
+        print("\n  No avoided time slots configured.")
+    
+    print("\n" + "="*80)
+
 # ============================================================================
 # INSTRUCTIONS FOR CUSTOMIZATION
 # ============================================================================
@@ -322,6 +591,9 @@ if __name__ == '__main__':
     
     # Print configuration
     print_time_config()
+    
+    # Print course pinning configuration
+    print_course_pinning_config()
     
     # Test all presets
     print("\n" + "="*80)
