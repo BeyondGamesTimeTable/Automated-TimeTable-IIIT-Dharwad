@@ -13,11 +13,52 @@ import os
 from datetime import datetime, timedelta
 import random
 
+# Import time configuration
+try:
+    from time_config import (
+        get_active_config, 
+        SATURDAY_ENABLED_FOR,
+        validate_time_config,
+        print_time_config
+    )
+    USE_TIME_CONFIG = True
+except ImportError:
+    print("Warning: time_config.py not found. Using default time slots.")
+    USE_TIME_CONFIG = False
+
 class TimetableGenerator:
     def __init__(self, csv_folder='input_files/sdtt_inputs'):
         self.csv_folder = csv_folder
-        self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']  # Default: Monday to Friday
-        # Note: Saturday is added dynamically in generate_timetable() for ECE Sem 4
+        
+        # Load time configuration from time_config.py
+        if USE_TIME_CONFIG:
+            config = get_active_config()
+            self.days = config['working_days']
+            self.regular_slots = config['regular_slots']
+            self.lunch_slot = config['lunch_slot']
+            self.afternoon_flex_slots = config['afternoon_slots']
+            
+            # Print loaded configuration
+            print("\n" + "="*80)
+            print("TIME CONFIGURATION LOADED FROM time_config.py")
+            print("="*80)
+            print(f"Working Days: {', '.join(self.days)}")
+            print(f"Regular Slots: {len(self.regular_slots)} slots")
+            print(f"Afternoon Slots: {len(self.afternoon_flex_slots)} slots")
+            print("="*80 + "\n")
+        else:
+            # Fallback to default configuration
+            self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+            self.regular_slots = [
+                ('08:00', '09:30'),
+                ('09:45', '11:15'),
+                ('11:30', '13:00'),
+            ]
+            self.lunch_slot = ('13:00', '14:30')
+            self.afternoon_flex_slots = [
+                ('14:30', '16:30'),
+                ('16:30', '18:30'),
+            ]
         
         # Track cross-department shared courses (DSAI + ECE)
         # Format: {semester: {course_code: {day: ..., time: ..., classroom: ...}}}
@@ -36,26 +77,7 @@ class TimetableGenerator:
             6: ['B1', 'B3', 'E1']         # Semester 6: Advanced electives
         }
         
-        # Morning/Regular time slots (1.5 hours each) for lectures and tutorials
-        self.regular_slots = [
-            ('08:00', '09:30'),  # 1.5 hours - Early morning slot
-            ('09:45', '11:15'),  # 1.5 hours
-            ('11:30', '13:00'),  # 1.5 hours
-        ]
-        
-        # Lunch break
-        self.lunch_slot = ('13:00', '14:30')
-        
-        # Afternoon 2-hour FLEXIBLE slots - can be used for:
-        # - Labs (full 2 hours)
-        # - Lectures (1.5 hours of the 2-hour slot)
-        # - Tutorials (1 hour of the 2-hour slot)
-        self.afternoon_flex_slots = [
-            ('14:30', '16:30'),  # 2 hours - Flexible slot 1
-            ('16:30', '18:30'),  # 2 hours - Flexible slot 2
-        ]
-        
-        # Combined time slots for timetable display (removed evening slot 18:30-20:00)
+        # Combined time slots for timetable display
         self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots
         self.large_auditorium = 'C004'  # 240-seater for common courses (primary)
         
@@ -248,12 +270,27 @@ class TimetableGenerator:
         print(f"Generating Timetable: {department} - Semester {semester} - Section {section}")
         print(f"{'='*80}")
         
-        # Dynamic Saturday scheduling for ECE Semester 4 (high course load)
-        if department == 'ECE' and semester == 4:
-            self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            print(">> Saturday classes enabled for ECE Semester 4 (high load optimization)")
+        # Dynamic Saturday scheduling based on configuration
+        if USE_TIME_CONFIG:
+            config = get_active_config()
+            dept_key = (department, semester)
+            if dept_key in SATURDAY_ENABLED_FOR and SATURDAY_ENABLED_FOR[dept_key]:
+                if 'Saturday' in config['working_days']:
+                    self.days = config['working_days']
+                    print(f">> Saturday classes enabled for {department} Semester {semester} (high load optimization)")
+                else:
+                    # If Saturday not in config, use Mon-Fri
+                    self.days = [day for day in config['working_days'] if day != 'Saturday']
+            else:
+                # Use configured working days without Saturday
+                self.days = [day for day in config['working_days'] if day != 'Saturday']
         else:
-            self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+            # Fallback to hardcoded behavior
+            if department == 'ECE' and semester == 4:
+                self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                print(f">> Saturday classes enabled for ECE Semester 4 (high load optimization)")
+            else:
+                self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
         
         # Store current context for global classroom tracking
         self.current_department = department
