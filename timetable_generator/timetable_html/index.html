@@ -133,6 +133,27 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         
+        .back-to-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);
+        }
+        
+        .back-to-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.5);
+        }
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
@@ -146,6 +167,8 @@
 </head>
 <body>
     <div class="container">
+        <a href="../../index.html" class="back-to-main">🏠 Back to Main Menu</a>
+        
         <div class="header">
             <h1>🎓 BeyondGames Timetable Viewer</h1>
             <p>Select your department, semester, and section to view timetable</p>
