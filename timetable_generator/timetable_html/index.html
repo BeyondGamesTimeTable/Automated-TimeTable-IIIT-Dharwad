@@ -341,23 +341,65 @@
             if (!href) return;
             e.preventDefault();
             currentHref = href;
-            frame.src = href;
-            editorPanel.style.display = 'flex';
-            status.textContent = 'Loaded: ' + href.split('/').pop();
+            
+            // Show loading state
+            status.textContent = 'Loading: ' + href.split('/').pop();
+            status.style.color = '#fbbf24'; // yellow
             editEnabled = false;
             toggleEditBtn.textContent = 'Enable Edit';
+            toggleEditBtn.disabled = true;
+            
             // reset history for new file
             historyStack = [];
             redoStack = [];
             updateHistoryButtons();
+            
+            // Load iframe
+            frame.src = href;
+            editorPanel.style.display = 'flex';
+            
+            // Wait for iframe to load
+            const loadTimeout = setTimeout(() => {
+                status.textContent = 'Load timeout - try refreshing';
+                status.style.color = '#ef4444'; // red
+            }, 10000);
+            
+            frame.onload = () => {
+                clearTimeout(loadTimeout);
+                try {
+                    const doc = frame.contentDocument || frame.contentWindow.document;
+                    if (!doc || !doc.querySelector('table')) {
+                        status.textContent = 'Error: No table found or cross-origin blocked';
+                        status.style.color = '#ef4444';
+                        return;
+                    }
+                    status.textContent = 'Ready: ' + href.split('/').pop();
+                    status.style.color = '#10b981'; // green
+                    toggleEditBtn.disabled = false;
+                } catch (err) {
+                    console.error('Iframe load error:', err);
+                    status.textContent = 'Error: Cannot access iframe (cross-origin?)';
+                    status.style.color = '#ef4444';
+                }
+            };
+            
+            frame.onerror = () => {
+                clearTimeout(loadTimeout);
+                status.textContent = 'Failed to load timetable';
+                status.style.color = '#ef4444';
+            };
         });
     });
 
     // Close editor
     closeBtn.addEventListener('click', () => {
         frame.src = '';
+        frame.onload = null;
+        frame.onerror = null;
         editorPanel.style.display = 'none';
         status.textContent = '';
+        status.style.color = '#fff';
+        toggleEditBtn.disabled = false;
         // clear history when closing
         historyStack = [];
         redoStack = [];
@@ -366,14 +408,29 @@
 
     // Toggle edit mode
     toggleEditBtn.addEventListener('click', () => {
-        if (!frame.src) return alert('Open a timetable first');
-        editEnabled = !editEnabled;
-        toggleEditBtn.textContent = editEnabled ? 'Disable Edit' : 'Enable Edit';
-        status.textContent = editEnabled ? 'Edit mode ON' : 'Edit mode OFF';
-        // inject or remove handlers inside iframe
+        if (!frame.src) {
+            alert('Open a timetable first');
+            return;
+        }
+        
         try {
             const doc = frame.contentDocument || frame.contentWindow.document;
-            if (!doc) return;
+            if (!doc) {
+                alert('Cannot access iframe content. The page may not have loaded yet or there is a cross-origin issue.');
+                return;
+            }
+            
+            const table = doc.querySelector('table');
+            if (!table) {
+                alert('No timetable table found in the loaded page.');
+                return;
+            }
+            
+            editEnabled = !editEnabled;
+            toggleEditBtn.textContent = editEnabled ? 'Disable Edit' : 'Enable Edit';
+            status.textContent = editEnabled ? 'Edit mode ON' : 'Edit mode OFF';
+            status.style.color = editEnabled ? '#10b981' : '#fff';
+            
             if (editEnabled) {
                 enableEditing(doc);
                 // initial snapshot (only if history is empty for this session)
@@ -385,7 +442,7 @@
             }
         } catch (err) {
             console.error('Error toggling edit mode:', err);
-            alert('Unable to toggle edit mode for this timetable (cross-origin or not loaded)');
+            alert('Unable to toggle edit mode:\n' + err.message + '\n\nThis usually happens if:\n- The page is still loading\n- Cross-origin restrictions apply\n- The timetable file is missing or corrupted');
         }
     });
 
