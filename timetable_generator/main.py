@@ -68,6 +68,10 @@ class TimetableGenerator:
         # Format: {semester: {basket: [(day, time_str, duration_minutes), ...]}}
         self.global_elective_schedule = {}
         
+        # Track elective classroom assignments for summary display
+        # Format: {course_code: classroom} - tracks ACTUAL assigned classrooms per individual course
+        self.elective_classroom_assignments = {}
+        
         # Elective rotation strategy: Only schedule certain baskets per semester
         # Even semesters (2, 4, 6): Baskets B1, B3, E1 (+ Minor for Sem 4 only)
         # Odd semesters would get: Baskets B2, B4, E2 (if implemented)
@@ -247,9 +251,40 @@ class TimetableGenerator:
             'course': course_code
         }
     
-    def _find_available_large_classroom(self, day, time_str):
-        """Find an available large classroom for common courses, trying C004 first, then backups"""
-        # Try primary large auditorium first
+    def _find_available_large_classroom(self, day, time_str, is_elective=False):
+        """Find an available large classroom for common courses or electives.
+        
+        Args:
+            day: Day of the week
+            time_str: Time slot string
+            is_elective: If True, skip C004 and only use backup classrooms
+        
+        Returns:
+            Classroom name or None if no classroom available
+        """
+        # DEBUG: Print what we're doing
+        # print(f"      [DEBUG] Finding classroom for {day} {time_str}, is_elective={is_elective}")
+        
+        # For electives: NEVER use C004, only backup classrooms
+        if is_elective:
+            # Skip C004 entirely for electives
+            if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
+                # Return first backup classroom
+                result = self.backup_large_classrooms[0] if self.backup_large_classrooms else None
+                # print(f"      [DEBUG] Elective: No conflicts, using {result}")
+                return result
+            
+            # Try backup classrooms only
+            for backup_classroom in self.backup_large_classrooms:
+                if backup_classroom not in self.global_classroom_usage[day][time_str]:
+                    # print(f"      [DEBUG] Elective: Found available backup {backup_classroom}")
+                    return backup_classroom
+            
+            # All backup classrooms taken
+            # print(f"      [DEBUG] Elective: All backup classrooms taken!")
+            return None
+        
+        # For common courses: Try C004 first, then backups
         if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
             return self.large_auditorium
         
@@ -627,17 +662,20 @@ class TimetableGenerator:
                     })
                     continue
             
-            # Store elective info for later display
+            # Store elective info for later display (avoid duplicates)
             if is_elective and basket:
                 if basket not in self.elective_courses:
                     self.elective_courses[basket] = []
-                self.elective_courses[basket].append({
+                # Only add if not already present
+                course_info = {
                     'code': course_code,
                     'title': course_title,
                     'classroom': classroom,
                     'section': section,
                     'semester': semester
-                })
+                }
+                if not any(c['code'] == course_code for c in self.elective_courses[basket]):
+                    self.elective_courses[basket].append(course_info)
                 
                 # Skip scheduling if we've already scheduled this basket IN THIS TIMETABLE
                 if basket in scheduled_baskets:
@@ -658,12 +696,12 @@ class TimetableGenerator:
                     for slot_info in existing_slots:
                         day, time_str, duration_minutes, session_type, classroom_used = slot_info
                         
-                        # Create the session label (using section since electives are per timetable)
+                        # Create the session label with classroom inline (for electives)
                         session_label = self._create_session_label(course_code, session_type, section, 
-                                                                   is_common=False, is_elective=True, basket=basket)
+                                                                   is_common=False, is_elective=True, basket=basket, classroom=classroom_used)
                         
-                        # Add classroom to the label
-                        full_label = f"{session_label} | {classroom_used}"
+                        # For electives, classroom is already in label - no need for | separator
+                        full_label = session_label
                         
                         # Mark the slot as used in timetable
                         if day not in timetable:
@@ -767,9 +805,8 @@ class TimetableGenerator:
                             entry = timetable[day][time_str]
                             # Check if this slot contains this basket (format: "Elective (B3)" or "Elective (B3) [90min]")
                             if isinstance(entry, str) and f"Elective ({basket})" in entry:
-                                # Parse the entry to extract session type and classroom
-                                # Format: "ELECTIVE_B3 [Basket B3] - <courses> [90min] | C004"
-                                # or without classroom for some entries
+                                # Parse the entry to extract session type
+                                # Classroom is stored separately in self.elective_classroom_assignments
                                 
                                 # Determine session type from the entry
                                 if '(L)' in entry:
@@ -786,12 +823,15 @@ class TimetableGenerator:
                                     session_type = 'Lecture'
                                     duration_minutes = 90
                                 
-                                # Extract classroom if present
-                                if '|' in entry:
-                                    classroom_used = entry.split('|')[-1].strip()
-                                else:
-                                    # No classroom specified - use a default large classroom
-                                    classroom_used = 'C004'
+                                # Get classroom from tracking dictionary
+                                classroom_used = self.elective_classroom_assignments.get(basket, None)
+                                if not classroom_used:
+                                    # Fallback: try to extract from pipe separator (old format compatibility)
+                                    if '|' in entry:
+                                        classroom_used = entry.split('|')[-1].strip()
+                                    else:
+                                        # No classroom found - this shouldn't happen, but use None to trigger error
+                                        classroom_used = None
                                 
                                 basket_slots.append((day, time_str, duration_minutes, session_type, classroom_used))
                     
@@ -843,12 +883,20 @@ class TimetableGenerator:
                 if timetable[day][time_str] != 'Free':
                     continue
                 
-                # For common courses (classroom=None), find an available large classroom dynamically
+                # For electives: ALWAYS find dynamic classroom (ignore CSV classroom - enforce non-C004 rule)
+                # For common courses: Find classroom if not specified
+                # For regular courses: Use specified classroom
                 actual_classroom = classroom
-                if is_common and classroom is None:
-                    actual_classroom = self._find_available_large_classroom(day, time_str)
+                if is_elective and basket:
+                    # Electives must use dynamic assignment to avoid C004
+                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=True)
                     if actual_classroom is None:
-                        continue  # No large classroom available in this slot
+                        continue  # No non-C004 classroom available in this slot
+                elif classroom is None:
+                    # Common courses or other courses without pre-assigned classroom
+                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=False)
+                    if actual_classroom is None:
+                        continue  # No classroom available in this slot
                 
                 # Check classroom conflict (local within this timetable)
                 conflict = False
@@ -867,7 +915,7 @@ class TimetableGenerator:
                     continue
                 
                 # Schedule in regular slot
-                label = self._create_session_label(course_code, session_type, section, is_common, is_elective, basket)
+                label = self._create_session_label(course_code, session_type, section, is_common, is_elective, basket, actual_classroom)
                 
                 # Add duration indicator for tutorials (60 min) in 90-min slots to show actual duration
                 if session_type == 'Tutorial' and duration_minutes == 60:
@@ -875,7 +923,18 @@ class TimetableGenerator:
                 else:
                     label_with_duration = label
                 
-                timetable[day][time_str] = f"{label_with_duration} | {actual_classroom}" if not (is_elective and basket) else label_with_duration
+                # For non-electives: show classroom in time slot header (| classroom)
+                # For electives: classroom shown in summary below timetable, not in grid
+                if not (is_elective and basket):
+                    timetable[day][time_str] = f"{label_with_duration} | {actual_classroom}"
+                else:
+                    timetable[day][time_str] = label_with_duration
+                    # Track elective classroom assignment for summary display (per course, not per basket)
+                    if basket and course_code:
+                        # Use the original course code (before it was changed to ELECTIVE_basket)
+                        original_course_code = course_code.replace(f"ELECTIVE_{basket}", "").strip()
+                        # If we have the original course code in context, use it; otherwise track by basket+classroom
+                        self.elective_classroom_assignments[course_code] = actual_classroom
                 
                 # Mark as used
                 if day not in used_slots:
@@ -910,12 +969,20 @@ class TimetableGenerator:
                 if timetable[day][time_str] != 'Free':
                     continue
                 
-                # For common courses (classroom=None), find an available large classroom dynamically
+                # For electives: ALWAYS find dynamic classroom (ignore CSV classroom - enforce non-C004 rule)
+                # For common courses: Find classroom if not specified
+                # For regular courses: Use specified classroom
                 actual_classroom = classroom
-                if is_common and classroom is None:
-                    actual_classroom = self._find_available_large_classroom(day, time_str)
+                if is_elective and basket:
+                    # Electives must use dynamic assignment to avoid C004
+                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=True)
                     if actual_classroom is None:
-                        continue  # No large classroom available in this slot
+                        continue  # No non-C004 classroom available in this slot
+                elif classroom is None:
+                    # Common courses or other courses without pre-assigned classroom
+                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=False)
+                    if actual_classroom is None:
+                        continue  # No classroom available in this slot
                 
                 # Check classroom conflict (local within this timetable)
                 conflict = False
@@ -934,13 +1001,16 @@ class TimetableGenerator:
                     continue
                 
                 # Schedule in afternoon flexible slot with duration info
-                label = self._create_session_label(course_code, session_type, section, is_common, is_elective, basket)
+                label = self._create_session_label(course_code, session_type, section, is_common, is_elective, basket, actual_classroom)
                 duration_display = f"{duration_minutes}min"
                 
                 if not (is_elective and basket):
                     timetable[day][time_str] = f"{label} [{duration_display}] | {actual_classroom}"
                 else:
                     timetable[day][time_str] = f"{label} [{duration_display}]"
+                    # Track elective classroom assignment for summary display
+                    if basket and basket not in self.elective_classroom_assignments:
+                        self.elective_classroom_assignments[basket] = actual_classroom
                 
                 # Mark as used with duration info
                 if day not in used_slots:
@@ -970,9 +1040,14 @@ class TimetableGenerator:
         print(f"      WARNING: Could not schedule {course_code} - {session_type}")
         return False
     
-    def _create_session_label(self, course_code, session_type, section, is_common, is_elective, basket):
-        """Create a label for a session"""
+    def _create_session_label(self, course_code, session_type, section, is_common, is_elective, basket, classroom=None):
+        """Create a label for a session
+        
+        Args:
+            classroom: Provided but NOT used in label for electives (shown in summary instead)
+        """
         if is_elective and basket:
+            # For electives: DON'T include classroom in label (it goes in summary below timetable)
             return f"Elective ({basket})"
         elif is_common:
             return f"{course_code} (Common)"
@@ -1098,9 +1173,21 @@ class TimetableGenerator:
                 for basket, courses in sorted(electives.items()):
                     f.write(f"Basket {basket}:\n")
                     f.write("-" * 40 + "\n")
-                    for course in courses:
+                    
+                    # Assign different classrooms to each course in the basket
+                    # Since all courses in a basket run at the same time, they need different classrooms
+                    available_classrooms = self.backup_large_classrooms.copy()
+                    
+                    for idx, course in enumerate(courses):
+                        # Assign a different classroom to each course
+                        if idx < len(available_classrooms):
+                            assigned_classroom = available_classrooms[idx]
+                        else:
+                            # If we run out of classrooms, cycle through them
+                            assigned_classroom = available_classrooms[idx % len(available_classrooms)]
+                        
                         f.write(f"  • {course['code']}: {course['title']}\n")
-                        f.write(f"    Classroom: {course['classroom']}\n")
+                        f.write(f"    Classroom: {assigned_classroom}\n")
                     f.write("\n")
                 
                 # Add "After Midsems" section for rotated-out electives
@@ -1127,6 +1214,26 @@ class TimetableGenerator:
         
         df = pd.DataFrame(timetable).T
         print("\n" + str(df))
+        
+        # Print elective classroom assignments summary
+        if self.elective_courses and len(self.elective_courses) > 0:
+            print("\n" + "-"*80)
+            print("ELECTIVE CLASSROOM ASSIGNMENTS:")
+            print("-"*80)
+            
+            available_classrooms = self.backup_large_classrooms.copy()
+            
+            for basket in sorted(self.elective_courses.keys()):
+                courses = self.elective_courses[basket]
+                print(f"\n{basket}:")
+                for idx, course in enumerate(courses):
+                    # Assign different classroom to each course
+                    if idx < len(available_classrooms):
+                        assigned_classroom = available_classrooms[idx]
+                    else:
+                        assigned_classroom = available_classrooms[idx % len(available_classrooms)]
+                    print(f"   {course['code']}: {assigned_classroom}")
+        
         print("\n" + "="*80)
 
 def main():

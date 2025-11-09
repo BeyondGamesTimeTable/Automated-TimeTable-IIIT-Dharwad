@@ -363,6 +363,17 @@
             display: inline-block;
         }
         
+        .basket-classroom {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 10px 0 15px 0;
+            font-size: 1em;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }
+        
         @media print {
             body {
                 background: white;
@@ -634,27 +645,9 @@
 <tbody>
 <tr>
 <td class="day-column">Monday</td>
-<td class="common-course">Elective (Minor) | C004</td>
-<td class="course-slot">EC310-A | C101</td>
-<td class="tutorial-slot"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">EC204A | C101 — Tutorial (1 hour)</div></div></td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="common-course">Elective (Minor)</td>
 <td class="free-slot">Free</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">HS205-A  | C004</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-</tr>
-<tr>
-<td class="day-column">Tuesday</td>
-<td class="common-course">Elective (Minor) | C004</td>
 <td class="free-slot">Free</td>
-<td class="course-slot">EC310-A | C101</td>
 <td class="lunch-break">LUNCH BREAK</td>
 <td class="afternoon-flex-slot">
     <div class="session-container">
@@ -670,7 +663,25 @@
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar lecture-duration">
-                <div class="course-info">HS205-A  | C004</div>
+                <div class="course-info">EC310-A  | C101</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+</tr>
+<tr>
+<td class="day-column">Tuesday</td>
+<td class="common-course">Elective (Minor)</td>
+<td class="free-slot">Free</td>
+<td class="course-slot">HS205-A | C004</td>
+<td class="lunch-break">LUNCH BREAK</td>
+<td class="free-slot">Free</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC310-A  | C101</div>
                 <div class="duration-tag">1.5 Hours</div>
             </div>
         </div>
@@ -696,9 +707,9 @@
 <td class="afternoon-flex-slot">
     <div class="session-container">
         <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">HS204-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
+            <div class="duration-bar tutorial-duration">
+                <div class="course-info">EC204-T-A  | C101</div>
+                <div class="duration-tag">1 Hour</div>
             </div>
         </div>
     </div>
@@ -708,8 +719,18 @@
 <td class="day-column">Thursday</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
-<td class="course-slot">EC205-A | C101</td>
+<td class="course-slot">HS205-A | C004</td>
 <td class="lunch-break">LUNCH BREAK</td>
+<td class="afternoon-flex-slot">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC205-A  | C101</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
 <td class="afternoon-flex-slot">
     <div class="session-container">
         <div class="duration-bar-wrapper">
@@ -720,22 +741,12 @@
         </div>
     </div>
 </td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">HS204-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
 </tr>
 <tr>
 <td class="day-column">Friday</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
-<td class="course-slot">EC204-A | C101</td>
+<td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
 <td class="afternoon-flex-slot">
     <div class="session-container">
@@ -750,9 +761,9 @@
 <td class="afternoon-flex-slot">
     <div class="session-container">
         <div class="duration-bar-wrapper">
-            <div class="duration-bar tutorial-duration">
-                <div class="course-info">HS204-T-A  | C101</div>
-                <div class="duration-tag">1 Hour</div>
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">EC204-A  | C101</div>
+                <div class="duration-tag">1.5 Hours</div>
             </div>
         </div>
     </div>
@@ -771,8 +782,7 @@
                 <div class="basket-card">
                     <h3>Basket Minor</h3>
                     <ul class="course-list">
-                        <li><strong>DS357: Large Languange Models</strong><br><span class="classroom-info">📍 C004</span></li>
-                        <li><strong>DS357: Large Languange Models</strong><br><span class="classroom-info">📍 C004</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
+                        <li><strong>DS357: Large Languange Models</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
 
                     </ul>
                 </div>

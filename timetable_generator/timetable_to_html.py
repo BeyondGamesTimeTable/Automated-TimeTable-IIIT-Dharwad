@@ -390,6 +390,17 @@ class TimetableHTMLConverter:
             display: inline-block;
         }}
         
+        .basket-classroom {{
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 10px 0 15px 0;
+            font-size: 1em;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }}
+        
         @media print {{
             body {{
                 background: white;
@@ -695,51 +706,34 @@ class TimetableHTMLConverter:
                     <ul class="course-list">
 """
                 
-                # First pass: collect all courses with their classrooms
-                courses = []
-                i = 2  # Skip basket name and separator
+                # Parse courses with their classrooms
+                # Format is:
+                #   • COURSE_CODE: Course Title
+                #     Classroom: C101
+                i = 2  # Skip basket name and separator line
                 while i < len(lines):
                     line = lines[i].strip()
-                    if line.startswith('•'):
-                        course_info = line.replace('•', '').strip()
+                    
+                    # Check if this is a course line (starts with bullet)
+                    if line.startswith('•') or line.startswith('â€¢'):
+                        course_info = line.replace('•', '').replace('â€¢', '').strip()
+                        
+                        # Check if next line has classroom info
                         classroom = None
-                        # Check if next line has classroom
-                        if i + 1 < len(lines) and 'Classroom:' in lines[i + 1]:
-                            classroom = lines[i + 1].split('Classroom:')[1].strip()
-                            i += 1
-                        courses.append({'info': course_info, 'classroom': classroom})
-                    i += 1
-                
-                # Second pass: detect duplicates and mark alternates as "After Midsems"
-                classroom_count = {}
-                for course in courses:
-                    if course['classroom'] and course['classroom'] not in ['nan', '-', '']:
-                        classroom_count[course['classroom']] = classroom_count.get(course['classroom'], 0) + 1
-                
-                classroom_seen = {}
-                
-                # Third pass: render courses with "After Midsems" label for duplicates
-                for course in courses:
-                    html += f'                        <li><strong>{course["info"]}</strong>'
-                    
-                    if course['classroom']:
-                        # Check if this classroom has duplicates in the same basket
-                        classroom = course['classroom']
-                        if classroom not in ['nan', '-', ''] and classroom_count.get(classroom, 0) > 1:
-                            # This classroom is shared by multiple courses in same basket
-                            if classroom in classroom_seen:
-                                # This is the 2nd+ occurrence - mark as "After Midsems"
-                                html += f'<br><span class="classroom-info">📍 {classroom}</span>'
-                                html += '<br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span>'
+                        if i + 1 < len(lines):
+                            next_line = lines[i + 1].strip()
+                            if next_line.startswith('Classroom:'):
+                                classroom = next_line.split('Classroom:')[1].strip()
+                                i += 1  # Skip the classroom line in next iteration
+                        
+                        # Render course with classroom
+                        if course_info and not course_info.startswith('-'):
+                            if classroom and classroom not in ['nan', 'None', 'TBD', '']:
+                                html += f'                        <li><strong>{course_info}</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 {classroom}</span></li>\n'
                             else:
-                                # This is the 1st occurrence
-                                html += f'<br><span class="classroom-info">📍 {classroom}</span>'
-                                classroom_seen[classroom] = True
-                        else:
-                            # No duplicates or empty classroom
-                            html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                                html += f'                        <li><strong>{course_info}</strong></li>\n'
                     
-                    html += '</li>\n'
+                    i += 1
                 
                 html += """
                     </ul>

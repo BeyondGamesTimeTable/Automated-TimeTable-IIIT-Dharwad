@@ -363,6 +363,17 @@
             display: inline-block;
         }
         
+        .basket-classroom {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 10px 0 15px 0;
+            font-size: 1em;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }
+        
         @media print {
             body {
                 background: white;
@@ -635,7 +646,7 @@
 <tr>
 <td class="day-column">Monday</td>
 <td class="free-slot">Free</td>
-<td class="common-course">Elective (B1) | C004</td>
+<td class="common-course">Elective (B1)</td>
 <td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
@@ -644,7 +655,7 @@
 <tr>
 <td class="day-column">Tuesday</td>
 <td class="course-slot">EC307-A | C305</td>
-<td class="common-course">Elective (B3) | C004</td>
+<td class="common-course">Elective (B3)</td>
 <td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
@@ -652,7 +663,7 @@
 </tr>
 <tr>
 <td class="day-column">Wednesday</td>
-<td class="common-course">Elective (B3) | C004</td>
+<td class="common-course">Elective (B3)</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
@@ -661,7 +672,7 @@
 </tr>
 <tr>
 <td class="day-column">Thursday</td>
-<td class="common-course">Elective (B1) | C004</td>
+<td class="common-course">Elective (B1)</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
@@ -670,7 +681,7 @@
 </tr>
 <tr>
 <td class="day-column">Friday</td>
-<td class="common-course">Elective (B1) | C004</td>
+<td class="common-course">Elective (B1)</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 <td class="lunch-break">LUNCH BREAK</td>
@@ -690,12 +701,9 @@
                 <div class="basket-card">
                     <h3>Basket B1</h3>
                     <ul class="course-list">
-                        <li><strong>CS464: Deep Learning for Computer Vision</strong><br><span class="classroom-info">📍 C302</span></li>
-                        <li><strong>DS357: Large Languange Models</strong><br><span class="classroom-info">📍 C004</span></li>
-                        <li><strong>CS458: Natural Language Processing</strong><br><span class="classroom-info">📍 C303</span></li>
-                        <li><strong>CS464: Deep Learning for Computer Vision</strong><br><span class="classroom-info">📍 C302</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
-                        <li><strong>DS357: Large Languange Models</strong><br><span class="classroom-info">📍 C004</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
-                        <li><strong>CS458: Natural Language Processing</strong><br><span class="classroom-info">📍 C303</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
+                        <li><strong>CS464: Deep Learning for Computer Vision</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
+                        <li><strong>DS357: Large Languange Models</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
+                        <li><strong>CS458: Natural Language Processing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C103</span></li>
 
                     </ul>
                 </div>
@@ -703,9 +711,9 @@
                 <div class="basket-card">
                     <h3>Basket B3</h3>
                     <ul class="course-list">
-                        <li><strong>CS462: Computer Graphics</strong><br><span class="classroom-info">📍 C303</span></li>
-                        <li><strong>CS307: Machine Learning</strong><br><span class="classroom-info">📍 C305</span></li>
-                        <li><strong>CS469: Virtualization and Cloud Computing</strong><br><span class="classroom-info">📍 C002</span></li>
+                        <li><strong>CS462: Computer Graphics</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
+                        <li><strong>CS307: Machine Learning</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
+                        <li><strong>CS469: Virtualization and Cloud Computing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C103</span></li>
 
                     </ul>
                 </div>
@@ -713,12 +721,12 @@
                 <div class="basket-card">
                     <h3>Basket B2 (After Midsems)</h3>
                     <ul class="course-list">
-                        <li><strong>CS455: Blockchain Technology</strong><br><span class="classroom-info">📍 C302</span></li>
-                        <li><strong>EC361: Introduction to 5G Network</strong><br><span class="classroom-info">📍 C303</span></li>
-                        <li><strong>ASD351: Design Thinking and Innovation</strong><br><span class="classroom-info">📍 C204</span></li>
-                        <li><strong>CS455: Blockchain Technology</strong><br><span class="classroom-info">📍 C302</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
-                        <li><strong>EC361: Introduction to 5G Network</strong><br><span class="classroom-info">📍 C303</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
-                        <li><strong>ASD351: Design Thinking and Innovation</strong><br><span class="classroom-info">📍 C204</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
+                        <li><strong>CS455: Blockchain Technology</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C302</span></li>
+                        <li><strong>EC361: Introduction to 5G Network</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C303</span></li>
+                        <li><strong>ASD351: Design Thinking and Innovation</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C204</span></li>
+                        <li><strong>CS455: Blockchain Technology</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C302</span></li>
+                        <li><strong>EC361: Introduction to 5G Network</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C303</span></li>
+                        <li><strong>ASD351: Design Thinking and Innovation</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C204</span></li>
 
                     </ul>
                 </div>
@@ -726,10 +734,10 @@
                 <div class="basket-card">
                     <h3>Basket B4 (After Midsems)</h3>
                     <ul class="course-list">
-                        <li><strong>DS355: Data Analytics and Visualization</strong><br><span class="classroom-info">📍 C002</span></li>
-                        <li><strong>DS351: Statistics for Health Technology</strong><br><span class="classroom-info">📍 C303</span></li>
-                        <li><strong>DS356: Medical Image Analysis</strong><br><span class="classroom-info">📍 C304</span></li>
-                        <li><strong>CS472: Bioinformatics</strong><br><span class="classroom-info">📍 C305</span></li>
+                        <li><strong>DS355: Data Analytics and Visualization</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C002</span></li>
+                        <li><strong>DS351: Statistics for Health Technology</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C303</span></li>
+                        <li><strong>DS356: Medical Image Analysis</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C304</span></li>
+                        <li><strong>CS472: Bioinformatics</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C305</span></li>
 
                     </ul>
                 </div>
@@ -737,8 +745,8 @@
                 <div class="basket-card">
                     <h3>Basket Minor (After Midsems)</h3>
                     <ul class="course-list">
-                        <li><strong>DS358: Deep Speech Processing</strong><br><span class="classroom-info">📍 C305</span></li>
-                        <li><strong>DS358: Deep Speech Processing</strong><br><span class="classroom-info">📍 C305</span><br><span style="color: #059669; font-weight: bold; font-size: 0.9em;">🔄 After Midsems</span></li>
+                        <li><strong>DS358: Deep Speech Processing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C305</span></li>
+                        <li><strong>DS358: Deep Speech Processing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C305</span></li>
 
                     </ul>
                 </div>

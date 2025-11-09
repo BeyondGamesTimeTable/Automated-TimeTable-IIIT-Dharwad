@@ -5,20 +5,20 @@ ELECTIVE COURSES - Choose ONE from each basket
 Basket B1:
 ----------------------------------------
   • CS471: Deep Computer Vision
-    Classroom: C302
+    Classroom: C101
   • DS357: Large Languange Models
-    Classroom: C004
+    Classroom: C102
   • CS458: Natural Language Processing
-    Classroom: C303
+    Classroom: C103
 
 Basket B3:
 ----------------------------------------
   • EC362: Automotive Embedded and Multimedia Systems
-    Classroom: nan
+    Classroom: C101
   • CS462: Computer Graphics
-    Classroom: C303
+    Classroom: C102
   • CS469: Virtualization and Cloud Computing
-    Classroom: C002
+    Classroom: C103
 
 
 ================================================================================

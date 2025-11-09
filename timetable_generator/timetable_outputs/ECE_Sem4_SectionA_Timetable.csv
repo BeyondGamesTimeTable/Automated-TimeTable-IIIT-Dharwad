@@ -1,6 +1,6 @@
 ,08:00-09:30,09:45-11:15,11:30-13:00,13:00-14:30,14:30-16:30,16:30-18:30
-Monday,Elective (Minor) | C004,EC310-A | C101,EC204-T-A [60min] | C101,LUNCH BREAK,Free,HS205-A [90min] | C004
-Tuesday,Elective (Minor) | C004,Free,EC310-A | C101,LUNCH BREAK,EC204-Lab-A [120min] | Lab-2,HS205-A [90min] | C004
-Wednesday,Free,Free,EC205-A | C101,LUNCH BREAK,EC310-T-A [60min] | C101,HS204-A [90min] | C101
-Thursday,Free,Free,EC205-A | C101,LUNCH BREAK,EC204-A [90min] | C101,HS204-A [90min] | C101
-Friday,Free,Free,EC204-A | C101,LUNCH BREAK,EC205-Lab-A [120min] | Lab-1,HS204-T-A [60min] | C101
+Monday,Elective (Minor),Free,Free,LUNCH BREAK,EC204-Lab-A [120min] | Lab-2,EC310-A [90min] | C101
+Tuesday,Elective (Minor),Free,HS205-A | C004,LUNCH BREAK,Free,EC310-A [90min] | C101
+Wednesday,Free,Free,EC205-A | C101,LUNCH BREAK,EC310-T-A [60min] | C101,EC204-T-A [60min] | C101
+Thursday,Free,Free,HS205-A | C004,LUNCH BREAK,EC205-A [90min] | C101,EC204-A [90min] | C101
+Friday,Free,Free,Free,LUNCH BREAK,EC205-Lab-A [120min] | Lab-1,EC204-A [90min] | C101

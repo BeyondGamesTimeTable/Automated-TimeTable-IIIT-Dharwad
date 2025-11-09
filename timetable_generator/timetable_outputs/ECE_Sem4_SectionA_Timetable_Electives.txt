@@ -5,7 +5,5 @@ ELECTIVE COURSES - Choose ONE from each basket
 Basket Minor:
 ----------------------------------------
   • DS357: Large Languange Models
-    Classroom: C004
-  • DS357: Large Languange Models
-    Classroom: C004
+    Classroom: C101
 
