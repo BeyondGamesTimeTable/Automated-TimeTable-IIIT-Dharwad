@@ -300,6 +300,8 @@
                     <button id="closeEditor" class="timetable-link" style="background:#ef4444;">Close Editor</button>
                     <label style="color:#fff; font-weight:600;">Editor Mode:</label>
                     <button id="toggleEdit" class="timetable-link" style="background:#10b981;">Enable Edit</button>
+                    <button id="undoBtn" class="timetable-link" style="background:#f59e0b;" disabled>Undo</button>
+                    <button id="redoBtn" class="timetable-link" style="background:#f97316;" disabled>Redo</button>
                     <button id="saveCsv" class="timetable-link" style="background:#06b6d4;">Save CSV</button>
                     <span id="editorStatus" style="color:#fff; margin-left:10px; font-weight:600; opacity:0.95;"></span>
                 </div>
@@ -325,6 +327,12 @@
     const status = document.getElementById('editorStatus');
     let editEnabled = false;
     let currentHref = null;
+    // Undo/Redo history stacks (store table.outerHTML snapshots)
+    const MAX_HISTORY = 60;
+    let historyStack = [];
+    let redoStack = [];
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
 
     // Intercept timetable links to open in iframe editor
     links.forEach(a => {
@@ -338,6 +346,10 @@
             status.textContent = 'Loaded: ' + href.split('/').pop();
             editEnabled = false;
             toggleEditBtn.textContent = 'Enable Edit';
+            // reset history for new file
+            historyStack = [];
+            redoStack = [];
+            updateHistoryButtons();
         });
     });
 
@@ -346,6 +358,10 @@
         frame.src = '';
         editorPanel.style.display = 'none';
         status.textContent = '';
+        // clear history when closing
+        historyStack = [];
+        redoStack = [];
+        updateHistoryButtons();
     });
 
     // Toggle edit mode
@@ -358,8 +374,15 @@
         try {
             const doc = frame.contentDocument || frame.contentWindow.document;
             if (!doc) return;
-            if (editEnabled) enableEditing(doc);
-            else disableEditing(doc);
+            if (editEnabled) {
+                enableEditing(doc);
+                // initial snapshot (only if history is empty for this session)
+                if (historyStack.length === 0) pushSnapshot(doc);
+                attachKeyHandlers(doc);
+            } else {
+                disableEditing(doc);
+                removeKeyHandlers(doc);
+            }
         } catch (err) {
             console.error('Error toggling edit mode:', err);
             alert('Unable to toggle edit mode for this timetable (cross-origin or not loaded)');
@@ -381,6 +404,11 @@
             alert('Error saving CSV: ' + err.message);
         }
     });
+
+    // Undo / Redo button handlers
+    undoBtn.addEventListener('click', () => { try { undo(); } catch(e){console.error(e);} });
+    redoBtn.addEventListener('click', () => { try { redo(); } catch(e){console.error(e);} });
+
 
     // Helper: enable editing in iframe doc
     function enableEditing(doc) {
@@ -448,9 +476,12 @@
             src.innerHTML = tmp;
             // cleanup
             try { delete doc._dragSrc; } catch(e) { doc._dragSrc = null; }
+            // push snapshot after a swap
+            try { pushSnapshot(doc); } catch (e) { console.error('pushSnapshot error', e); }
         } else {
             // Fallback: just place dragged HTML into target
             target.innerHTML = html;
+            try { pushSnapshot(doc); } catch (e) { console.error('pushSnapshot error', e); }
         }
     }
 
@@ -475,10 +506,98 @@
         a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
+    // History (undo/redo) helpers: snapshots store table.outerHTML
+    function pushSnapshot(doc) {
+        try {
+            const table = doc.querySelector('table');
+            if (!table) return;
+            const snap = table.outerHTML;
+            // avoid duplicates
+            if (historyStack.length && historyStack[historyStack.length-1] === snap) return;
+            historyStack.push(snap);
+            if (historyStack.length > MAX_HISTORY) historyStack.shift();
+            // clear redo when new action occurs
+            redoStack = [];
+            updateHistoryButtons();
+        } catch (e) { console.error('pushSnapshot failed', e); }
+    }
+
+    function restoreSnapshot(snapshot, doc) {
+        try {
+            const table = doc.querySelector('table');
+            if (!table) return;
+            // replace table markup
+            table.outerHTML = snapshot;
+            // re-enable handlers on the new DOM elements if editing is active
+            if (editEnabled) enableEditing(doc);
+            updateHistoryButtons();
+        } catch (e) { console.error('restoreSnapshot failed', e); }
+    }
+
+    function undo() {
+        try {
+            if (historyStack.length < 2) return;
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if (!doc) return;
+            const last = historyStack.pop();
+            redoStack.push(last);
+            const prev = historyStack[historyStack.length-1];
+            if (prev) restoreSnapshot(prev, doc);
+        } finally { updateHistoryButtons(); }
+    }
+
+    function redo() {
+        try {
+            if (redoStack.length === 0) return;
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if (!doc) return;
+            const snap = redoStack.pop();
+            historyStack.push(snap);
+            restoreSnapshot(snap, doc);
+        } finally { updateHistoryButtons(); }
+    }
+
+    function updateHistoryButtons() {
+        try {
+            undoBtn.disabled = !(historyStack.length > 1);
+            redoBtn.disabled = !(redoStack.length > 0);
+        } catch (e) { /* ignore if buttons not present yet */ }
+    }
+
+    // Keyboard shortcuts inside iframe (when editing): Ctrl+Z / Ctrl+Y
+    function attachKeyHandlers(doc) {
+        try {
+            const win = doc.defaultView || doc.parentWindow;
+            if (!win) return;
+            const handler = (ev) => {
+                const key = ev.key.toLowerCase();
+                const isMod = ev.ctrlKey || ev.metaKey;
+                if (!isMod) return;
+                if (key === 'z') { ev.preventDefault(); undo(); }
+                else if (key === 'y' || (ev.shiftKey && key === 'z')) { ev.preventDefault(); redo(); }
+            };
+            // store reference so we can remove later
+            doc._historyKeyHandler = handler;
+            win.addEventListener('keydown', handler);
+        } catch (e) { console.error('attachKeyHandlers failed', e); }
+    }
+
+    function removeKeyHandlers(doc) {
+        try {
+            const win = doc.defaultView || doc.parentWindow;
+            if (!win) return;
+            const handler = doc._historyKeyHandler;
+            if (handler) win.removeEventListener('keydown', handler);
+            doc._historyKeyHandler = null;
+        } catch (e) { console.error('removeKeyHandlers failed', e); }
+    }
+
     // Header editing handlers inside iframe
     function headerBlurHandler(ev) {
         // normalize whitespace and ensure readable format
         ev.target.innerText = ev.target.innerText.trim().replace(/\n+/g,' ').replace(/\s+/g,' ');
+        // record header edit in history
+        try { const doc = ev.target.ownerDocument; pushSnapshot(doc); } catch(e){ console.error('pushSnapshot error', e); }
     }
 
     function headerKeydownHandler(ev) {
