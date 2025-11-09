@@ -1,7 +1,7 @@
 [build]
   # Static site - no build command needed
-  command = "echo 'Static HTML timetable viewer - no build needed'"
-  publish = "timetable_generator/timetable_html"
+  command = "echo 'Static HTML site - no build needed'"
+  publish = "."
   
   # Ignore Python files - this is frontend only
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- requirements.txt runtime.txt upload_server.py"
