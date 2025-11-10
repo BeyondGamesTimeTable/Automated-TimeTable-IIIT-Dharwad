@@ -314,25 +314,6 @@ def generate_seating_viewer():
             <a href="exam_timetable.html" class="nav-button exam">📋 Exam Schedule</a>
             <a href="exam_schedule.csv" class="nav-button" download>📊 Download CSV</a>
         </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-value">TOTAL_CHARTS_PLACEHOLDER</div>
-                <div class="stat-label">Seating Charts</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">TOTAL_CLASSROOMS_PLACEHOLDER</div>
-                <div class="stat-label">Classrooms</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">TOTAL_SESSIONS_PLACEHOLDER</div>
-                <div class="stat-label">Exam Sessions</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">TOTAL_STUDENTS_PLACEHOLDER</div>
-                <div class="stat-label">Total Seats</div>
-            </div>
-        </div>
 """
     
     # Generate content for each date and session

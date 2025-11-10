@@ -14,17 +14,72 @@ from course_generator import CourseDataGenerator
 from seating_arrangement import SeatingArrangement
 
 class ExamTimetableGenerator:
-    def __init__(self):
+    def __init__(self, config_file='exam_config.json'):
         self.seating = SeatingArrangement()
-        self.exam_sessions = {
-            'FN': {'start': '10:00', 'end': '13:00', 'name': 'Forenoon Session'},
-            'AN': {'start': '14:00', 'end': '17:00', 'name': 'Afternoon Session'}
+        
+        # Load configuration from file if exists
+        self.load_configuration(config_file)
+        
+    def load_configuration(self, config_file):
+        """Load exam configuration from JSON file or use defaults"""
+        default_config = {
+            'start_date': '2025-04-15',
+            'end_date': '2025-04-25',
+            'fn_start': '10:00',
+            'fn_end': '13:00',
+            'an_start': '14:00',
+            'an_end': '17:00',
+            'exclude_saturday': True,
+            'exclude_sunday': True
         }
         
-        # Exam period configuration - max 1 week (7 days) + max 2 extra days
-        self.exam_start_date = datetime(2025, 4, 15)  # Tuesday
-        self.max_exam_days = 9  # 1 week + 2 extra days max
-        self.exclude_sundays = True
+        # Try to load from file
+        try:
+            import json
+            from pathlib import Path
+            config_path = Path(__file__).parent.parent / config_file
+            
+            if config_path.exists():
+                with open(config_path, 'r') as f:
+                    user_config = json.load(f)
+                    print(f"✅ Loaded custom configuration from {config_file}")
+                    # Merge with defaults
+                    config = {**default_config, **user_config}
+            else:
+                print(f"ℹ️ No custom configuration found, using defaults")
+                config = default_config
+        except Exception as e:
+            print(f"⚠️ Error loading configuration: {e}, using defaults")
+            config = default_config
+        
+        # Parse configuration
+        self.exam_sessions = {
+            'FN': {
+                'start': config['fn_start'], 
+                'end': config['fn_end'], 
+                'name': 'Forenoon Session'
+            },
+            'AN': {
+                'start': config['an_start'], 
+                'end': config['an_end'], 
+                'name': 'Afternoon Session'
+            }
+        }
+        
+        # Parse dates
+        from datetime import datetime
+        self.exam_start_date = datetime.strptime(config['start_date'], '%Y-%m-%d')
+        self.exam_end_date = datetime.strptime(config['end_date'], '%Y-%m-%d')
+        
+        # Calculate max days from date range
+        self.max_exam_days = (self.exam_end_date - self.exam_start_date).days + 1
+        
+        self.exclude_saturdays = config.get('exclude_saturday', True)
+        self.exclude_sundays = config.get('exclude_sunday', True)
+        
+        print(f"📅 Exam Period: {self.exam_start_date.strftime('%d/%m/%Y')} to {self.exam_end_date.strftime('%d/%m/%Y')}")
+        print(f"⏰ Sessions: FN ({config['fn_start']}-{config['fn_end']}), AN ({config['an_start']}-{config['an_end']})")
+        print(f"🗓️ Exclude: Saturdays={'✓' if self.exclude_saturdays else '✗'}, Sundays={'✓' if self.exclude_sundays else '✗'}")
         
     def load_data(self):
         """Load all required data"""
@@ -289,19 +344,18 @@ class ExamTimetableGenerator:
         return schedule
     
     def _calculate_available_slots(self):
-        """Calculate all available exam slots within the time limit"""
+        """Calculate all available exam slots within the configured date range"""
         slots = []
         current_date = self.exam_start_date
-        days_used = 0
         
-        while days_used < self.max_exam_days:
+        while current_date <= self.exam_end_date:
             # Skip Sundays if configured
             if self.exclude_sundays and current_date.weekday() == 6:  # Sunday = 6
                 current_date += timedelta(days=1)
                 continue
             
-            # Skip Saturdays (weekends)
-            if current_date.weekday() == 5:  # Saturday = 5
+            # Skip Saturdays if configured
+            if self.exclude_saturdays and current_date.weekday() == 5:  # Saturday = 5
                 current_date += timedelta(days=1)
                 continue
             
@@ -318,8 +372,8 @@ class ExamTimetableGenerator:
             })
             
             current_date += timedelta(days=1)
-            days_used += 1
         
+        print(f"📊 Generated {len(slots)} available slots ({len(slots)//2} days)")
         return slots
     
     def generate_seating_arrangements(self, schedule):

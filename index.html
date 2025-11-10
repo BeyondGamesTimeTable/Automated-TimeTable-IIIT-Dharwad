@@ -444,6 +444,9 @@
             color: #1e293b;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
         }
         
         .exam-option-item:hover {
@@ -607,19 +610,23 @@
                 </a>
                 
                 <!-- Exam Timetable Card -->
-                <a href="exam_timetable/outputs/exam_timetable.html" class="card exam" style="text-decoration: none;">
+                <div class="card exam" style="text-decoration: none; cursor: pointer;">
                     <div class="card-icon">📝</div>
                     <h2 class="card-title">Exam Timetable</h2>
                     <p class="card-description">
                         View exam schedules, seating arrangements, and classroom allocations
                     </p>
-                    <div class="card-button">
-                        <span class="button-text">View Exam Schedule</span>
-                        <span class="arrow">→</span>
-                    </div>
                     
                     <!-- Exam Options Dropdown -->
-                    <div class="exam-options" id="examOptions" style="display: none;">
+                    <div class="exam-options" id="examOptions">
+                        <a href="exam_timetable/exam_config.html" class="exam-option-item" onclick="event.stopPropagation()">
+                            <div class="exam-option-icon">⚙️</div>
+                            <div class="exam-option-content">
+                                <div class="exam-option-title">Configure & Generate</div>
+                                <div class="exam-option-desc">Set custom dates and generate new exam timetable</div>
+                            </div>
+                        </a>
+                        
                         <a href="exam_timetable/outputs/exam_timetable.html" class="exam-option-item" onclick="event.stopPropagation()">
                             <div class="exam-option-icon">📋</div>
                             <div class="exam-option-content">
@@ -652,7 +659,7 @@
                             </div>
                         </a>
                     </div>
-                </a>
+                </div>
                 
                 <!-- Upload Data Card -->
                 <a href="upload.html" class="card" style="text-decoration: none; background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c2 100%);">
@@ -678,6 +685,28 @@
         </div>
     </div>
     
-    <!-- JavaScript no longer needed - direct links used -->
+    <script>
+        // Toggle exam options dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const examCard = document.querySelector('.card.exam');
+            const examOptions = document.getElementById('examOptions');
+            
+            if (examCard && examOptions) {
+                examCard.addEventListener('click', function(e) {
+                    // Don't toggle if clicking on a link inside
+                    if (e.target.closest('.exam-option-item')) {
+                        return;
+                    }
+                    
+                    examOptions.classList.toggle('active');
+                    
+                    // Prevent card hover animation when options are open
+                    if (examOptions.classList.contains('active')) {
+                        examCard.style.transform = 'translateY(0) scale(1)';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
