@@ -1,0 +1,71 @@
+course code,course title,lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester,Electives,Basket,Post mid-sem,common
+MA161,Statistics,,,,,2,Dr.Ramesh Athe,1,F,,Y,Y
+DS161,Introduction to DS and AI,,,,,2,Dr. Abdul Wahid,1,F,,Y,Y
+MA162,Probability,,,,,2,Dr. Chinmayananda,1,F,,N,Y
+EC161,Digital Design ,3,0,2,0,2,Dr. Prakash Pawar,1,F,,N,Y
+CS161,Problem solving through programming ,3,0,2,0,4,Dr.Manjunath,1,F,,N,N
+HS152,Economics/IET,3,0,0,0,3,-,1,T,,N,
+PH151,Introduction to quantum physics,,,,,2,Prof. Ravishankar,1,T,B1,N,
+DS151,Linux to engineers,,,,,2,Dr. Vivekraj,1,T,B1,N,
+HS157,Computational musicology for hindustani music,,,,,1,Dr. Chandrika Kamat,1,T,B1,N,
+HS156,Holistic peersonality development ,,,,,1,Dr. Rajesh N S ,1,T,B1,N,
+CS161,Introduction to cyber security,,,,,2,Dr. Girish Revadigar,1,T,B1,N,
+,Fundamentals of sensing and controls,,,,,2,Mr. Mallikarjun Kande ,1,T,B1,N,
+,Kannada kali-nali,,,,,2,Dr. Anand P Barangi,1,T,B1,N,
+,Leveraging IT for social good & CSR,,,,,2,Dr. Rajesh N S ,1,T,B1,N,
+,Basic of design ,,,,,2,Dr. Sandesh Phalke,1,T,B1,N,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+MA262,Multivariate Calculus,,,,,2,Dr. Somen Bhattacharjee,3,F,,Y,Y
+MA261,Differential Equation,,,,,2,Dr. Anand P Barangi,3,F,,N,Y
+DA261,Statistical programing,1,0,2,0,2,Dr.Ramesh Athe,3,F,,Y,N
+DA262,Data Handaling and Visualization,2,0,2,0,3,Dr. Siddharth,3,F,,N,N
+CS304,Artificial intelligence,3,1,0,0,4,Dr.Animesh chaturvedi,3,F,,N,N
+CS307,Machine Learning,3,0,2,0,4,Dr.Utkarsh Khaire,3,F,,N,N
+HSS/IE,Neuro-Linguistic Programming(NLP),1,0,0,1,1,Dr.Manjunath K V,3,T,,N,
+HSS/IE,Leadreship I,1,0,0,1,1,Dr.Jagadeesha R Bhat,3,T,,N,
+HSS/IE,Sociology for Innovation,1,0,0,1,1,Dr.Anushree Kini,3,T,,N,
+HSS/IE,Social Imapct of Technology,1,0,0,1,1,Dr.Rajesh Kumar,3,T,,N,
+HSS/IE,Holistic Personality Development,1,0,0,1,1,Dr.Rajesh N S,3,T,,N,
+EC251,electronic system design - 1,,,,,2,Dr. Pankaj,3,T,B2,N,
+EC252,Introduction of RFIC design ,,,,,2,Dr. Rajesh Kumar,3,T,B2,N,
+CS152,Data science with pyhton ,,,,,2,Dr. Abdul Wahid,3,T,B2,N,
+ASD352,User Interactions and Experience Design,,,,,4,Dr. Sandesh Phalke,3,T,B2,N,
+,Instroduction  to Embedded Signal Intelligence,,,,,2,Dr. Sibashankar padhy,3,T,B2,N,
+,electronic sysytem engineering ,,,,,2,Mr. Mallikarjun Kande ,3,T,B2,N,
+,,,,,,,,,,,N,
+,,,,,,,,,,,,
+DS302,Computer Communication Networks,3,1,2,0,5,Dr.Shirshendu Layek,5,F,,N,N
+DS303,Algorithms and Artificial Intelligence,3,1,0,0,4,Dr.Animesh Chaturvedi,5,F,,N,N
+CS307,Machine Learning,3,0,2,0,4,Dr.Siddharth,5,F,,N,N
+CS463,Parallel computing ,,,,,4,Dr. Promod Y,5,T,B3,N,
+CS308,Compiler design ,,,,,4,Dr. Pavan Kumar,5,T,B3,N,
+DS301,Graphs and social network,,,,,4,Dr. Utkarsh,5,T,B3,N,
+CS366,Advanced algorithm design ,,,,,4,Dr. Suvadip Hazra,5,T,B3,N,
+DS359,Full stack development ,,,,,4,Dr. Manjunath K V,5,T,B4,N,
+EC355,Internet of things,,,,,4,Dr. Prakash Pawar,5,T,B4,N,
+EC364,Semiconductor device modelling ,,,,,4,Dr. Pankaj Kumar,5,T,B4,N,
+CS352,Cryptography and information security,,,,,4,Dr. Rajendra Hegadi,5,T,B4,N,
+ASD352,User interaction and expirence design ,,,,,4,Dr. Sandesh Phalke,5,T,B4,N,
+EC365,AI in biomedical signal interpretation,,,,,4,Dr. Sibashankar padhy,5,T,B4,N,
+,,,,,,,,,,,N,
+,,,,,,,,,,,,
+ DS456 ,Cybersecurity techniques,,,,,4,Dr. Rajendra Hegadi,7,T,B1,N,
+EC456,Reinforcement learning,,,,,4,Dr. Dibyajyothi,7,T,B1,N,
+DS401,health care data analytics,,,,,4,Dr. Girish G N,7,T,B1,N,
+EC462,Generative AI,,,,,4,Dr. Chinmayananda A,7,T,B2,N,
+EC465,Hands on CMOS Analog and RF Circuit design,,,,,4,Dr.Rahesh Kumar,7,T,B2,N,
+ASD352,User Interactions and Experience Design,,,,,4,Dr. Sandesh Phalke,7,T,B2,N,
+PH454,Quantum AI+,,,,,,,,,,,
+,QuantumGen AI:,,,,,,,,,,,
+,Genarative Models on Quantum Platform,,,,,3+1,Dr.Aswath Babu,7,T,B2,N,
+CS457,Devlops and its Applications ,,,,,4,Dr.Shirshendu Layek,7,T,B3,N,
+DS458,Agentic AI,,,,,4,Dr.Sunil Saumya,7,T,B3,N,
+CS468,Information Retrieval,,,,,4,Dr.Krishnendu,7,T,B3,N,
+CS473,Cloud SRE and Security,,,,,4,Dr.Malay Kumar,7,T,B3,N,
+,Software Defined Network,,,,,4,Dr.Jagadeesha R Bhat,7,T,B4,N,
+CS470,AI for Cybersecurity ,,,,,4,Dr.Abdul Wahid,7,T,B4,N,
+DS102,Finance and Accounting,,,,,4,Dr.Anushree,7,T,B4,N,
+MA452,Operation Research,,,,,4,Dr.Anand barangi,7,T,B4,N,
+EC463,Energy Efficient Neural Network,,,,,4,Dr.Jagadish D N,7,T,B4,N,
+,Mini Project ,,,,,2,Dr. Animesh Roy and Dr. Promod,7,F,B4,N,N

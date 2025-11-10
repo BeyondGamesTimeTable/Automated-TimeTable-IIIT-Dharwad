@@ -1146,7 +1146,7 @@ class TimetableGenerator:
         print(f"      WARNING: Could not schedule lab for {course_code}")
         return False
     
-    def export_to_csv(self, timetable, filename, electives=None, rotated_out=None):
+    def export_to_csv(self, timetable, filename, electives=None, rotated_out=None, output_dir='timetable_outputs'):
         """Export timetable to CSV with elective information"""
         if timetable is None:
             return False
@@ -1154,9 +1154,8 @@ class TimetableGenerator:
         # Convert to DataFrame
         df = pd.DataFrame(timetable).T
         
-        output_dir = 'timetable_outputs'
         os.makedirs(output_dir, exist_ok=True)
-        
+
         filepath = os.path.join(output_dir, filename)
         
         # Export timetable to CSV
@@ -1238,7 +1237,12 @@ class TimetableGenerator:
 
 def main():
     """Main function to generate all timetables"""
-    generator = TimetableGenerator()
+    # Allow overriding input/output directories via environment variables
+    csv_input_folder = os.environ.get('CSV_INPUT_FOLDER', 'input_files/sdtt_inputs')
+    output_csv_dir = os.environ.get('OUTPUT_CSV_DIR', 'timetable_outputs')
+    output_html_dir = os.environ.get('OUTPUT_HTML_DIR', 'timetable_html')
+
+    generator = TimetableGenerator(csv_input_folder)
     
     departments = ['CSE', 'DSAI', 'ECE']
     semesters = [2, 4, 6]
@@ -1270,7 +1274,7 @@ def main():
                     timetable, electives, rotated_out = result
                     generator.print_timetable(timetable)
                     filename = f"{dept}_Sem{sem}_SectionA_Timetable.csv"
-                    generator.export_to_csv(timetable, filename, electives, rotated_out)
+                    generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir)
             else:
                 # CSE has sections A and B
                 for sec in sections:
@@ -1280,11 +1284,11 @@ def main():
                         timetable, electives, rotated_out = result
                         generator.print_timetable(timetable)
                         filename = f"{dept}_Sem{sem}_Section{sec}_Timetable.csv"
-                        generator.export_to_csv(timetable, filename, electives, rotated_out)
+                        generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir)
     
     print("\n>> All timetables generated successfully!")
-    print(f"CSV Output location: timetable_outputs/")
-    print(f"HTML Output location: timetable_html/")
+    print(f"CSV Output location: {output_csv_dir}/")
+    print(f"HTML Output location: {output_html_dir}/")
 
 if __name__ == "__main__":
     main()

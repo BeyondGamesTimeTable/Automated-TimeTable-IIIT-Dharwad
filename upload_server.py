@@ -8,6 +8,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 # Enable CORS for Netlify frontend
@@ -20,7 +21,10 @@ CORS(app, origins=[
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'sdtt_inputs')
 ALLOWED_EXTENSIONS = {'csv'}
-MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
+# Increase request max payload to 64MB to allow larger uploads
+MAX_FILE_SIZE = 64 * 1024 * 1024  # 64MB
+# Per-file maximum (32MB) to prevent a single file from consuming entire request
+PER_FILE_MAX = 32 * 1024 * 1024  # 32MB
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
@@ -70,16 +74,14 @@ def upload_files():
                 'error': 'No files selected'
             }), 400
         
-        # DELETE ALL OLD CSV FILES BEFORE UPLOADING NEW ONES
+        # Instead of deleting old files, create a new versioned folder to store this upload
+        # This preserves existing inputs and generated timetables.
+        versions_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'versions')
+        os.makedirs(versions_root, exist_ok=True)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        version_dir = os.path.join(versions_root, timestamp)
+        os.makedirs(version_dir, exist_ok=True)
         deleted_count = 0
-        for filename in os.listdir(app.config['UPLOAD_FOLDER']):
-            if filename.endswith('.csv'):
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                try:
-                    os.remove(file_path)
-                    deleted_count += 1
-                except Exception as e:
-                    print(f"Error deleting {filename}: {e}")
         
         uploaded_files = []
         errors = []
@@ -89,12 +91,21 @@ def upload_files():
                 # Secure the filename
                 filename = secure_filename(file.filename)
                 
-                # Save the file
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                # Save the file into the new version folder
+                filepath = os.path.join(version_dir, filename)
                 file.save(filepath)
-                
+
                 # Get file size
                 file_size = os.path.getsize(filepath)
+
+                # Enforce per-file size limit; if exceeded, remove saved file and record error
+                if file_size > PER_FILE_MAX:
+                    try:
+                        os.remove(filepath)
+                    except Exception:
+                        pass
+                    errors.append(f'{filename} - File too large (>{PER_FILE_MAX//(1024*1024)}MB)')
+                    continue
                 
                 uploaded_files.append({
                     'name': filename,
@@ -105,13 +116,84 @@ def upload_files():
                 errors.append(f'{file.filename} - Invalid file type (only CSV allowed)')
         
         if uploaded_files:
-            return jsonify({
-                'success': True,
-                'message': f'Deleted {deleted_count} old file(s), uploaded {len(uploaded_files)} new file(s)',
-                'files': uploaded_files,
-                'deleted_count': deleted_count,
-                'errors': errors if errors else None
-            }), 200
+            # After successful upload, trigger regeneration using the uploaded version folder.
+            try:
+                import subprocess, sys
+                # Run main.py in timetable_generator using the uploaded CSV folder
+                tg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator')
+                main_script = os.path.join(tg_dir, 'main.py')
+
+                env = os.environ.copy()
+                # CSV input folder relative to timetable_generator (used by main)
+                env['CSV_INPUT_FOLDER'] = os.path.join('input_files', 'versions', timestamp)
+                # Output folders (place per-run outputs under timestamped dirs)
+                env['OUTPUT_CSV_DIR'] = os.path.join('..', 'timetable_outputs', timestamp)
+                env['OUTPUT_HTML_DIR'] = os.path.join('..', 'timetable_html', timestamp)
+
+                # Run the timetable generator
+                result = subprocess.run([
+                    sys.executable, main_script
+                ], cwd=tg_dir, capture_output=True, text=True, env=env, timeout=600)
+
+                if result.returncode != 0:
+                    # Generation failed; return upload success but generation error
+                    return jsonify({
+                        'success': True,
+                        'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}',
+                        'files': uploaded_files,
+                        'version': timestamp,
+                        'regenerate': False,
+                        'error': result.stderr,
+                        'generator_stdout': result.stdout
+                    }), 200
+
+                # Convert CSVs to HTML using timetable_to_html.py and the output folders
+                html_script = os.path.join(tg_dir, 'timetable_to_html.py')
+                env2 = env.copy()
+                # input csv dir for html converter is the CSV output dir we set above (relative to tg_dir)
+                env2['INPUT_CSV_DIR'] = env['OUTPUT_CSV_DIR']
+                env2['OUTPUT_HTML_DIR'] = env['OUTPUT_HTML_DIR']
+
+                html_result = subprocess.run([
+                    sys.executable, html_script
+                ], cwd=tg_dir, capture_output=True, text=True, env=env2, timeout=300)
+
+                if html_result.returncode != 0:
+                    return jsonify({
+                        'success': True,
+                        'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}; CSVs generated but HTML conversion failed',
+                        'files': uploaded_files,
+                        'version': timestamp,
+                        'regenerate': True,
+                        'html_error': html_result.stderr
+                    }), 200
+
+                # Success: return links to the new HTML index
+                # Construct web path (remove leading .. so it's relative to repo root)
+                web_path = os.path.normpath(os.path.join(env2['OUTPUT_HTML_DIR'], 'index.html'))
+                # If it starts with ..\ remove the parent reference
+                parent_prefix = '..' + os.sep
+                if web_path.startswith(parent_prefix):
+                    web_path = web_path[len(parent_prefix):]
+                web_path = web_path.replace('\\', '/')
+
+                return jsonify({
+                    'success': True,
+                    'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}; timetables regenerated',
+                    'files': uploaded_files,
+                    'version': timestamp,
+                    'regenerate': True,
+                    'index_url': request.host_url.rstrip('/') + '/' + web_path
+                }), 200
+            except Exception as e:
+                return jsonify({
+                    'success': True,
+                    'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}',
+                    'files': uploaded_files,
+                    'version': timestamp,
+                    'regenerate': False,
+                    'error': str(e)
+                }), 200
         else:
             return jsonify({
                 'success': False,
@@ -149,6 +231,37 @@ def list_files():
             'success': False,
             'error': f'Error listing files: {str(e)}'
         }), 500
+
+
+@app.route('/api/list-versions', methods=['GET'])
+def list_versions():
+    """List all uploaded versions and whether outputs exist for them"""
+    try:
+        versions_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'versions')
+        versions = []
+        if os.path.exists(versions_root):
+            for name in os.listdir(versions_root):
+                vpath = os.path.join(versions_root, name)
+                if os.path.isdir(vpath):
+                    # Count input files
+                    inputs = [f for f in os.listdir(vpath) if f.endswith('.csv')]
+                    # Check for generated CSV/HTML outputs
+                    csv_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_outputs', name)
+                    html_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_html', name)
+                    index_exists = os.path.exists(os.path.join(html_out, 'index.html'))
+                    versions.append({
+                        'version': name,
+                        'created': os.path.getmtime(vpath),
+                        'input_count': len(inputs),
+                        'csv_output_exists': os.path.exists(csv_out),
+                        'html_output_exists': os.path.exists(html_out),
+                        'index_path': (f'timetable_html/{name}/index.html' if index_exists else None)
+                    })
+        # Sort by version (timestamp) desc
+        versions.sort(key=lambda x: x['version'], reverse=True)
+        return jsonify({'success': True, 'versions': versions}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/delete-file', methods=['DELETE'])
 def delete_file():

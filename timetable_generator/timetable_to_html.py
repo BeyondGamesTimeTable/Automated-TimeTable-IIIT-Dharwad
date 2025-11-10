@@ -1630,8 +1630,11 @@ def main():
     """Main function"""
     print("\nBeyondGames Timetable HTML Converter")
     print("="*80)
-    
-    converter = TimetableHTMLConverter()
+    # Allow overriding input/output directories via environment variables
+    input_dir = os.environ.get('INPUT_CSV_DIR', 'timetable_outputs')
+    output_dir = os.environ.get('OUTPUT_HTML_DIR', 'timetable_html')
+
+    converter = TimetableHTMLConverter(input_dir=input_dir, output_dir=output_dir)
     converter.convert_all()
     
     print("\n" + "="*80)

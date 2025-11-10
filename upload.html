@@ -409,6 +409,17 @@
                 🚀 Process Files
             </button>
         </div>
+
+        <!-- View generated timetable button (shown after generation) -->
+        <div id="viewGenerated" style="display:none; margin-top:18px;">
+            <button id="viewGeneratedBtn" class="upload-all-button" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);">🔎 View Latest Generated Timetable</button>
+        </div>
+
+        <div class="file-list" id="versionsSection" style="display: none; margin-top: 30px;">
+            <h2 class="section-title">🕘 Generated Versions</h2>
+            <div id="versionsList">Loading versions...</div>
+            <button class="upload-all-button" id="refreshVersions" style="margin-top:12px; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);" onclick="fetchVersions()">🔄 Refresh Versions</button>
+        </div>
     </div>
     
     <script>
@@ -418,6 +429,15 @@
         const fileItems = document.getElementById('fileItems');
         const uploadButton = document.getElementById('uploadButton');
         let selectedFiles = [];
+
+        // API base auto-detection: prefer local server while developing
+        const REMOTE_API = 'https://automated-timetable-iiit-dharwad.onrender.com';
+        let API_BASE;
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') {
+            API_BASE = 'http://localhost:5000';
+        } else {
+            API_BASE = REMOTE_API;
+        }
         
         // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -532,7 +552,7 @@
                 });
                 
                 // Send to backend
-                const response = await fetch('https://automated-timetable-iiit-dharwad.onrender.com/api/upload', {
+                const response = await fetch(`${API_BASE}/api/upload`, {
                     method: 'POST',
                     body: formData
                 });
@@ -553,7 +573,7 @@
                     
                     // AUTOMATICALLY REGENERATE TIMETABLES
                     try {
-                        const regenResponse = await fetch('https://automated-timetable-iiit-dharwad.onrender.com/api/regenerate', {
+                        const regenResponse = await fetch(`${API_BASE}/api/regenerate`, {
                             method: 'POST'
                         });
                         
@@ -563,6 +583,17 @@
                             uploadButton.innerHTML = '✓ Timetables Updated!';
                             uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
                             showAlert('success', '🎉 Timetables regenerated successfully! Refresh the timetable pages to see updates.');
+                            // If server returned an index_url, open it in a new tab and show persistent view button
+                            if (result.index_url) {
+                                try {
+                                    window.open(result.index_url, '_blank');
+                                } catch (e) {
+                                    // popup blocked - still show persistent button below
+                                }
+                                showViewButton(result.index_url);
+                            }
+                            // Refresh versions list to include the new one
+                            fetchVersions();
                             
                             // Reset after 5 seconds
                             setTimeout(() => {
@@ -611,7 +642,7 @@
         // Check if server is running on page load
         async function checkServerStatus() {
             try {
-                const response = await fetch('https://automated-timetable-iiit-dharwad.onrender.com/api/health');
+                const response = await fetch(`${API_BASE}/api/health`);
                 const data = await response.json();
                 
                 if (data.status === 'healthy') {
@@ -624,8 +655,66 @@
             }
         }
         
+        // Fetch and render versions
+        async function fetchVersions() {
+            const container = document.getElementById('versionsList');
+            container.innerHTML = 'Loading versions...';
+            try {
+                const resp = await fetch(`${API_BASE}/api/list-versions`);
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error || 'Failed to list versions');
+
+                if (!data.versions || data.versions.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">No versions found yet. Upload some CSVs to generate a timetable.</div>';
+                    document.getElementById('versionsSection').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('versionsSection').style.display = 'block';
+                container.innerHTML = '';
+
+                // If the most recent version has an index_path, show the view button for it
+                if (data.versions && data.versions.length > 0) {
+                    const newest = data.versions[0];
+                    if (newest.index_path) {
+                        const full = `${location.protocol}//${location.host}/${newest.index_path}`;
+                        showViewButton(full);
+                    }
+                }
+
+                data.versions.forEach(v => {
+                    const el = document.createElement('div');
+                    el.className = 'file-item';
+                    const created = new Date(v.created * 1000).toLocaleString();
+                    el.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-icon">🗂️</div>
+                            <div class="file-details">
+                                <div class="file-name">${v.version} &nbsp; <small style="color:#64748b;">${created}</small></div>
+                                <div class="file-size">${v.input_count} input file(s)</div>
+                            </div>
+                        </div>
+                        <div class="file-status">
+                            ${v.index_path ? `<a class="status-badge status-success" href="/${v.index_path}" target="_blank">View</a>` : `<span class="status-badge status-ready">Processing</span>`}
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            } catch (err) {
+                container.innerHTML = `<div class="alert alert-error">Error fetching versions: ${err.message}</div>`;
+                document.getElementById('versionsSection').style.display = 'none';
+            }
+        }
+
+        function showViewButton(url) {
+            const wrapper = document.getElementById('viewGenerated');
+            const btn = document.getElementById('viewGeneratedBtn');
+            btn.onclick = () => window.open(url, '_blank');
+            wrapper.style.display = 'block';
+        }
+
         // Check server status when page loads
-        window.addEventListener('load', checkServerStatus);
+        window.addEventListener('load', () => { checkServerStatus(); fetchVersions(); });
         
         function showAlert(type, message) {
             const existingAlerts = document.querySelectorAll('.alert:not(#infoAlert)');
