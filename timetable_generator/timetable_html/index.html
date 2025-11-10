@@ -489,11 +489,17 @@
     function enableEditing(doc) {
         const cells = doc.querySelectorAll('td');
         cells.forEach(td => {
+            // Enable drag-and-drop
             td.setAttribute('draggable','true');
             td.style.cursor = 'move';
             td.addEventListener('dragstart', dragStartHandler);
             td.addEventListener('dragover', dragOverHandler);
             td.addEventListener('drop', dropHandler);
+            
+            // Enable direct text editing (especially for classroom names)
+            td.contentEditable = 'true';
+            td.addEventListener('blur', cellBlurHandler);
+            td.addEventListener('keydown', cellKeydownHandler);
         });
         // Enable editing of time slot headers (except first column)
         const headers = doc.querySelectorAll('thead th');
@@ -511,9 +517,12 @@
         cells.forEach(td => {
             td.removeAttribute('draggable');
             td.style.cursor = '';
+            td.contentEditable = 'false';
             td.removeEventListener('dragstart', dragStartHandler);
             td.removeEventListener('dragover', dragOverHandler);
             td.removeEventListener('drop', dropHandler);
+            td.removeEventListener('blur', cellBlurHandler);
+            td.removeEventListener('keydown', cellKeydownHandler);
         });
         // Disable header editing
         const headers = doc.querySelectorAll('thead th');
@@ -676,6 +685,22 @@
     }
 
     function headerKeydownHandler(ev) {
+        // Enter commits edit and blurs
+        if (ev.key === 'Enter') {
+            ev.preventDefault();
+            ev.target.blur();
+        }
+    }
+
+    // Cell editing handlers (for editing course names, classrooms, etc.)
+    function cellBlurHandler(ev) {
+        // normalize whitespace
+        ev.target.innerText = ev.target.innerText.trim().replace(/\n+/g,' ').replace(/\s+/g,' ');
+        // record cell edit in history
+        try { const doc = ev.target.ownerDocument; pushSnapshot(doc); } catch(e){ console.error('pushSnapshot error', e); }
+    }
+
+    function cellKeydownHandler(ev) {
         // Enter commits edit and blurs
         if (ev.key === 'Enter') {
             ev.preventDefault();
