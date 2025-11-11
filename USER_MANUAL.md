@@ -356,24 +356,25 @@ The web application is fully hosted and accessible from any device with internet
 6. **Process Upload**
    - Click "🚀 Upload Files" button
    - Watch progress:
-     - "Uploading..." (blue)
-     - "✓ Uploaded" (green)
-     - "🔄 Regenerating Timetables..." (orange) *
-     - "✓ Timetables Updated!" (green) *
-   
-   *Note: Regeneration currently requires local execution
+      - "Uploading..." (blue)
+      - "✓ Uploaded" (green)
+      - "🔄 Regenerating Timetables..." (orange)
+      - "✓ Timetables Updated!" (green)
+
+   *Note: The server now triggers generation automatically for each upload version. Generation runs as a subprocess on the host and may take from a few seconds up to several minutes depending on dataset size and machine performance.
 
 7. **Confirmation**
    - Success message appears
-   - Old files automatically deleted
-   - New files saved to server
+   - Files saved to a timestamped version folder (previous uploads are preserved)
+   - New files saved to server and generation is started for that version
+   - The upload response (and UI) will contain an `index_url` when HTML output is available
 
 **Important Notes:**
 - ✅ Multiple files can be uploaded simultaneously
-- ✅ Old CSV files are automatically deleted before upload
+- ✅ Uploads are non-destructive: each upload is saved into a timestamped version folder and older versions are preserved
 - ✅ Only `.csv` files are accepted
-- ✅ Maximum file size: 16MB per file
-- ⚠️ Timetable regeneration must be done locally (see Scenario 3)
+- ✅ Per-file size limit: 32 MB; Combined request limit: 64 MB
+- ⚠️ If generation fails, inspect the upload response (`error`, `generator_stdout`, `html_error`) for details; inputs are still preserved under the version folder
 
 ### 5.3 Scenario 3: Generating Timetables Locally
 
@@ -664,9 +665,10 @@ gunicorn==21.2.0
    - Multiple selection allowed
 
 **File Validation:**
+**File Validation:**
 - ✅ Only CSV files accepted
-- ✅ Maximum 16MB per file
-- ✅ Automatic old file deletion
+- ✅ Per-file maximum 32MB; combined request limit 64MB
+- ✅ Uploads are stored per-version (no automatic deletion of previous uploads)
 - ❌ Non-CSV files rejected with error message
 
 ### 7.4 Mobile Responsiveness
@@ -724,7 +726,8 @@ gunicorn==21.2.0
    - Open in Excel → "Save As" → CSV (Comma delimited)
 
 2. **Check File Size**
-   - Maximum 16MB per file
+   - Per-file maximum 32MB
+   - Combined request maximum 64MB
    - Compress or split large files
 
 3. **Verify File Format**
@@ -823,7 +826,7 @@ gunicorn==21.2.0
 |---------------|-------|----------|
 | "No files provided" | Empty upload request | Select files before clicking upload |
 | "Invalid file type" | Non-CSV file uploaded | Convert to CSV format |
-| "File size too large" | File > 16MB | Split or compress file |
+| "File size too large" | File > 32MB (per-file) or request > 64MB (combined) | Split or compress file, or reduce batch size |
 | "Server error 500" | Backend crash | Check backend logs on Render |
 | "CORS error" | Frontend-backend mismatch | Verify Netlify domain in CORS config |
 | "No valid CSV files" | All files rejected | Check file format and extension |
@@ -956,7 +959,9 @@ A: No automatic undo. Keep local backups of CSV files. Re-upload previous versio
 
 A: Unlimited, but recommended:
 - Upload 3 files (CSE, DSAI, ECE) simultaneously
-- Maximum 16MB per file
+Maximum: recommended 3 files (CSE, DSAI, ECE) simultaneously
+- Per-file maximum: 32MB
+- Combined request maximum: 64MB
 - CSV format only
 
 **Q19: Are uploads secure?**

@@ -13,11 +13,18 @@
 
 ---
 
+Documentation & user guides:
+
+- `USER_MANUAL.md` — Step-by-step guide for administrators and non-developers (upload flow, troubleshooting, examples)
+- `TECH_STACK.md` — Developer-facing technical stack and implementation notes
+
+
 ##  Quick Start
 
-### **Just open `index.html` in your browser!**
+### **Just open `index.html` in your browser (or run the local server for uploads)!**
 
-No installation needed - everything runs directly in your browser with a modern, responsive interface.
+No installation is required to view generated timetables — open `index.html` from the project root in a modern browser.
+If you want to generate timetables from new CSV inputs or use the upload UI, start the local upload server and open `http://localhost:5000/upload.html`.
 
 **What You Get:**
 -  **18 Daily Timetables** - Zero conflicts, 96.9% automated with back navigation
@@ -329,9 +336,12 @@ Update classroom list in configuration for exam seating optimization.
 
 ##  Technical Stack
 
-### Core Technologies
+For a full technical breakdown and developer notes see `TECH_STACK.md`.
+
+### Core Technologies (short)
 - **Python 3.12+** - Primary programming language
 - **Pandas 2.0+** - Data processing and CSV handling
+- **Flask** - Lightweight local server used for uploads and generation orchestration
 - **HTML5/CSS3** - Modern web interfaces
 - **JavaScript (ES6+)** - Interactive UI components
 

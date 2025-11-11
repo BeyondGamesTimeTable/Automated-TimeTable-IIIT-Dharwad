@@ -15,7 +15,10 @@
 ## Frontend Technologies
 - **HTML5** - Structure for interactive timetable viewer
 - **CSS3** - Styling with gradients, flexbox, grid, animations, responsive design
-- **No JavaScript** - Pure HTML/CSS for fast, lightweight viewing
+## Frontend Technologies
+- **HTML5** - Structure for interactive timetable viewer
+- **CSS3** - Styling with gradients, flexbox, grid, animations, responsive design
+- **JavaScript (ES6+)** - Interactive UI components (upload UI, version list, auto-open generated pages)
 
 ## Data Formats
 - **CSV** - Input (course data) and output (timetables) - 18 generated files
@@ -41,6 +44,9 @@
 - **No Database** - CSV-based approach for simplicity
 - **No Web Server** - Static HTML generation for offline viewing
 - **Cross-Platform** - Works on Windows, Linux, macOS
+ - **No Database (default)** - CSV-based approach for simplicity; the upload server stores files on disk per-version
+ - **Lightweight Web Server** - A small Flask server (`upload_server.py`) is included for uploads and generation orchestration
+ - **Cross-Platform** - Works on Windows, Linux, macOS
 
 ## System Components
 ```

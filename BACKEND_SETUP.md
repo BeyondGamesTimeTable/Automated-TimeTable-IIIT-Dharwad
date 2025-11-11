@@ -79,7 +79,7 @@ You should see:
 ================================================================================
 📁 Upload folder: timetable_generator\input_files\sdtt_inputs
 ✅ Allowed file types: csv
-📊 Max file size: 16.0MB
+📊 Max request payload: 64.0MB (per-file limit 32MB)
 
 🌐 Server running at: http://localhost:5000
 📤 Upload page: http://localhost:5000/upload.html
@@ -174,7 +174,7 @@ Response:
 
 - ✅ **Secure Filenames**: Using `secure_filename()` to prevent directory traversal
 - ✅ **File Type Validation**: Only CSV files allowed
-- ✅ **Size Limits**: 16MB maximum file size
+- ✅ **Size Limits**: per-file 32MB; combined request 64MB
 - ✅ **CORS Protection**: Configurable cross-origin access
 - ✅ **Error Handling**: Proper error messages and status codes
 
@@ -221,7 +221,7 @@ UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'timetable_generator', '
 # Allowed file types
 ALLOWED_EXTENSIONS = {'csv'}
 
-# Maximum file size (16MB)
+# Maximum upload limits (per-file 32MB, request 64MB)
 MAX_FILE_SIZE = 16 * 1024 * 1024
 
 # Server port
@@ -248,7 +248,7 @@ pip install Flask flask-cors
 1. Check if server is running: `http://localhost:5000/api/health`
 2. Check upload folder exists: `timetable_generator/input_files/sdtt_inputs/`
 3. Check file is CSV format
-4. Check file size < 16MB
+4. Check file size (each file < 32MB, combined < 64MB)
 
 ### **CORS errors**
 - Make sure `flask-cors` is installed
