@@ -555,11 +555,21 @@ class TimetableGenerator:
         # Include: courses with matching section OR courses that are electives (empty section but Type=T)
         if not section_courses.empty and 'Section' in section_courses.columns:
             section_letter = str(semester) + section
-            section_courses = section_courses[
-                (section_courses['Section'].str.strip() == section_letter) |
-                ((section_courses['Section'].str.strip() == '') & (section_courses['Electives'].str.strip().str.upper() == 'T')) |
-                (section_courses['Section'].isna() & (section_courses['Electives'].str.strip().str.upper() == 'T'))
-            ]
+            
+            # Check if 'Electives' column exists (optional column)
+            if 'Electives' in section_courses.columns:
+                section_courses = section_courses[
+                    (section_courses['Section'].str.strip() == section_letter) |
+                    ((section_courses['Section'].str.strip() == '') & (section_courses['Electives'].str.strip().str.upper() == 'T')) |
+                    (section_courses['Section'].isna() & (section_courses['Electives'].str.strip().str.upper() == 'T'))
+                ]
+            else:
+                # If no 'Electives' column, just filter by section
+                section_courses = section_courses[
+                    (section_courses['Section'].str.strip() == section_letter) |
+                    (section_courses['Section'].str.strip() == '') |
+                    (section_courses['Section'].isna())
+                ]
         
         print(f"\nTotal courses to schedule:")
         print(f"   Cross-department shared (DSAI+ECE): {len(cross_dept_courses)}")
