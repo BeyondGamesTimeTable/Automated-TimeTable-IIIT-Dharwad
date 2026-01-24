@@ -416,20 +416,40 @@ class TimetableGenerator:
         # All classrooms taken
         return None
     
-    def _find_best_classroom_by_capacity(self, day, time_str, required_capacity):
+    def _find_best_classroom_by_capacity(self, day, time_str, required_capacity, is_common_course=False):
         """Find the best classroom for a given capacity requirement.
         
-        For large capacity (>110): Prefer C004 auditorium (for common courses)
+        For common courses: MUST use C004 (compulsory)
+        For large capacity (>110): Prefer C004 auditorium
         Otherwise: Prefer smallest classroom that can accommodate the required capacity.
         
         Args:
             day: Day of the week
             time_str: Time slot string
             required_capacity: Number of students
+            is_common_course: If True, MUST assign C004 (compulsory)
         
         Returns:
             Classroom name or None
         """
+        # For common courses: C004 is COMPULSORY (not just preferred)
+        if is_common_course:
+            # Check if C004 exists
+            if self.large_auditorium not in self.classrooms:
+                print(f"      ERROR: C004 auditorium not found in classrooms!")
+                return None
+            
+            # Check if C004 is available in this slot
+            if day in self.global_classroom_usage and time_str in self.global_classroom_usage[day]:
+                if self.large_auditorium in self.global_classroom_usage[day][time_str]:
+                    # C004 is already occupied - common courses MUST use C004, so return None
+                    print(f"      WARNING: C004 required for common course but occupied at {day} {time_str}")
+                    return None
+            
+            # C004 is available - return it (compulsory for common courses)
+            print(f"      Assigning C004 (compulsory for common course)")
+            return self.large_auditorium
+        
         # Get all suitable classrooms (capacity >= required)
         suitable_classrooms = [
             (room, info['capacity'])
@@ -440,9 +460,9 @@ class TimetableGenerator:
         if not suitable_classrooms:
             return None
         
-        # For large capacity requirements (common courses), prefer C004 auditorium
+        # For large capacity requirements (>110), prefer C004 auditorium (but not compulsory)
         if required_capacity > 110:
-            # Try C004 first for common courses
+            # Try C004 first for large courses
             if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
                 if self.large_auditorium in [room for room, _ in suitable_classrooms]:
                     return self.large_auditorium
@@ -1175,8 +1195,8 @@ class TimetableGenerator:
                 elif classroom is None:
                     # Need to find classroom dynamically
                     if is_common and required_capacity:
-                        # Common courses: Use capacity-based allocation (needs C004 for 120-180 students)
-                        actual_classroom = self._find_best_classroom_by_capacity(day, time_str, required_capacity)
+                        # Common courses: MUST use C004 (compulsory)
+                        actual_classroom = self._find_best_classroom_by_capacity(day, time_str, required_capacity, is_common_course=True)
                     elif department and not is_common:
                         # Section-specific: Use single section capacity
                         section_capacity = self.section_size.get(department, 50)  # Default 50
