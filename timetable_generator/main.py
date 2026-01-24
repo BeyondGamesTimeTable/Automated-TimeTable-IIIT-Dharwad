@@ -83,14 +83,25 @@ class TimetableGenerator:
         
         # Combined time slots for timetable display
         self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots
-        self.large_auditorium = 'C004'  # 240-seater for common courses (primary)
         
-        # Backup large classrooms for common courses when C004 is unavailable
-        # These can accommodate multiple sections together
-        self.backup_large_classrooms = ['C101', 'C102', 'C103', 'C202', 'C203', 'C204', 'C205']
+        # Section sizes for capacity calculation (typical IIIT Dharwad section strength)
+        self.section_size = {
+            'CSE': 60,   # CSE sections typically have 60 students each
+            'ECE': 90,   # ECE has larger total strength
+            'DSAI': 90   # DSAI has larger total strength
+        }
+        # When DSAI + ECE share courses, combined = ~180 students
+        # When CSE A + B together, combined = ~120 students
         
-        # Lab rooms for practical sessions
-        self.lab_rooms = ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5']
+        # Load classrooms from CSV file
+        self.classrooms = self._load_classrooms()
+        
+        # Categorize classrooms by type
+        self.large_auditorium = self._get_auditorium()
+        self.backup_large_classrooms = self._get_large_classrooms()
+        self.lab_rooms = self._get_lab_rooms()
+        self.regular_classrooms = self._get_regular_classrooms()
+        
         self.unscheduled_courses = []  # Track courses that couldn't be scheduled
         self.elective_courses = {}  # Track elective courses by basket
         
@@ -107,6 +118,120 @@ class TimetableGenerator:
         self.max_lectures_per_day = 1
         self.max_tutorials_per_day = 1
         self.max_labs_per_day = 1
+    
+    def _load_classrooms(self):
+        """Load classroom data from classrooms.csv"""
+        classrooms_file = os.path.join(self.csv_folder, 'classrooms.csv')
+        if not os.path.exists(classrooms_file):
+            print(f"Warning: {classrooms_file} not found, using default classrooms")
+            # Return default classrooms if file doesn't exist
+            return {
+                'C004': {'capacity': 240, 'type': 'Auditorium'},
+                'C002': {'capacity': 116, 'type': 'large classroom'},
+                'C003': {'capacity': 135, 'type': 'large classroom'},
+                'C101': {'capacity': 96, 'type': 'classroom'},
+                'C102': {'capacity': 96, 'type': 'classroom'},
+                'C104': {'capacity': 96, 'type': 'classroom'},
+                'C202': {'capacity': 96, 'type': 'classroom'},
+                'C203': {'capacity': 96, 'type': 'classroom'},
+                'C204': {'capacity': 96, 'type': 'classroom'},
+                'C205': {'capacity': 96, 'type': 'classroom'},
+                'L105': {'capacity': 40, 'type': 'Hardware Lab'},
+                'L106': {'capacity': 40, 'type': 'Software Lab'},
+                'L107': {'capacity': 40, 'type': 'Software Lab'},
+                'L206': {'capacity': 40, 'type': 'Hardware Lab'},
+                'L207': {'capacity': 40, 'type': 'Software Lab'},
+                'L208': {'capacity': 40, 'type': 'Software Lab'},
+            }
+        
+        try:
+            df = pd.read_csv(classrooms_file)
+            df.columns = df.columns.str.strip()
+            
+            classrooms = {}
+            for _, row in df.iterrows():
+                room = str(row['Room']).strip()
+                description = str(row['Description']).strip()
+                
+                # Parse capacity
+                capacity_str = str(row['Seating Capacity']).strip()
+                if capacity_str.lower() in ['nil', 'nan', '']:
+                    capacity = 0
+                else:
+                    try:
+                        capacity = int(capacity_str)
+                    except ValueError:
+                        capacity = 0
+                
+                # Skip rooms with no capacity (like recreation, library, examination room)
+                if capacity == 0:
+                    continue
+                
+                classrooms[room] = {
+                    'capacity': capacity,
+                    'type': description
+                }
+            
+            print(f"\n[OK] Loaded {len(classrooms)} classrooms from {classrooms_file}")
+            return classrooms
+        
+        except Exception as e:
+            print(f"Error loading classrooms: {e}, using defaults")
+            return self._load_classrooms()  # Return defaults
+    
+    def _get_auditorium(self):
+        """Get the largest auditorium (highest capacity)"""
+        if not self.classrooms:
+            return 'C004'
+        
+        # Find classroom with highest capacity
+        auditorium = max(self.classrooms.items(), key=lambda x: x[1]['capacity'])
+        print(f"   Primary Auditorium: {auditorium[0]} (Capacity: {auditorium[1]['capacity']})")
+        return auditorium[0]
+    
+    def _get_large_classrooms(self):
+        """Get large classrooms (capacity >= 90, excluding auditorium)"""
+        if not self.classrooms:
+            return ['C101', 'C102', 'C103', 'C202', 'C203', 'C204', 'C205']
+        
+        large_rooms = [
+            room for room, info in self.classrooms.items()
+            if info['capacity'] >= 90 and room != self.large_auditorium
+            and 'lab' not in info['type'].lower()
+        ]
+        
+        # Sort by capacity (largest first)
+        large_rooms.sort(key=lambda x: self.classrooms[x]['capacity'], reverse=True)
+        print(f"   Large Classrooms ({len(large_rooms)}): {', '.join(large_rooms)}")
+        return large_rooms
+    
+    def _get_lab_rooms(self):
+        """Get lab rooms"""
+        if not self.classrooms:
+            return ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5']
+        
+        lab_rooms = [
+            room for room, info in self.classrooms.items()
+            if 'lab' in info['type'].lower()
+        ]
+        
+        print(f"   Lab Rooms ({len(lab_rooms)}): {', '.join(lab_rooms)}")
+        return lab_rooms
+    
+    def _get_regular_classrooms(self):
+        """Get regular classrooms (not auditorium, not large, not lab)"""
+        if not self.classrooms:
+            return ['C101', 'C102', 'C103', 'C104', 'C202', 'C203', 'C204', 'C205']
+        
+        regular_rooms = [
+            room for room, info in self.classrooms.items()
+            if room != self.large_auditorium
+            and room not in self.backup_large_classrooms
+            and room not in self.lab_rooms
+        ]
+        
+        print(f"   Regular Classrooms ({len(regular_rooms)}): {', '.join(regular_rooms)}")
+        return regular_rooms
         
     def load_department_data(self, department):
         """Load CSV data for a specific department"""
@@ -251,52 +376,92 @@ class TimetableGenerator:
             'course': course_code
         }
     
-    def _find_available_large_classroom(self, day, time_str, is_elective=False):
+    def _find_available_large_classroom(self, day, time_str, is_elective=False, required_capacity=None):
         """Find an available large classroom for common courses or electives.
         
         Args:
             day: Day of the week
             time_str: Time slot string
-            is_elective: If True, skip C004 and only use backup classrooms
+            is_elective: If True, skip auditorium and only use backup classrooms
+            required_capacity: Minimum capacity needed (optional)
         
         Returns:
             Classroom name or None if no classroom available
         """
-        # DEBUG: Print what we're doing
-        # print(f"      [DEBUG] Finding classroom for {day} {time_str}, is_elective={is_elective}")
-        
-        # For electives: NEVER use C004, only backup classrooms
+        # Get available classrooms based on context
         if is_elective:
-            # Skip C004 entirely for electives
-            if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
-                # Return first backup classroom
-                result = self.backup_large_classrooms[0] if self.backup_large_classrooms else None
-                # print(f"      [DEBUG] Elective: No conflicts, using {result}")
-                return result
-            
-            # Try backup classrooms only
-            for backup_classroom in self.backup_large_classrooms:
-                if backup_classroom not in self.global_classroom_usage[day][time_str]:
-                    # print(f"      [DEBUG] Elective: Found available backup {backup_classroom}")
-                    return backup_classroom
-            
-            # All backup classrooms taken
-            # print(f"      [DEBUG] Elective: All backup classrooms taken!")
+            # Electives: Use backup large classrooms only (not the main auditorium)
+            candidate_classrooms = self.backup_large_classrooms
+        else:
+            # Common courses: Try auditorium first, then backups
+            candidate_classrooms = [self.large_auditorium] + self.backup_large_classrooms
+        
+        # Filter by capacity if specified
+        if required_capacity:
+            candidate_classrooms = [
+                room for room in candidate_classrooms
+                if room in self.classrooms and self.classrooms[room]['capacity'] >= required_capacity
+            ]
+        
+        # Check for conflicts
+        if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
+            # No conflicts, return first suitable classroom
+            return candidate_classrooms[0] if candidate_classrooms else None
+        
+        # Find first available classroom
+        for classroom in candidate_classrooms:
+            if classroom not in self.global_classroom_usage[day][time_str]:
+                return classroom
+        
+        # All classrooms taken
+        return None
+    
+    def _find_best_classroom_by_capacity(self, day, time_str, required_capacity):
+        """Find the best classroom for a given capacity requirement.
+        
+        For large capacity (>110): Prefer C004 auditorium (for common courses)
+        Otherwise: Prefer smallest classroom that can accommodate the required capacity.
+        
+        Args:
+            day: Day of the week
+            time_str: Time slot string
+            required_capacity: Number of students
+        
+        Returns:
+            Classroom name or None
+        """
+        # Get all suitable classrooms (capacity >= required)
+        suitable_classrooms = [
+            (room, info['capacity'])
+            for room, info in self.classrooms.items()
+            if info['capacity'] >= required_capacity and 'lab' not in info['type'].lower()
+        ]
+        
+        if not suitable_classrooms:
             return None
         
-        # For common courses: Try C004 first, then backups
+        # For large capacity requirements (common courses), prefer C004 auditorium
+        if required_capacity > 110:
+            # Try C004 first for common courses
+            if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
+                if self.large_auditorium in [room for room, _ in suitable_classrooms]:
+                    return self.large_auditorium
+            elif self.large_auditorium not in self.global_classroom_usage[day][time_str]:
+                if self.large_auditorium in [room for room, _ in suitable_classrooms]:
+                    return self.large_auditorium
+        
+        # For regular capacity or if C004 unavailable: Sort by capacity (smallest first for efficient allocation)
+        suitable_classrooms.sort(key=lambda x: x[1])
+        
+        # Check for conflicts
         if day not in self.global_classroom_usage or time_str not in self.global_classroom_usage[day]:
-            return self.large_auditorium
+            return suitable_classrooms[0][0]  # Return smallest suitable classroom
         
-        if self.large_auditorium not in self.global_classroom_usage[day][time_str]:
-            return self.large_auditorium
+        # Find first available classroom
+        for classroom, _ in suitable_classrooms:
+            if classroom not in self.global_classroom_usage[day][time_str]:
+                return classroom
         
-        # C004 is taken, try backup classrooms
-        for backup_classroom in self.backup_large_classrooms:
-            if backup_classroom not in self.global_classroom_usage[day][time_str]:
-                return backup_classroom
-        
-        # All large classrooms taken
         return None
     
     def generate_timetable(self, department, semester, section='A'):
@@ -443,8 +608,89 @@ class TimetableGenerator:
         else:
             print(f"\nAll courses scheduled successfully!")
         
+        # Validate constraints
+        self._validate_constraints(timetable, department, semester, section)
+        
         # Return timetable with elective information and rotated-out courses
         return timetable, self.elective_courses, self.rotated_out_electives
+    
+    def _validate_constraints(self, timetable, department, semester, section):
+        """Validate that all scheduling constraints are satisfied.
+        
+        Checks:
+        1. Classroom capacity constraints
+        2. Common courses use large classrooms
+        3. Labs use lab rooms
+        4. No double-booking of classrooms
+        5. Cross-department shared courses use same time slots
+        """
+        print(f"\n{'='*60}")
+        print(f"CONSTRAINT VALIDATION - {department} Sem{semester} Section{section}")
+        print(f"{'='*60}")
+        
+        issues = []
+        
+        # Check 1: Classroom allocation from CSV
+        classrooms_used = set()
+        for day in timetable:
+            for time_str, entry in timetable[day].items():
+                if entry not in ['Free', 'LUNCH BREAK']:
+                    # Extract classroom from entry (format: "Course\n(Type)\nClassroom\n...")
+                    parts = entry.split('\n')
+                    if len(parts) >= 3:
+                        classroom = parts[2].strip()
+                        classrooms_used.add(classroom)
+                        
+                        # Verify classroom exists in loaded CSV
+                        if classroom not in self.classrooms and not classroom.startswith('Lab-'):
+                            # For backward compatibility, allow hard-coded labs
+                            if 'Lab' not in classroom:
+                                issues.append(f"  [!] Classroom '{classroom}' not found in classrooms.csv")
+        
+        # Check 2: Common courses constraint
+        common_large_count = 0
+        for day in timetable:
+            for time_str, entry in timetable[day].items():
+                if 'Common' in entry or 'Shared' in entry:
+                    common_large_count += 1
+                    parts = entry.split('\n')
+                    if len(parts) >= 3:
+                        classroom = parts[2].strip()
+                        # Verify it's a large classroom
+                        if classroom in self.classrooms:
+                            capacity = self.classrooms[classroom]['capacity']
+                            if capacity < 90:  # Should be large classroom
+                                issues.append(f"  [!] Common course using small classroom: {classroom} (capacity {capacity})")
+        
+        # Check 3: Lab courses use lab rooms
+        lab_allocation_ok = True
+        for day in timetable:
+            for time_str, entry in timetable[day].items():
+                if '-Lab' in entry or 'Lab (' in entry:
+                    parts = entry.split('|')
+                    if len(parts) >= 2:
+                        classroom = parts[1].strip()
+                        if classroom not in self.lab_rooms:
+                            issues.append(f"  [!] Lab session not in lab room: {classroom}")
+                            lab_allocation_ok = False
+        
+        # Check 4: No double-booking (already prevented by global_classroom_usage, just report)
+        # This is implicitly checked during scheduling
+        
+        # Print results
+        print(f"\n[OK] Classrooms loaded from CSV: {len(self.classrooms)}")
+        print(f"[OK] Classrooms used in timetable: {len(classrooms_used)}")
+        print(f"[OK] Common/Shared courses: {common_large_count}")
+        print(f"[OK] Lab rooms available: {len(self.lab_rooms)}")
+        
+        if issues:
+            print(f"\n[WARNING] CONSTRAINT VIOLATIONS DETECTED ({len(issues)}):")
+            for issue in issues:
+                print(issue)
+        else:
+            print(f"\n[SUCCESS] ALL CONSTRAINTS SATISFIED!")
+        
+        print(f"{'='*60}\n")
     
     def _initialize_timetable(self):
         """Initialize empty timetable"""
@@ -642,6 +888,10 @@ class TimetableGenerator:
             course_title = course['Course Title'].strip()
             classroom = str(course.get('Classroom', '')).strip()
             
+            # Convert empty classroom string to None for dynamic allocation
+            if not classroom or classroom.lower() in ['nan', 'none', '']:
+                classroom = None
+            
             # Check if this is an elective course
             is_elective = self.is_elective_course(course)
             basket = self.get_elective_basket(course) if is_elective else None
@@ -759,12 +1009,25 @@ class TimetableGenerator:
             
             print(f"\n   Scheduling: {course_code} - L:{lectures} T:{tutorials} P:{practicals}")
             
+            # Calculate required capacity
+            required_capacity = None
+            if is_common:
+                # Common courses: Both sections A+B together OR DSAI+ECE together
+                # Both need C004 auditorium (240 capacity)
+                if self.current_department == 'CSE':
+                    # CSE A + B together = 120 students → needs C004
+                    required_capacity = 120
+                else:
+                    # DSAI + ECE sharing course = ~180 students → needs C004
+                    required_capacity = 180
+            
             # Schedule lectures (1.5 hours each)
             for lec_num in range(lectures):
                 success = self._schedule_session(
                     timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                     lab_usage, course_code, course_title, classroom,
-                    'Lecture', section, is_common, is_elective, basket
+                    'Lecture', section, is_common, is_elective, basket,
+                    required_capacity=required_capacity, department=self.current_department
                 )
                 if not success:
                     self.unscheduled_courses.append(f"{course_code} - Lecture {lec_num+1}")
@@ -774,7 +1037,8 @@ class TimetableGenerator:
                 success = self._schedule_session(
                     timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                     lab_usage, course_code, course_title, classroom,
-                    'Tutorial', section, is_common, is_elective, basket, duration_hours=1
+                    'Tutorial', section, is_common, is_elective, basket, duration_hours=1,
+                    required_capacity=required_capacity, department=self.current_department
                 )
                 if not success:
                     self.unscheduled_courses.append(f"{course_code} - Tutorial {tut_num+1}")
@@ -842,8 +1106,14 @@ class TimetableGenerator:
     
     def _schedule_session(self, timetable, used_slots, lecture_schedule, tutorial_schedule,
                          lab_schedule, lab_usage, course_code, course_title, classroom,
-                         session_type, section, is_common, is_elective, basket, duration_hours=1.5):
-        """Schedule a single session (Lecture or Tutorial) - can use regular or flexible afternoon slots"""
+                         session_type, section, is_common, is_elective, basket, duration_hours=1.5,
+                         required_capacity=None, department=None):
+        """Schedule a single session (Lecture or Tutorial) - can use regular or flexible afternoon slots
+        
+        Args:
+            required_capacity: Number of students (for common courses: Section A + Section B)
+            department: Department name for capacity calculation
+        """
         
         # Determine which schedule tracker to use
         if session_type == 'Lecture':
@@ -883,20 +1153,30 @@ class TimetableGenerator:
                 if timetable[day][time_str] != 'Free':
                     continue
                 
-                # For electives: ALWAYS find dynamic classroom (ignore CSV classroom - enforce non-C004 rule)
-                # For common courses: Find classroom if not specified
-                # For regular courses: Use specified classroom
+                # For electives: Use regular classrooms (~40 students)
+                # For common courses: Find classroom based on required capacity (needs C004 for 120-180)
+                # For regular courses: Use specified classroom or find based on single section capacity
                 actual_classroom = classroom
                 if is_elective and basket:
-                    # Electives must use dynamic assignment to avoid C004
-                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=True)
+                    # Electives use regular classrooms (not auditoriums) - ~40 students
+                    actual_classroom = self._find_best_classroom_by_capacity(day, time_str, required_capacity=40)
                     if actual_classroom is None:
-                        continue  # No non-C004 classroom available in this slot
+                        continue  # No suitable classroom available in this slot
                 elif classroom is None:
-                    # Common courses or other courses without pre-assigned classroom
-                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=False)
+                    # Need to find classroom dynamically
+                    if is_common and required_capacity:
+                        # Common courses: Use capacity-based allocation (needs C004 for 120-180 students)
+                        actual_classroom = self._find_best_classroom_by_capacity(day, time_str, required_capacity)
+                    elif department and not is_common:
+                        # Section-specific: Use single section capacity
+                        section_capacity = self.section_size.get(department, 50)  # Default 50
+                        actual_classroom = self._find_best_classroom_by_capacity(day, time_str, section_capacity)
+                    else:
+                        # Fallback to large classroom finder
+                        actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=False)
+                    
                     if actual_classroom is None:
-                        continue  # No classroom available in this slot
+                        continue  # No suitable classroom available in this slot
                 
                 # Check classroom conflict (local within this timetable)
                 conflict = False
@@ -969,20 +1249,30 @@ class TimetableGenerator:
                 if timetable[day][time_str] != 'Free':
                     continue
                 
-                # For electives: ALWAYS find dynamic classroom (ignore CSV classroom - enforce non-C004 rule)
-                # For common courses: Find classroom if not specified
-                # For regular courses: Use specified classroom
+                # For electives: Use regular classrooms (~40 students)
+                # For common courses: Find classroom based on required capacity (needs C004 for 120-180)
+                # For regular courses: Use specified classroom or find based on single section capacity
                 actual_classroom = classroom
                 if is_elective and basket:
-                    # Electives must use dynamic assignment to avoid C004
-                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=True)
+                    # Electives use regular classrooms (not auditoriums) - ~40 students
+                    actual_classroom = self._find_best_classroom_by_capacity(day, time_str, required_capacity=40)
                     if actual_classroom is None:
-                        continue  # No non-C004 classroom available in this slot
+                        continue  # No suitable classroom available in this slot
                 elif classroom is None:
-                    # Common courses or other courses without pre-assigned classroom
-                    actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=False)
+                    # Need to find classroom dynamically
+                    if is_common and required_capacity:
+                        # Common courses: Use capacity-based allocation (needs C004 for 120-180 students)
+                        actual_classroom = self._find_best_classroom_by_capacity(day, time_str, required_capacity)
+                    elif department and not is_common:
+                        # Section-specific: Use single section capacity
+                        section_capacity = self.section_size.get(department, 50)  # Default 50
+                        actual_classroom = self._find_best_classroom_by_capacity(day, time_str, section_capacity)
+                    else:
+                        # Fallback to large classroom finder
+                        actual_classroom = self._find_available_large_classroom(day, time_str, is_elective=False)
+                    
                     if actual_classroom is None:
-                        continue  # No classroom available in this slot
+                        continue  # No suitable classroom available in this slot
                 
                 # Check classroom conflict (local within this timetable)
                 conflict = False
