@@ -741,6 +741,8 @@
                 
                 const result = await response.json();
                 console.log('Generation response:', result);
+                console.log('Index URL:', result.index_url);
+                console.log('API_BASE:', API_BASE);
                 
                 if (result.success) {
                     generateButton.innerHTML = '✓ Timetables Generated!';
@@ -749,6 +751,7 @@
                     
                     // Open the generated timetables in a new tab
                     if (result.index_url) {
+                        console.log('Opening URL:', result.index_url);
                         window.open(result.index_url, '_blank');
                         showViewButton(result.index_url);
                     }

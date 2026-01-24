@@ -341,6 +341,8 @@ def regenerate_timetables():
             env2['OUTPUT_HTML_DIR'] = env['OUTPUT_HTML_DIR']
             
             print(f"\n🎨 Running timetable_to_html.py...")
+            print(f"   INPUT_CSV_DIR: {env2['INPUT_CSV_DIR']}")
+            print(f"   OUTPUT_HTML_DIR: {env2['OUTPUT_HTML_DIR']}")
             
             html_result = subprocess.run(
                 [sys.executable, html_script],
@@ -352,6 +354,10 @@ def regenerate_timetables():
             )
             
             print(f"✅ HTML generation exit code: {html_result.returncode}")
+            if html_result.stdout:
+                print(f"📄 HTML Output:\n{html_result.stdout}")
+            if html_result.stderr:
+                print(f"⚠️  HTML Errors:\n{html_result.stderr}")
             
             # Build index URL
             web_path = f'timetable_html/{latest_version}/index.html'

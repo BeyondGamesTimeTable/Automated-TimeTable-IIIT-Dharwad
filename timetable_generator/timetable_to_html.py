@@ -1088,7 +1088,7 @@ class TimetableHTMLConverter:
                         display_label = f"{cleaned} \u2014 Tutorial (1 hour)"
 
                         html += (
-                            f'<td class="{cell_class}" style="{cell_style}">')
+                            f'<td class="{cell_class}" style="{cell_style}">'
                             f'<div class="cell-inner">'
                             f'<div class="duration-segment tutorial-seg" style="width:{width_pct}%;"></div>'
                             f'<div class="cell-text">{display_label}</div>'
