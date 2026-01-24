@@ -29,30 +29,54 @@ SATURDAY_ENABLED_FOR = {
 }
 
 # ============================================================================
-# MORNING/REGULAR TIME SLOTS (90-minute slots for lectures)
+# MORNING/REGULAR TIME SLOTS (30-minute granular slots)
 # ============================================================================
-# These are used for regular lectures and can accommodate tutorials
+# Base 30-minute slots for granular scheduling
+# Lectures occupy 3 slots (90 min), Tutorials occupy 2 slots (60 min), Labs occupy 4 slots (120 min)
+BASE_30MIN_SLOTS = [
+    ('09:00', '09:30'),
+    ('09:30', '10:00'),
+    ('10:00', '10:30'),
+    ('10:30', '11:00'),
+    ('11:00', '11:30'),
+    ('11:30', '12:00'),
+    ('12:00', '12:30'),
+    ('12:30', '13:00'),
+    # Lunch: 13:00-14:00
+    ('14:00', '14:30'),
+    ('14:30', '15:00'),
+    ('15:00', '15:30'),
+    ('15:30', '16:00'),
+    ('16:00', '16:30'),
+    ('16:30', '17:00'),
+    ('17:00', '17:30'),
+    ('17:30', '18:00'),
+]
+
+# REGULAR_SLOTS: Merged slots for backward compatibility (90-minute blocks)
+# Each represents 3 consecutive 30-min slots
 REGULAR_SLOTS = [
-    ('08:00', '09:30'),  # 90 minutes - Slot 1
-    ('09:45', '11:15'),  # 90 minutes - Slot 2 (15 min break after Slot 1)
-    ('11:30', '13:00'),  # 90 minutes - Slot 3 (15 min break after Slot 2)
+    ('09:00', '10:30'),  # 90 minutes - Slot 1 (3 x 30min)
+    ('10:30', '12:00'),  # 90 minutes - Slot 2
+    ('12:00', '13:00'),  # 60 minutes - Slot 3 (tutorial-friendly)
 ]
 
 # ============================================================================
 # LUNCH BREAK
 # ============================================================================
-LUNCH_SLOT = ('13:00', '14:30')  # 90 minutes lunch break
+LUNCH_SLOT = ('13:00', '14:00')  # 60 minutes lunch break
 
 # ============================================================================
-# AFTERNOON FLEXIBLE SLOTS (120-minute slots)
+# AFTERNOON FLEXIBLE SLOTS (60/90/120-minute slots)
 # ============================================================================
-# These longer slots can accommodate:
-# - Full 2-hour labs
-# - 90-minute lectures
-# - 60-minute tutorials
+# These slots can accommodate:
+# - Full 2-hour labs (4 x 30min)
+# - 90-minute lectures (3 x 30min)
+# - 60-minute tutorials (2 x 30min)
 AFTERNOON_FLEX_SLOTS = [
-    ('14:30', '16:30'),  # 120 minutes - Flexible Slot 1
-    ('16:30', '18:30'),  # 120 minutes - Flexible Slot 2
+    ('14:00', '15:30'),  # 90 minutes - Afternoon Slot 1 (3 x 30min)
+    ('15:30', '17:00'),  # 90 minutes - Afternoon Slot 2 (3 x 30min)
+    ('17:00', '18:00'),  # 60 minutes - Afternoon Slot 3 (2 x 30min, tutorial-friendly)
 ]
 
 # ============================================================================
