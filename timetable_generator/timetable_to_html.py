@@ -1411,7 +1411,7 @@ class TimetableHTMLConverter:
 </head>
 <body>
     <div class="container">
-        <a href="../../index.html" class="back-to-main">🏠 Back to Main Menu</a>
+        <a href="/upload.html" class="back-to-main">🏠 Back to Main Menu</a>
         
         <div class="header">
             <h1>🎓 BeyondGames Timetable Viewer</h1>
