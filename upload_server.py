@@ -524,6 +524,8 @@ if __name__ == '__main__':
     print(f"📊 Max file size: {MAX_FILE_SIZE / (1024*1024)}MB")
     print("\n🌐 Server running at: http://localhost:5000")
     print("📤 Upload page: http://localhost:5000/upload.html")
+    print("\n⚠️  IMPORTANT: Access via http://localhost:5000/upload.html")
+    print("   Do NOT open upload.html directly from file explorer!")
     print("\nPress Ctrl+C to stop the server")
     print("="*80 + "\n")
     
