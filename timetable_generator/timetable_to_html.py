@@ -943,24 +943,34 @@ class TimetableHTMLConverter:
             # The timetable_file path: timetable_outputs/TIMESTAMP/DEPT_SemX_SectionY_Timetable.csv
             # We need: input_files/versions/TIMESTAMP/DEPT.csv
             
-            # Get base directory (timetable_generator folder)
-            base_dir = Path(timetable_file).parent.parent  # Go up from timetable_outputs/TIMESTAMP/
+            # Get base directory (timetable_generator folder - 3 levels up from the CSV file)
+            base_dir = Path(timetable_file).parent.parent.parent  # Go up from timetable_outputs/TIMESTAMP/ to timetable_generator
             
             # Get the timestamp from the timetable file path
             timestamp = Path(timetable_file).parent.name
             course_csv = base_dir / 'input_files' / 'versions' / timestamp / f"{dept}.csv"
             
+            print(f"🔍 Looking for course CSV: {course_csv}")
+            print(f"   Timetable file: {timetable_file}")
+            print(f"   Base dir: {base_dir}")
+            print(f"   Timestamp: {timestamp}")
+            print(f"   Course CSV exists: {course_csv.exists()}")
+            
             if not course_csv.exists():
+                print(f"   ❌ Course CSV not found!")
                 return ""
             
             # Read the course CSV
             df_courses = pd.read_csv(course_csv)
+            print(f"   📊 Loaded {len(df_courses)} courses from CSV")
             
             # Filter 1 and 2-credit courses for this semester and section (Till Midsem)
             two_credit_courses = df_courses[
                 (df_courses['Credits'].isin([1, 2])) & 
                 (df_courses['Semester'] == int(semester.replace('Sem', '')))
             ]
+            
+            print(f"   🔍 Found {len(two_credit_courses)} till-midsem courses for {semester}")
             
             # Further filter by section if specified
             if section != 'SectionA' and section != 'SectionB':
@@ -978,11 +988,15 @@ class TimetableHTMLConverter:
                     (two_credit_courses['Section'].str.contains(section_num, na=False))
                 ]
             
+            print(f"   ✅ Final count after section filter ({section}): {len(two_credit_courses)} courses")
+            
             if len(two_credit_courses) == 0:
+                print(f"   ⚠️  No till-midsem courses to display")
                 return ""
             
             # Store for later use (to add badges in cells)
             self.till_midsem_courses = set(two_credit_courses['Course Code'].tolist())
+            print(f"   📝 Till-midsem courses: {self.till_midsem_courses}")
             
             # Generate HTML for till midsem section
             html = """
