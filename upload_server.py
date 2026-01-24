@@ -309,8 +309,8 @@ def regenerate_timetables():
         # Set up environment variables for the timetable generator
         env = os.environ.copy()
         env['CSV_INPUT_FOLDER'] = os.path.join('input_files', 'versions', latest_version)
-        env['OUTPUT_CSV_DIR'] = os.path.join('..', 'timetable_outputs', latest_version)
-        env['OUTPUT_HTML_DIR'] = os.path.join('..', 'timetable_html', latest_version)
+        env['OUTPUT_CSV_DIR'] = os.path.join('timetable_outputs', latest_version)
+        env['OUTPUT_HTML_DIR'] = os.path.join('timetable_html', latest_version)
         
         print(f"🔧 Environment variables:")
         print(f"   CSV_INPUT_FOLDER: {env['CSV_INPUT_FOLDER']}")
@@ -518,7 +518,7 @@ def serve_csv_outputs(path):
 @app.route('/timetable_html/<path:path>')
 def serve_html_outputs(path):
     """Serve HTML timetable files"""
-    html_dir = os.path.join(BASE_DIR, 'timetable_html')
+    html_dir = os.path.join(BASE_DIR, 'timetable_generator', 'timetable_html')
     return send_from_directory(html_dir, path)
 
 if __name__ == '__main__':
