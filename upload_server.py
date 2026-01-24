@@ -515,6 +515,12 @@ def serve_csv_outputs(path):
     # Otherwise serve the file
     return send_from_directory(csv_dir, path)
 
+@app.route('/timetable_html/<path:path>')
+def serve_html_outputs(path):
+    """Serve HTML timetable files"""
+    html_dir = os.path.join(BASE_DIR, 'timetable_html')
+    return send_from_directory(html_dir, path)
+
 if __name__ == '__main__':
     print("\n" + "="*80)
     print("🚀 Timetable Upload Server Starting...")
