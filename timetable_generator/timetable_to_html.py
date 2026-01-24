@@ -8,6 +8,7 @@ class TimetableHTMLConverter:
         self.input_dir = input_dir
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
+        self.till_midsem_courses = {}  # Store 2-credit courses
         
     def csv_to_html(self, csv_file, html_file):
         """Convert CSV timetable to beautiful HTML"""
@@ -20,6 +21,9 @@ class TimetableHTMLConverter:
             dept = parts[0]
             semester = parts[1]
             section = parts[2]
+            
+            # Load 2-credit courses (till midsem) information
+            till_midsem_html = self._load_till_midsem_courses(csv_file, dept, semester, section)
             
             # Load elective information if available
             elective_file = csv_file.replace('.csv', '_Electives.txt')
@@ -258,6 +262,7 @@ class TimetableHTMLConverter:
             font-weight: 500;
         }}
         
+        /* Individual section classes - Blue */
         .course-slot {{
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border-left: 6px solid #3b82f6;
@@ -266,6 +271,7 @@ class TimetableHTMLConverter:
             padding: 18px 15px;
         }}
         
+        /* Common classes (CSE A+B or DSAI+ECE) - Yellow/Amber */
         .common-course {{
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 6px solid #f59e0b;
@@ -274,6 +280,7 @@ class TimetableHTMLConverter:
             padding: 18px 15px;
         }}
         
+        /* 2-hour Labs - Purple */
         .lab-slot {{
             background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
             border-left: 6px solid #a855f7;
@@ -282,12 +289,111 @@ class TimetableHTMLConverter:
             padding: 18px 15px;
         }}
         
+        /* 1-hour Tutorials - Green */
         .tutorial-slot {{
             background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
             border-left: 6px solid #14b8a6;
             font-weight: 600;
             color: #115e59;
             padding: 18px 15px;
+        }}
+        
+        /* Electives - Orange */
+        .elective-slot {{
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-left: 6px solid #ea580c;
+            font-weight: 600;
+            color: #7c2d12;
+            padding: 18px 15px;
+        }}
+        
+        /* Till Midsem Courses - Red background (entire cell) */
+        .till-midsem-cell {{
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+            border-left: 6px solid #dc2626 !important;
+            font-weight: 600;
+            color: #7f1d1d !important;
+            padding: 18px 15px;
+        }}
+        
+        /* Till Midsem Badge (deprecated - using red cell instead) */
+        .till-midsem-badge {{
+            display: inline-block;
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            color: #7f1d1d;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-left: 8px;
+            border: 1px solid #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        
+        /* Till Midsem Section */
+        .till-midsem-section {{
+            padding: 25px;
+            margin: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 15px;
+            border: 3px solid #dc2626;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }}
+        
+        .till-midsem-section h2 {{
+            color: #991b1b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }}
+        
+        .till-midsem-note {{
+            text-align: center;
+            color: #7f1d1d;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }}
+        
+        .till-midsem-courses {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }}
+        
+        .till-midsem-course-card {{
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #dc2626;
+            transition: transform 0.2s ease;
+        }}
+        
+        .till-midsem-course-card:hover {{
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }}
+        
+        .till-midsem-course-card .course-code {{
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }}
+        
+        .till-midsem-course-card .course-title {{
+            color: #4b5563;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }}
+        
+        .till-midsem-course-card .course-credits {{
+            color: #991b1b;
+            font-size: 0.85em;
+            font-weight: 600;
         }}
         
         .legend {{
@@ -629,9 +735,34 @@ class TimetableHTMLConverter:
             </div>
         </div>
         
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;"></div>
+                <span><strong>Individual Section Classes</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%); border-left: 4px solid #14b8a6;"></div>
+                <span><strong>1-Hour Tutorials</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%); border-left: 4px solid #a855f7;"></div>
+                <span><strong>2-Hour Labs</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;"></div>
+                <span><strong>Common Classes (A+B / DSAI+ECE)</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); border-left: 4px solid #ea580c;"></div>
+                <span><strong>Electives</strong></span>
+            </div>
+        </div>
+        
         <div class="timetable-wrapper">
             {self._generate_table(df)}
         </div>
+        
+        {till_midsem_html}
         
         {electives_html}
     </div>
@@ -777,6 +908,88 @@ class TimetableHTMLConverter:
             print(f"Warning: Could not load electives from {elective_file}: {e}")
             return ""
     
+    def _load_till_midsem_courses(self, timetable_file, dept, semester, section):
+        """Load and display 1-credit and 2-credit courses (till midsem) from the original CSV"""
+        try:
+            # Find the original CSV file with course information
+            # The path pattern: input_files/versions/TIMESTAMP/DEPT.csv
+            base_dir = Path(timetable_file).parent.parent.parent  # Go up from timetable_outputs/TIMESTAMP/
+            input_versions = base_dir / 'timetable_generator' / 'input_files' / 'versions'
+            
+            # Get the latest version (matching timestamp)
+            timestamp = Path(timetable_file).parent.name
+            course_csv = input_versions / timestamp / f"{dept}.csv"
+            
+            if not course_csv.exists():
+                return ""
+            
+            # Read the course CSV
+            df_courses = pd.read_csv(course_csv)
+            
+            # Filter 1 and 2-credit courses for this semester and section (Till Midsem)
+            two_credit_courses = df_courses[
+                (df_courses['Credits'].isin([1, 2])) & 
+                (df_courses['Semester'] == int(semester.replace('Sem', '')))
+            ]
+            
+            # Further filter by section if specified
+            if section != 'SectionA' and section != 'SectionB':
+                # Common courses
+                two_credit_courses = two_credit_courses[
+                    (two_credit_courses['Section'].isna()) | 
+                    (two_credit_courses['Section'] == '')
+                ]
+            else:
+                # Section-specific or common courses
+                section_num = section.replace('Section', '')
+                two_credit_courses = two_credit_courses[
+                    (two_credit_courses['Section'].isna()) | 
+                    (two_credit_courses['Section'] == '') |
+                    (two_credit_courses['Section'].str.contains(section_num, na=False))
+                ]
+            
+            if len(two_credit_courses) == 0:
+                return ""
+            
+            # Store for later use (to add badges in cells)
+            self.till_midsem_courses = set(two_credit_courses['Course Code'].tolist())
+            
+            # Generate HTML for till midsem section
+            html = """
+        <div class="till-midsem-section">
+            <h2>⏰ Till Midsem Courses (1-2 Credits)</h2>
+            <p class="till-midsem-note">⚠️ These courses are scheduled only until the midsemester examinations</p>
+            <div class="till-midsem-courses">
+"""
+            
+            for _, course in two_credit_courses.iterrows():
+                course_code = course['Course Code']
+                course_title = course['Course Title']
+                faculty = course.get('Faculty', 'TBA')
+                credits = course['Credits']
+                
+                html += f"""
+                <div class="till-midsem-course-card">
+                    <div class="course-code">{course_code}</div>
+                    <div class="course-title">{course_title}</div>
+                    <div class="course-credits">👨‍🏫 {faculty} | 📊 {credits} Credit{'s' if credits > 1 else ''}</div>
+                </div>
+"""
+            
+            html += """
+            </div>
+            <p style="margin-top: 20px; color: #7f1d1d; font-style: italic; text-align: center; font-size: 0.95em;">
+                💡 <strong>Note:</strong> After midsem exams, these time slots will be used for other courses or activities.
+            </p>
+        </div>
+"""
+            
+            return html
+            
+        except Exception as e:
+            print(f"Warning: Could not load 2-credit courses: {e}")
+            return ""
+    
     def _generate_table(self, df):
         """Generate HTML table from DataFrame with duration bar support"""
         html = '<table>\n<thead>\n<tr>\n'
@@ -803,7 +1016,15 @@ class TimetableHTMLConverter:
                 if self._is_afternoon_flex_slot(col):
                     html += self._render_flex_slot_cell(cell_value, col)
                 else:
-                    cell_class = self._get_cell_class(cell_value)
+                    # Check if this cell contains a till midsem course (1-2 credits)
+                    is_till_midsem = self._is_till_midsem_course(cell_value)
+                    
+                    # Get cell class, override with red if till midsem
+                    if is_till_midsem:
+                        cell_class = 'till-midsem-cell'
+                    else:
+                        cell_class = self._get_cell_class(cell_value)
+                    
                     # Clean display value (remove [EVENING] label)
                     display_value = cell_value.replace('[EVENING]', '').strip()
                     # For regular slots (non-flex), show tutorials with fractional colored bar
@@ -858,6 +1079,9 @@ class TimetableHTMLConverter:
         elif 'lunch' in cell_value.lower():
             return '<td class="lunch-break">🍽️ LUNCH BREAK</td>\n'
         
+        # Check if this is a till midsem course
+        is_till_midsem = self._is_till_midsem_course(cell_value)
+        
         # Parse duration from cell value (e.g., "[120min]", "[90min]", "[60min]")
         duration_minutes = 120  # Default to full slot
         duration_class = 'lab-duration'  # Default
@@ -890,8 +1114,11 @@ class TimetableHTMLConverter:
         # Clean cell value for display (remove duration markers and EVENING label)
         display_value = cell_value.replace('[120min]', '').replace('[90min]', '').replace('[60min]', '').replace('[EVENING]', '').strip()
         
+        # Override with till midsem class if needed
+        cell_class = 'till-midsem-cell' if is_till_midsem else 'afternoon-flex-slot'
+        
         # Generate cell HTML with duration bar
-        cell_html = f'''<td class="afternoon-flex-slot">
+        cell_html = f'''<td class="{cell_class}">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar {duration_class}">
@@ -904,6 +1131,18 @@ class TimetableHTMLConverter:
 '''
         return cell_html
     
+    def _is_till_midsem_course(self, cell_value):
+        """Check if cell contains a till midsem course (1-2 credits)"""
+        if not hasattr(self, 'till_midsem_courses') or not self.till_midsem_courses:
+            return False
+        
+        # Extract course code from cell value (format: "CSXXX - Title" or "CSXXX")
+        for course_code in self.till_midsem_courses:
+            if course_code in cell_value:
+                return True
+        
+        return False
+    
     def _get_cell_class(self, value):
         """Determine CSS class based on cell content"""
         value_lower = value.lower()
@@ -913,15 +1152,15 @@ class TimetableHTMLConverter:
         elif value_lower == 'free':
             return 'free-slot'
         elif 'elective' in value_lower:
-            return 'common-course'  # Use same styling as common courses (yellow/amber)
+            return 'elective-slot'  # Orange color for electives
         elif 'common' in value_lower:
-            return 'common-course'
-        elif 'lab' in value_lower:
-            return 'lab-slot'
-        elif '-t-' in value_lower:
-            return 'tutorial-slot'
+            return 'common-course'  # Yellow/amber for common classes
+        elif 'lab' in value_lower or '[120min]' in value:
+            return 'lab-slot'  # Purple for 2-hour labs
+        elif '-t-' in value_lower or '[60min]' in value or 'tutorial' in value_lower:
+            return 'tutorial-slot'  # Green for 1-hour tutorials
         else:
-            return 'course-slot'
+            return 'course-slot'  # Blue for individual section classes
     
     def create_index_page(self, timetables):
         """Create main index page for timetable selection"""

@@ -427,6 +427,32 @@
                 </div>
                 <input type="file" id="fileInputClassroom" class="file-input" accept=".csv" onchange="handleFileSelection('Classroom', this.files[0])">
             </div>
+            
+            <div style="margin: 40px 0; border-top: 2px dashed #cbd5e1; padding-top: 30px;">
+                <h3 style="color: #64748b; font-size: 1.2em; margin-bottom: 20px;">📚 Optional Files</h3>
+                
+                <!-- Electives File (Optional) -->
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 10px;">📚 Electives File (Optional)</label>
+                    <div class="drop-zone" id="dropZoneElectives" style="border: 2px dashed #cbd5e1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);" onclick="document.getElementById('fileInputElectives').click()">
+                        <div class="drop-zone-icon" style="opacity: 0.6;">📄</div>
+                        <div class="drop-zone-text" style="color: #64748b;" id="labelElectives">Click to upload Electives CSV (Optional)</div>
+                        <div class="drop-zone-subtext">File: electives.csv</div>
+                    </div>
+                    <input type="file" id="fileInputElectives" class="file-input" accept=".csv" onchange="handleFileSelection('Electives', this.files[0])">
+                </div>
+                
+                <!-- Minors File (Optional) -->
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 10px;">📖 Minors File (Optional)</label>
+                    <div class="drop-zone" id="dropZoneMinors" style="border: 2px dashed #cbd5e1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);" onclick="document.getElementById('fileInputMinors').click()">
+                        <div class="drop-zone-icon" style="opacity: 0.6;">📄</div>
+                        <div class="drop-zone-text" style="color: #64748b;" id="labelMinors">Click to upload Minors CSV (Optional)</div>
+                        <div class="drop-zone-subtext">File: minors.csv</div>
+                    </div>
+                    <input type="file" id="fileInputMinors" class="file-input" accept=".csv" onchange="handleFileSelection('Minors', this.files[0])">
+                </div>
+            </div>
         </div>
         
         <div class="file-list" id="fileList" style="display: none;">
@@ -493,7 +519,9 @@
             CSE: null,
             ECE: null,
             DSAI: null,
-            Classroom: null
+            Classroom: null,
+            Electives: null,  // Optional
+            Minors: null      // Optional
         };
         let currentVersion = null;
 
@@ -529,8 +557,9 @@
             displayFiles();
             
             // Show success message
-            const fileCount = Object.values(selectedFiles).filter(f => f !== null).length;
-            showAlert('success', `${type} file uploaded! (${fileCount}/4 files ready)`);
+            const requiredCount = [selectedFiles.CSE, selectedFiles.ECE, selectedFiles.DSAI, selectedFiles.Classroom].filter(f => f !== null).length;
+            const optionalCount = [selectedFiles.Electives, selectedFiles.Minors].filter(f => f !== null).length;
+            showAlert('success', `${type} file uploaded! (${requiredCount}/4 required, ${optionalCount}/2 optional)`);
         }
         
         function displayFiles() {
@@ -588,11 +617,17 @@
             const label = document.getElementById('label' + type);
             const fileInput = document.getElementById('fileInput' + type);
             
-            dropZone.style.borderColor = '#667eea';
+            // Reset border color based on whether it's optional
+            const isOptional = type === 'Electives' || type === 'Minors';
+            dropZone.style.borderColor = isOptional ? '#cbd5e1' : '#667eea';
             dropZone.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
             
             if (type === 'Classroom') {
                 label.innerHTML = 'Click to upload Classroom CSV';
+            } else if (type === 'Electives') {
+                label.innerHTML = 'Click to upload Electives CSV (Optional)';
+            } else if (type === 'Minors') {
+                label.innerHTML = 'Click to upload Minors CSV (Optional)';
             } else {
                 label.innerHTML = `Click to upload ${type} course CSV`;
             }
@@ -636,6 +671,14 @@
                 formData.append('ece_file', selectedFiles.ECE);
                 formData.append('dsai_file', selectedFiles.DSAI);
                 formData.append('classroom_file', selectedFiles.Classroom);
+                
+                // Add optional files if provided
+                if (selectedFiles.Electives) {
+                    formData.append('electives_file', selectedFiles.Electives);
+                }
+                if (selectedFiles.Minors) {
+                    formData.append('minors_file', selectedFiles.Minors);
+                }
                 
                 // Send to backend
                 const response = await fetch(`${API_BASE}/api/upload`, {

@@ -1,0 +1,19 @@
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester,Section,Lab
+MA163,Linear Algebra,3,1,0,0,2,Dr Somen Bhattacharjee,2,2B,
+MA163,Linear Algebra,3,1,0,0,2,Dr. Sibasankar Padhy,2,2A,
+CS163,Data Structures & Algorithms,3,0,2,0,4,Dr. C. B. Akki,2,2A,S
+CS163,Data Structures & Algorithms,3,0,2,0,4,Dr Suvadip Hazra,2,2B,S
+CS165,Mathematical foundations of Computing,3,0,0,0,3,Dr. Animesh Roy,2,,
+CS206,Theory of Computation,3,1,0,0,4,Dr. Pavan,4,4A,
+CS206,Theory of Computation,3,1,0,0,4, Dr. Sunil C K,4,4B,
+MA202,Linear Algebra,3,1,0,0,4,Dr. Anand Barangi,4,4A,
+MA202,Linear Algebra,3,1,0,0,4,Dr. Anand Barangi,4,4B,
+CS301,Software Engineering,3,1,0,0,4,Dr. Vivekraj V K,4,4A,
+CS301,Software Engineering,3,1,0,0,4,Dr. Sunil Kumar P V,4,4B,
+CS204,Operating System,3,0,2,0,4,Dr. Suvadip Hazra,4,4A,S
+CS204,Operating System,3,0,2,0,4,Dr. Malay/ Dr. Dibyajyothi,4,4B,S
+CS310,Database Management Systems,3,1,2,0,5,Dr. Pramod Yelmewad,4,4A,
+CS310,Database Management Systems,3,1,2,0,5,Dr. Abdul,4,4B,
+HS205,Ethics,3,0,0,0,3,"Dr. Jolly Thomas, IIT Dharwad",4,,
+CS307,Machine Learning,3,0,2,0,4,Dr. Girish G N,6,6A,S
+CS307,Machine Learning,3,0,2,0,4,Dr. Krishnendu Ghosh,6,6B,S

@@ -19,7 +19,8 @@ CORS(app, origins=[
 ])
 
 # Configuration
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'sdtt_inputs')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'timetable_generator', 'input_files', 'sdtt_inputs')
 ALLOWED_EXTENSIONS = {'csv'}
 # Increase request max payload to 64MB to allow larger uploads
 MAX_FILE_SIZE = 64 * 1024 * 1024  # 64MB
@@ -57,16 +58,18 @@ def serve_static(path):
 
 @app.route('/api/upload', methods=['POST'])
 def upload_files():
-    """Handle file upload - Expects 4 specific files: cse_file, ece_file, dsai_file, classroom_file"""
+    """Handle file upload - Expects 4 required files + 2 optional files"""
     try:
         # Check if all required files are present
         required_files = ['cse_file', 'ece_file', 'dsai_file', 'classroom_file']
+        optional_files = ['electives_file', 'minors_file']
+        
         missing_files = [f for f in required_files if f not in request.files]
         
         if missing_files:
             return jsonify({
                 'success': False,
-                'error': f'Missing files: {", ".join(missing_files)}'
+                'error': f'Missing required files: {", ".join(missing_files)}'
             }), 400
         
         # Create a new versioned folder to store this upload
@@ -84,11 +87,25 @@ def upload_files():
             'cse_file': 'CSE.csv',
             'ece_file': 'ECE.csv',
             'dsai_file': 'DSAI.csv',
-            'classroom_file': 'classrooms.csv'
+            'classroom_file': 'classrooms.csv',
+            'electives_file': 'electives.csv',  # Optional
+            'minors_file': 'minors.csv'  # Optional
         }
         
         for field_name, save_name in file_mappings.items():
-            file = request.files[field_name]
+            # Skip optional files if not provided
+            if field_name in optional_files and field_name not in request.files:
+                continue
+            
+            file = request.files.get(field_name)
+            
+            if not file or not file.filename:
+                # Skip if optional file is empty
+                if field_name in optional_files:
+                    continue
+                else:
+                    errors.append(f'{field_name} - No file provided')
+                    continue
             
             if file and file.filename and allowed_file(file.filename):
                 # Save with standardized name
@@ -114,9 +131,13 @@ def upload_files():
                     'path': filepath
                 })
             else:
-                errors.append(f'{field_name} - Invalid file type (only CSV allowed)')
+                # Only error for required files
+                if field_name not in optional_files:
+                    errors.append(f'{field_name} - Invalid file type (only CSV allowed)')
         
-        if len(uploaded_files) == 4:  # All files uploaded successfully
+        # Success if we have at least the 4 required files
+        required_count = sum(1 for f in uploaded_files if f['name'] in ['CSE.csv', 'ECE.csv', 'DSAI.csv', 'classrooms.csv'])
+        if required_count == 4:
             return jsonify({
                 'success': True,
                 'message': f'Successfully uploaded {len(uploaded_files)} files to version {timestamp}',
@@ -242,17 +263,27 @@ def regenerate_timetables():
         import subprocess
         import sys
         
+        print("\n" + "="*80)
+        print("🔄 REGENERATE REQUEST RECEIVED")
+        print("="*80)
+        
         # Find the most recent version folder
-        versions_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'versions')
+        versions_root = os.path.join(BASE_DIR, 'timetable_generator', 'input_files', 'versions')
+        print(f"📁 Versions root: {versions_root}")
+        print(f"✓ Exists: {os.path.exists(versions_root)}")
         
         if not os.path.exists(versions_root):
+            print("❌ Versions folder not found!")
             return jsonify({
                 'success': False,
                 'error': 'No uploaded files found. Please upload CSV files first.'
             }), 404
         
         versions = [d for d in os.listdir(versions_root) if os.path.isdir(os.path.join(versions_root, d))]
+        print(f"📂 Found {len(versions)} versions: {versions}")
+        
         if not versions:
+            print("❌ No version folders found!")
             return jsonify({
                 'success': False,
                 'error': 'No uploaded files found. Please upload CSV files first.'
@@ -260,12 +291,16 @@ def regenerate_timetables():
         
         # Get the latest version (sorted by timestamp)
         latest_version = sorted(versions, reverse=True)[0]
+        print(f"🎯 Using latest version: {latest_version}")
         
         # Path to main.py
-        tg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator')
+        tg_dir = os.path.join(BASE_DIR, 'timetable_generator')
         main_script = os.path.join(tg_dir, 'main.py')
+        print(f"📜 Main script: {main_script}")
+        print(f"✓ Exists: {os.path.exists(main_script)}")
         
         if not os.path.exists(main_script):
+            print("❌ main.py not found!")
             return jsonify({
                 'success': False,
                 'error': 'main.py not found'
@@ -277,6 +312,12 @@ def regenerate_timetables():
         env['OUTPUT_CSV_DIR'] = os.path.join('..', 'timetable_outputs', latest_version)
         env['OUTPUT_HTML_DIR'] = os.path.join('..', 'timetable_html', latest_version)
         
+        print(f"🔧 Environment variables:")
+        print(f"   CSV_INPUT_FOLDER: {env['CSV_INPUT_FOLDER']}")
+        print(f"   OUTPUT_CSV_DIR: {env['OUTPUT_CSV_DIR']}")
+        print(f"   OUTPUT_HTML_DIR: {env['OUTPUT_HTML_DIR']}")
+        print(f"\n🚀 Running main.py...")
+        
         # Run the timetable generation script
         result = subprocess.run(
             [sys.executable, main_script],
@@ -287,12 +328,19 @@ def regenerate_timetables():
             timeout=600  # 10 minutes timeout
         )
         
+        print(f"✅ Main.py exit code: {result.returncode}")
+        
         if result.returncode == 0:
+            print("✅ Timetable generation successful!")
+            print(f"\n📄 Output (first 500 chars):\n{result.stdout[:500]}")
+            
             # Generate HTML from CSV outputs
             html_script = os.path.join(tg_dir, 'timetable_to_html.py')
             env2 = env.copy()
             env2['INPUT_CSV_DIR'] = env['OUTPUT_CSV_DIR']
             env2['OUTPUT_HTML_DIR'] = env['OUTPUT_HTML_DIR']
+            
+            print(f"\n🎨 Running timetable_to_html.py...")
             
             html_result = subprocess.run(
                 [sys.executable, html_script],
@@ -303,9 +351,14 @@ def regenerate_timetables():
                 timeout=300
             )
             
+            print(f"✅ HTML generation exit code: {html_result.returncode}")
+            
             # Build index URL
             web_path = f'timetable_html/{latest_version}/index.html'
             index_url = request.host_url.rstrip('/') + '/' + web_path
+            
+            print(f"🌐 Timetable URL: {index_url}")
+            print("="*80 + "\n")
             
             return jsonify({
                 'success': True,
@@ -315,6 +368,11 @@ def regenerate_timetables():
                 'output': result.stdout
             }), 200
         else:
+            print(f"❌ Timetable generation FAILED!")
+            print(f"📄 STDOUT:\n{result.stdout}")
+            print(f"⚠️  STDERR:\n{result.stderr}")
+            print("="*80 + "\n")
+            
             return jsonify({
                 'success': False,
                 'error': 'Timetable generation failed',
@@ -328,9 +386,14 @@ def regenerate_timetables():
             'error': 'Timetable generation timed out (>10 minutes)'
         }), 500
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"[ERROR] Regenerate failed: {str(e)}")
+        print(error_trace)
         return jsonify({
             'success': False,
-            'error': f'Error regenerating timetables: {str(e)}'
+            'error': f'Server error: {str(e)}',
+            'traceback': error_trace
         }), 500
 
 @app.route('/api/list-generated', methods=['GET'])

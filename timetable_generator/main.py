@@ -86,12 +86,12 @@ class TimetableGenerator:
         
         # Section sizes for capacity calculation (typical IIIT Dharwad section strength)
         self.section_size = {
-            'CSE': 60,   # CSE sections typically have 60 students each
-            'ECE': 90,   # ECE has larger total strength
-            'DSAI': 90   # DSAI has larger total strength
+            'CSE': 80,   # CSE sections have 80 students each
+            'ECE': 80,   # ECE sections have 80 students  
+            'DSAI': 80   # DSAI sections have 80 students
         }
-        # When DSAI + ECE share courses, combined = ~180 students
-        # When CSE A + B together, combined = ~120 students
+        # When DSAI + ECE share courses, combined = ~160 students
+        # When CSE A + B together, combined = ~160 students
         
         # Load classrooms from CSV file
         self.classrooms = self._load_classrooms()
@@ -1357,10 +1357,68 @@ class TimetableGenerator:
             else:
                 return f"{course_code}-{section}"
     
+    def _find_two_available_labs(self, day, time_str, lab_usage, lab_type_preference=None):
+        """Find 2 available lab rooms for a session to accommodate 80 students
+        
+        Args:
+            day: Day of the week
+            time_str: Time slot string
+            lab_usage: Lab usage tracking dictionary
+            lab_type_preference: 'S' for Software, 'H' for Hardware, or None
+        
+        Returns:
+            Tuple of (lab1, lab2) if available, else (None, None)
+        """
+        used_labs = lab_usage[day].get(time_str, [])
+        available_labs = []
+        
+        # Filter labs by type if specified
+        if lab_type_preference:
+            candidate_labs = []
+            for lab in self.lab_rooms:
+                if lab in self.classrooms:
+                    desc = self.classrooms[lab].get('description', '').lower()
+                    if lab_type_preference == 'S' and 'software' in desc:
+                        candidate_labs.append(lab)
+                    elif lab_type_preference == 'H' and 'hardware' in desc:
+                        candidate_labs.append(lab)
+                    elif lab_type_preference not in ['S', 'H']:
+                        candidate_labs.append(lab)
+            
+            if not candidate_labs:
+                candidate_labs = self.lab_rooms  # Fallback to all labs
+        else:
+            candidate_labs = self.lab_rooms
+        
+        # Find available labs
+        for lab in candidate_labs:
+            if lab not in used_labs:
+                # Check GLOBAL usage
+                global_conflict = False
+                if day in self.global_classroom_usage and time_str in self.global_classroom_usage[day]:
+                    if lab in self.global_classroom_usage[day][time_str]:
+                        global_conflict = True
+                
+                if not global_conflict:
+                    available_labs.append(lab)
+        
+        # Return 2 labs if available
+        if len(available_labs) >= 2:
+            return (available_labs[0], available_labs[1])
+        else:
+            return (None, None)
+    
     def _schedule_lab_session(self, timetable, used_slots, lecture_schedule, tutorial_schedule,
                              lab_schedule, lab_usage, course_code, course_title, classroom,
                              section, is_common, is_elective, basket):
-        """Schedule a 2-hour lab session in dedicated afternoon flexible slots"""
+        """Schedule a 2-hour lab session in dedicated afternoon flexible slots
+        
+        For lab sessions, we assign 2 lab rooms together to accommodate ~80 students
+        """
+        
+        # Determine lab type preference from course data if available
+        lab_type_preference = None  # Will be 'S' for Software, 'H' for Hardware
+        # This can be extracted from course data or Practicals column
         
         # Labs are 2 hours and should use the afternoon 2-hour flexible slots
         # This gives priority to labs for these slots
@@ -1382,23 +1440,14 @@ class TimetableGenerator:
                 if timetable[day][time_str] != 'Free':
                     continue
                 
-                # Find an available lab room
-                used_labs = lab_usage[day].get(time_str, [])
-                available_lab = None
-                for lab in self.lab_rooms:
-                    if lab not in used_labs:
-                        # Also check GLOBAL usage
-                        global_conflict = False
-                        if day in self.global_classroom_usage and time_str in self.global_classroom_usage[day]:
-                            if lab in self.global_classroom_usage[day][time_str]:
-                                global_conflict = True
-                        
-                        if not global_conflict:
-                            available_lab = lab
-                            break
+                # Find 2 available lab rooms (to accommodate 80 students)
+                lab1, lab2 = self._find_two_available_labs(day, time_str, lab_usage, lab_type_preference)
                 
-                if not available_lab:
+                if not lab1 or not lab2:
                     continue
+                
+                # Create combined lab room label
+                combined_labs = f"{lab1} & {lab2}"
                 
                 # Create label for lab session
                 if is_elective and basket:
@@ -1408,13 +1457,14 @@ class TimetableGenerator:
                 else:
                     label = f"{course_code}-Lab-{section}"
                 
-                # Schedule the lab (full 2 hours)
-                timetable[day][time_str] = f"{label} [120min] | {available_lab}"
+                # Schedule the lab (full 2 hours) with both rooms
+                timetable[day][time_str] = f"{label} [120min] | {combined_labs}"
                 
-                # Mark lab as used
+                # Mark both labs as used
                 if time_str not in lab_usage[day]:
                     lab_usage[day][time_str] = []
-                lab_usage[day][time_str].append(available_lab)
+                lab_usage[day][time_str].append(lab1)
+                lab_usage[day][time_str].append(lab2)
                 
                 # Mark in used_slots with duration info
                 if day not in used_slots:
@@ -1423,7 +1473,7 @@ class TimetableGenerator:
                     used_slots[day][time_str] = {}
                 
                 used_slots[day][time_str][course_code] = {
-                    'room': available_lab,
+                    'room': combined_labs,
                     'course': course_code,
                     'type': 'Lab',
                     'duration_minutes': 120,  # Full 2 hours
@@ -1432,9 +1482,13 @@ class TimetableGenerator:
                     'basket': basket
                 }
                 
-                # Record GLOBAL classroom usage to prevent double-booking across semesters
+                # Record GLOBAL classroom usage for both labs
                 self._record_global_classroom_usage(
-                    day, time_str, available_lab,
+                    day, time_str, lab1,
+                    self.current_department, self.current_semester, self.current_section, course_code
+                )
+                self._record_global_classroom_usage(
+                    day, time_str, lab2,
                     self.current_department, self.current_semester, self.current_section, course_code
                 )
                 
@@ -1443,7 +1497,7 @@ class TimetableGenerator:
                 
                 return True
         
-        print(f"      WARNING: Could not schedule lab for {course_code}")
+        print(f"      WARNING: Could not schedule lab for {course_code} (need 2 available labs)")
         return False
     
     def export_to_csv(self, timetable, filename, electives=None, rotated_out=None, output_dir='timetable_outputs'):
