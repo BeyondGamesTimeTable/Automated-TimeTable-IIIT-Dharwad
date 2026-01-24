@@ -950,19 +950,19 @@ class TimetableHTMLConverter:
             timestamp = Path(timetable_file).parent.name
             course_csv = base_dir / 'input_files' / 'versions' / timestamp / f"{dept}.csv"
             
-            print(f"🔍 Looking for course CSV: {course_csv}")
+            print(f"Looking for course CSV: {course_csv}")
             print(f"   Timetable file: {timetable_file}")
             print(f"   Base dir: {base_dir}")
             print(f"   Timestamp: {timestamp}")
             print(f"   Course CSV exists: {course_csv.exists()}")
             
             if not course_csv.exists():
-                print(f"   ❌ Course CSV not found!")
+                print(f"   Course CSV not found!")
                 return ""
             
             # Read the course CSV
             df_courses = pd.read_csv(course_csv)
-            print(f"   📊 Loaded {len(df_courses)} courses from CSV")
+            print(f"   Loaded {len(df_courses)} courses from CSV")
             
             # Filter 1 and 2-credit courses for this semester and section (Till Midsem)
             two_credit_courses = df_courses[
@@ -970,33 +970,37 @@ class TimetableHTMLConverter:
                 (df_courses['Semester'] == int(semester.replace('Sem', '')))
             ]
             
-            print(f"   🔍 Found {len(two_credit_courses)} till-midsem courses for {semester}")
+            print(f"   Found {len(two_credit_courses)} till-midsem courses for {semester}")
             
-            # Further filter by section if specified
-            if section != 'SectionA' and section != 'SectionB':
-                # Common courses
-                two_credit_courses = two_credit_courses[
-                    (two_credit_courses['Section'].isna()) | 
-                    (two_credit_courses['Section'] == '')
-                ]
+            # Further filter by section if specified (only if Section column exists)
+            if 'Section' in df_courses.columns:
+                if section != 'SectionA' and section != 'SectionB':
+                    # Common courses
+                    two_credit_courses = two_credit_courses[
+                        (two_credit_courses['Section'].isna()) | 
+                        (two_credit_courses['Section'] == '')
+                    ]
+                else:
+                    # Section-specific or common courses
+                    section_num = section.replace('Section', '')
+                    two_credit_courses = two_credit_courses[
+                        (two_credit_courses['Section'].isna()) | 
+                        (two_credit_courses['Section'] == '') |
+                        (two_credit_courses['Section'].str.contains(section_num, na=False))
+                    ]
             else:
-                # Section-specific or common courses
-                section_num = section.replace('Section', '')
-                two_credit_courses = two_credit_courses[
-                    (two_credit_courses['Section'].isna()) | 
-                    (two_credit_courses['Section'] == '') |
-                    (two_credit_courses['Section'].str.contains(section_num, na=False))
-                ]
+                # No Section column - all courses are common
+                print(f"   No Section column in CSV - treating all courses as common")
             
-            print(f"   ✅ Final count after section filter ({section}): {len(two_credit_courses)} courses")
+            print(f"   Final count after section filter ({section}): {len(two_credit_courses)} courses")
             
             if len(two_credit_courses) == 0:
-                print(f"   ⚠️  No till-midsem courses to display")
+                print(f"   No till-midsem courses to display")
                 return ""
             
             # Store for later use (to add badges in cells)
             self.till_midsem_courses = set(two_credit_courses['Course Code'].tolist())
-            print(f"   📝 Till-midsem courses: {self.till_midsem_courses}")
+            print(f"   Till-midsem courses: {self.till_midsem_courses}")
             
             # Generate HTML for till midsem section
             html = """
