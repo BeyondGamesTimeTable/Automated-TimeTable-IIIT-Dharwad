@@ -57,147 +57,77 @@ def serve_static(path):
 
 @app.route('/api/upload', methods=['POST'])
 def upload_files():
-    """Handle file upload - Deletes old files before uploading new ones"""
+    """Handle file upload - Expects 4 specific files: cse_file, ece_file, dsai_file, classroom_file"""
     try:
-        # Check if files were sent
-        if 'files[]' not in request.files:
+        # Check if all required files are present
+        required_files = ['cse_file', 'ece_file', 'dsai_file', 'classroom_file']
+        missing_files = [f for f in required_files if f not in request.files]
+        
+        if missing_files:
             return jsonify({
                 'success': False,
-                'error': 'No files provided'
+                'error': f'Missing files: {", ".join(missing_files)}'
             }), 400
         
-        files = request.files.getlist('files[]')
-        
-        if not files or files[0].filename == '':
-            return jsonify({
-                'success': False,
-                'error': 'No files selected'
-            }), 400
-        
-        # Instead of deleting old files, create a new versioned folder to store this upload
-        # This preserves existing inputs and generated timetables.
+        # Create a new versioned folder to store this upload
         versions_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'versions')
         os.makedirs(versions_root, exist_ok=True)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         version_dir = os.path.join(versions_root, timestamp)
         os.makedirs(version_dir, exist_ok=True)
-        deleted_count = 0
         
         uploaded_files = []
         errors = []
         
-        for file in files:
-            if file and allowed_file(file.filename):
-                # Secure the filename
-                filename = secure_filename(file.filename)
-                
-                # Save the file into the new version folder
-                filepath = os.path.join(version_dir, filename)
+        # File mappings: form field name -> saved filename
+        file_mappings = {
+            'cse_file': 'CSE.csv',
+            'ece_file': 'ECE.csv',
+            'dsai_file': 'DSAI.csv',
+            'classroom_file': 'classrooms.csv'
+        }
+        
+        for field_name, save_name in file_mappings.items():
+            file = request.files[field_name]
+            
+            if file and file.filename and allowed_file(file.filename):
+                # Save with standardized name
+                filepath = os.path.join(version_dir, save_name)
                 file.save(filepath)
 
                 # Get file size
                 file_size = os.path.getsize(filepath)
 
-                # Enforce per-file size limit; if exceeded, remove saved file and record error
+                # Enforce per-file size limit
                 if file_size > PER_FILE_MAX:
                     try:
                         os.remove(filepath)
                     except Exception:
                         pass
-                    errors.append(f'{filename} - File too large (>{PER_FILE_MAX//(1024*1024)}MB)')
+                    errors.append(f'{file.filename} - File too large (>{PER_FILE_MAX//(1024*1024)}MB)')
                     continue
                 
                 uploaded_files.append({
-                    'name': filename,
+                    'name': save_name,
+                    'original_name': file.filename,
                     'size': file_size,
                     'path': filepath
                 })
             else:
-                errors.append(f'{file.filename} - Invalid file type (only CSV allowed)')
+                errors.append(f'{field_name} - Invalid file type (only CSV allowed)')
         
-        if uploaded_files:
-            # After successful upload, trigger regeneration using the uploaded version folder.
-            try:
-                import subprocess, sys
-                # Run main.py in timetable_generator using the uploaded CSV folder
-                tg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator')
-                main_script = os.path.join(tg_dir, 'main.py')
-
-                env = os.environ.copy()
-                # CSV input folder relative to timetable_generator (used by main)
-                env['CSV_INPUT_FOLDER'] = os.path.join('input_files', 'versions', timestamp)
-                # Output folders (place per-run outputs under timestamped dirs)
-                env['OUTPUT_CSV_DIR'] = os.path.join('..', 'timetable_outputs', timestamp)
-                env['OUTPUT_HTML_DIR'] = os.path.join('..', 'timetable_html', timestamp)
-
-                # Run the timetable generator
-                result = subprocess.run([
-                    sys.executable, main_script
-                ], cwd=tg_dir, capture_output=True, text=True, env=env, timeout=600)
-
-                if result.returncode != 0:
-                    # Generation failed; return upload success but generation error
-                    return jsonify({
-                        'success': True,
-                        'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}',
-                        'files': uploaded_files,
-                        'version': timestamp,
-                        'regenerate': False,
-                        'error': result.stderr,
-                        'generator_stdout': result.stdout
-                    }), 200
-
-                # Convert CSVs to HTML using timetable_to_html.py and the output folders
-                html_script = os.path.join(tg_dir, 'timetable_to_html.py')
-                env2 = env.copy()
-                # input csv dir for html converter is the CSV output dir we set above (relative to tg_dir)
-                env2['INPUT_CSV_DIR'] = env['OUTPUT_CSV_DIR']
-                env2['OUTPUT_HTML_DIR'] = env['OUTPUT_HTML_DIR']
-
-                html_result = subprocess.run([
-                    sys.executable, html_script
-                ], cwd=tg_dir, capture_output=True, text=True, env=env2, timeout=300)
-
-                if html_result.returncode != 0:
-                    return jsonify({
-                        'success': True,
-                        'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}; CSVs generated but HTML conversion failed',
-                        'files': uploaded_files,
-                        'version': timestamp,
-                        'regenerate': True,
-                        'html_error': html_result.stderr
-                    }), 200
-
-                # Success: return links to the new HTML index
-                # Construct web path (remove leading .. so it's relative to repo root)
-                web_path = os.path.normpath(os.path.join(env2['OUTPUT_HTML_DIR'], 'index.html'))
-                # If it starts with ..\ remove the parent reference
-                parent_prefix = '..' + os.sep
-                if web_path.startswith(parent_prefix):
-                    web_path = web_path[len(parent_prefix):]
-                web_path = web_path.replace('\\', '/')
-
-                return jsonify({
-                    'success': True,
-                    'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}; timetables regenerated',
-                    'files': uploaded_files,
-                    'version': timestamp,
-                    'regenerate': True,
-                    'index_url': request.host_url.rstrip('/') + '/' + web_path
-                }), 200
-            except Exception as e:
-                return jsonify({
-                    'success': True,
-                    'message': f'Uploaded {len(uploaded_files)} new file(s) into version {timestamp}',
-                    'files': uploaded_files,
-                    'version': timestamp,
-                    'regenerate': False,
-                    'error': str(e)
-                }), 200
+        if len(uploaded_files) == 4:  # All files uploaded successfully
+            return jsonify({
+                'success': True,
+                'message': f'Successfully uploaded {len(uploaded_files)} files to version {timestamp}',
+                'files': uploaded_files,
+                'version': timestamp
+            }), 200
         else:
             return jsonify({
                 'success': False,
-                'error': 'No valid CSV files uploaded',
+                'error': 'Failed to upload all required files',
+                'uploaded': uploaded_files,
                 'errors': errors
             }), 400
             
@@ -307,13 +237,33 @@ def health_check():
 
 @app.route('/api/regenerate', methods=['POST'])
 def regenerate_timetables():
-    """Regenerate timetables from uploaded CSV files"""
+    """Regenerate timetables from the most recent uploaded CSV files"""
     try:
         import subprocess
         import sys
         
+        # Find the most recent version folder
+        versions_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'input_files', 'versions')
+        
+        if not os.path.exists(versions_root):
+            return jsonify({
+                'success': False,
+                'error': 'No uploaded files found. Please upload CSV files first.'
+            }), 404
+        
+        versions = [d for d in os.listdir(versions_root) if os.path.isdir(os.path.join(versions_root, d))]
+        if not versions:
+            return jsonify({
+                'success': False,
+                'error': 'No uploaded files found. Please upload CSV files first.'
+            }), 404
+        
+        # Get the latest version (sorted by timestamp)
+        latest_version = sorted(versions, reverse=True)[0]
+        
         # Path to main.py
-        main_script = os.path.join(os.path.dirname(__file__), 'timetable_generator', 'main.py')
+        tg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator')
+        main_script = os.path.join(tg_dir, 'main.py')
         
         if not os.path.exists(main_script):
             return jsonify({
@@ -321,37 +271,186 @@ def regenerate_timetables():
                 'error': 'main.py not found'
             }), 404
         
+        # Set up environment variables for the timetable generator
+        env = os.environ.copy()
+        env['CSV_INPUT_FOLDER'] = os.path.join('input_files', 'versions', latest_version)
+        env['OUTPUT_CSV_DIR'] = os.path.join('..', 'timetable_outputs', latest_version)
+        env['OUTPUT_HTML_DIR'] = os.path.join('..', 'timetable_html', latest_version)
+        
         # Run the timetable generation script
         result = subprocess.run(
             [sys.executable, main_script],
+            cwd=tg_dir,
             capture_output=True,
             text=True,
-            timeout=300  # 5 minutes timeout
+            env=env,
+            timeout=600  # 10 minutes timeout
         )
         
         if result.returncode == 0:
+            # Generate HTML from CSV outputs
+            html_script = os.path.join(tg_dir, 'timetable_to_html.py')
+            env2 = env.copy()
+            env2['INPUT_CSV_DIR'] = env['OUTPUT_CSV_DIR']
+            env2['OUTPUT_HTML_DIR'] = env['OUTPUT_HTML_DIR']
+            
+            html_result = subprocess.run(
+                [sys.executable, html_script],
+                cwd=tg_dir,
+                capture_output=True,
+                text=True,
+                env=env2,
+                timeout=300
+            )
+            
+            # Build index URL
+            web_path = f'timetable_html/{latest_version}/index.html'
+            index_url = request.host_url.rstrip('/') + '/' + web_path
+            
             return jsonify({
                 'success': True,
-                'message': 'Timetables regenerated successfully!',
+                'message': f'Timetables generated successfully for version {latest_version}!',
+                'version': latest_version,
+                'index_url': index_url,
                 'output': result.stdout
             }), 200
         else:
             return jsonify({
                 'success': False,
                 'error': 'Timetable generation failed',
-                'details': result.stderr
+                'details': result.stderr,
+                'stdout': result.stdout
             }), 500
             
     except subprocess.TimeoutExpired:
         return jsonify({
             'success': False,
-            'error': 'Timetable generation timed out (>5 minutes)'
+            'error': 'Timetable generation timed out (>10 minutes)'
         }), 500
     except Exception as e:
         return jsonify({
             'success': False,
             'error': f'Error regenerating timetables: {str(e)}'
         }), 500
+
+@app.route('/api/list-generated', methods=['GET'])
+def list_generated_timetables():
+    """List all generated timetable versions with their files"""
+    try:
+        tg_dir = os.path.join(BASE_DIR, 'timetable_generator')
+        html_dir = os.path.join(BASE_DIR, 'timetable_html')
+        csv_dir = os.path.join(BASE_DIR, 'timetable_outputs')
+        
+        versions = []
+        
+        # Get all HTML version folders
+        if os.path.exists(html_dir):
+            for version in sorted(os.listdir(html_dir), reverse=True):
+                version_path = os.path.join(html_dir, version)
+                if os.path.isdir(version_path):
+                    # Check if index.html exists
+                    index_path = os.path.join(version_path, 'index.html')
+                    has_html = os.path.exists(index_path)
+                    
+                    # Check if CSV outputs exist
+                    csv_version_path = os.path.join(csv_dir, version)
+                    has_csv = os.path.exists(csv_version_path) and os.path.isdir(csv_version_path)
+                    
+                    # Count CSV files
+                    csv_count = 0
+                    if has_csv:
+                        csv_count = len([f for f in os.listdir(csv_version_path) if f.endswith('.csv')])
+                    
+                    # Parse timestamp for display
+                    try:
+                        from datetime import datetime
+                        dt = datetime.strptime(version, '%Y%m%d_%H%M%S')
+                        display_time = dt.strftime('%B %d, %Y at %I:%M:%S %p')
+                    except:
+                        display_time = version
+                    
+                    versions.append({
+                        'version': version,
+                        'display_time': display_time,
+                        'has_html': has_html,
+                        'has_csv': has_csv,
+                        'csv_count': csv_count,
+                        'html_url': f'/timetable_html/{version}/index.html' if has_html else None,
+                        'csv_folder': f'/timetable_outputs/{version}/' if has_csv else None
+                    })
+        
+        return jsonify({
+            'success': True,
+            'versions': versions
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error listing versions: {str(e)}'
+        }), 500
+
+@app.route('/timetable_outputs/<path:path>')
+def serve_csv_outputs(path):
+    """Serve CSV output files with directory listing"""
+    csv_dir = os.path.join(BASE_DIR, 'timetable_outputs')
+    full_path = os.path.join(csv_dir, path)
+    
+    # If it's a directory, return a simple HTML listing
+    if os.path.isdir(full_path):
+        files = []
+        for item in sorted(os.listdir(full_path)):
+            item_path = os.path.join(full_path, item)
+            if os.path.isfile(item_path):
+                size = os.path.getsize(item_path)
+                files.append({
+                    'name': item,
+                    'size': size,
+                    'url': f'/timetable_outputs/{path}/{item}' if path else f'/timetable_outputs/{item}'
+                })
+        
+        html = f'''<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV Files - {path or 'Root'}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }}
+        .container {{ max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+        h1 {{ color: #333; border-bottom: 3px solid #667eea; padding-bottom: 15px; }}
+        .file-list {{ list-style: none; padding: 0; }}
+        .file-item {{ padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }}
+        .file-item:hover {{ background: #e9ecef; }}
+        .file-name {{ font-weight: 600; color: #495057; }}
+        .file-size {{ color: #6c757d; font-size: 0.9em; }}
+        .download-btn {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; }}
+        .download-btn:hover {{ opacity: 0.9; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 CSV Files - {path or 'All Versions'}</h1>
+        <ul class="file-list">
+'''
+        for file in files:
+            html += f'''
+            <li class="file-item">
+                <div>
+                    <div class="file-name">📄 {file['name']}</div>
+                    <div class="file-size">{file['size']:,} bytes</div>
+                </div>
+                <a href="{file['url']}" class="download-btn" download>⬇ Download</a>
+            </li>
+'''
+        html += '''
+        </ul>
+    </div>
+</body>
+</html>
+'''
+        return html
+    
+    # Otherwise serve the file
+    return send_from_directory(csv_dir, path)
 
 if __name__ == '__main__':
     print("\n" + "="*80)

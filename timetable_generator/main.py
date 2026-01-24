@@ -110,7 +110,7 @@ class TimetableGenerator:
         
     def load_department_data(self, department):
         """Load CSV data for a specific department"""
-        csv_file = os.path.join(self.csv_folder, f'Even {department}.csv')
+        csv_file = os.path.join(self.csv_folder, f'{department}.csv')
         if not os.path.exists(csv_file):
             print(f"Warning: {csv_file} not found")
             return None

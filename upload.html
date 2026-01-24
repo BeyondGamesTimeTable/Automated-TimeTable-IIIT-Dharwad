@@ -382,31 +382,65 @@
         </div>
         
         <div class="upload-section">
-            <h2 class="section-title">📁 Select CSV Files</h2>
+            <h2 class="section-title">📁 Upload Required Files</h2>
             
-            <div class="drop-zone" id="dropZone">
-                <div class="drop-zone-icon">📄</div>
-                <div class="drop-zone-text">Drag & Drop CSV Files Here</div>
-                <div class="drop-zone-subtext">or click to browse</div>
-                <button class="browse-button" onclick="document.getElementById('fileInput').click()">
-                    📂 Browse Files
-                </button>
+            <!-- CSE Course File -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; color: #1e293b; display: block; margin-bottom: 10px;">📘 CSE Course File *</label>
+                <div class="drop-zone" id="dropZoneCSE" onclick="document.getElementById('fileInputCSE').click()">
+                    <div class="drop-zone-icon">📄</div>
+                    <div class="drop-zone-text" id="labelCSE">Click to upload CSE course CSV</div>
+                    <div class="drop-zone-subtext">File: CSE.csv or CSE_course.csv</div>
+                </div>
+                <input type="file" id="fileInputCSE" class="file-input" accept=".csv" onchange="handleFileSelection('CSE', this.files[0])">
             </div>
-            
-            <input 
-                type="file" 
-                id="fileInput" 
-                class="file-input" 
-                accept=".csv" 
-                multiple
-            >
+
+            <!-- ECE Course File -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; color: #1e293b; display: block; margin-bottom: 10px;">📗 ECE Course File *</label>
+                <div class="drop-zone" id="dropZoneECE" onclick="document.getElementById('fileInputECE').click()">
+                    <div class="drop-zone-icon">📄</div>
+                    <div class="drop-zone-text" id="labelECE">Click to upload ECE course CSV</div>
+                    <div class="drop-zone-subtext">File: ECE.csv or ECE_course.csv</div>
+                </div>
+                <input type="file" id="fileInputECE" class="file-input" accept=".csv" onchange="handleFileSelection('ECE', this.files[0])">
+            </div>
+
+            <!-- DSAI Course File -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; color: #1e293b; display: block; margin-bottom: 10px;">📙 DSAI Course File *</label>
+                <div class="drop-zone" id="dropZoneDSAI" onclick="document.getElementById('fileInputDSAI').click()">
+                    <div class="drop-zone-icon">📄</div>
+                    <div class="drop-zone-text" id="labelDSAI">Click to upload DSAI course CSV</div>
+                    <div class="drop-zone-subtext">File: DSAI.csv or DSAI_course.csv</div>
+                </div>
+                <input type="file" id="fileInputDSAI" class="file-input" accept=".csv" onchange="handleFileSelection('DSAI', this.files[0])">
+            </div>
+
+            <!-- Classroom File -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; color: #1e293b; display: block; margin-bottom: 10px;">🏫 Classroom File *</label>
+                <div class="drop-zone" id="dropZoneClassroom" onclick="document.getElementById('fileInputClassroom').click()">
+                    <div class="drop-zone-icon">📄</div>
+                    <div class="drop-zone-text" id="labelClassroom">Click to upload Classroom CSV</div>
+                    <div class="drop-zone-subtext">File: classrooms.csv</div>
+                </div>
+                <input type="file" id="fileInputClassroom" class="file-input" accept=".csv" onchange="handleFileSelection('Classroom', this.files[0])">
+            </div>
         </div>
         
         <div class="file-list" id="fileList" style="display: none;">
             <h2 class="section-title">📋 Selected Files</h2>
             <div id="fileItems"></div>
-            <button class="upload-all-button" id="uploadButton" onclick="simulateUpload()">
-                🚀 Process Files
+            <button class="upload-all-button" id="uploadButton" onclick="uploadFiles()">
+                🚀 Upload Files
+            </button>
+        </div>
+
+        <!-- Generate button (shown after successful upload) -->
+        <div id="generateSection" style="display:none; margin-top:18px;">
+            <button id="generateButton" class="upload-all-button" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);" onclick="generateTimetables()">
+                ⚡ Generate Timetables
             </button>
         </div>
 
@@ -416,19 +450,52 @@
         </div>
 
         <div class="file-list" id="versionsSection" style="display: none; margin-top: 30px;">
-            <h2 class="section-title">🕘 Generated Versions</h2>
+            <h2 class="section-title">� Previously Generated Timetables</h2>
+            <p style="color: #64748b; margin-bottom: 20px; font-size: 0.95em;">Click on any version below to view the timetables or download CSV files</p>
             <div id="versionsList">Loading versions...</div>
-            <button class="upload-all-button" id="refreshVersions" style="margin-top:12px; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);" onclick="fetchVersions()">🔄 Refresh Versions</button>
+            <button class="upload-all-button" id="refreshVersions" style="margin-top:12px; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);" onclick="fetchVersions()">🔄 Refresh List</button>
+        </div>
+        
+        <div class="instructions" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px; border-radius: 15px; margin-top: 30px; border-left: 5px solid #3b82f6;">
+            <h3 style="color: #1e40af; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">📋 File Upload Instructions</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>CSE/ECE/DSAI Files:</strong> Upload course data CSV files containing Course Code, Course Title, Lectures, Tutorials, Practicals, Credits, Faculty, Semester, Section, etc.</span>
+                </li>
+                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>Classroom File:</strong> Upload CSV with columns: <code>Classroom, Capacity, Type</code> (e.g., "C004,240,Lecture Hall")</span>
+                </li>
+                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>All 4 files required:</strong> System will only process once all files are uploaded</span>
+                </li>
+                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>Auto-generation:</strong> Timetables are automatically generated after successful upload</span>
+                </li>
+                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>Version Control:</strong> Each upload creates a new timestamped version preserving history</span>
+                </li>
+            </ul>
         </div>
     </div>
     
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const fileItems = document.getElementById('fileItems');
         const uploadButton = document.getElementById('uploadButton');
-        let selectedFiles = [];
+        const generateSection = document.getElementById('generateSection');
+        const generateButton = document.getElementById('generateButton');
+        let selectedFiles = {
+            CSE: null,
+            ECE: null,
+            DSAI: null,
+            Classroom: null
+        };
+        let currentVersion = null;
 
         // API base auto-detection: prefer local server while developing
         const REMOTE_API = 'https://automated-timetable-iiit-dharwad.onrender.com';
@@ -439,89 +506,101 @@
             API_BASE = REMOTE_API;
         }
         
-        // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        // Highlight drop zone when dragging over it
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                dropZone.classList.add('dragover');
-            }, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                dropZone.classList.remove('dragover');
-            }, false);
-        });
-        
-        // Handle dropped files
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        });
-        
-        // Handle clicked browse
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-        
-        // Click on drop zone to open file browser
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        function handleFiles(files) {
-            selectedFiles = Array.from(files).filter(file => file.name.endsWith('.csv'));
+        function handleFileSelection(type, file) {
+            console.log('handleFileSelection called:', type, file);
             
-            if (selectedFiles.length === 0) {
+            if (!file) return;
+            
+            if (!file.name.endsWith('.csv')) {
                 showAlert('warning', 'Please select CSV files only.');
                 return;
             }
             
+            selectedFiles[type] = file;
+            
+            // Update the drop zone to show selected file with clear success indication
+            const dropZone = document.getElementById('dropZone' + type);
+            const label = document.getElementById('label' + type);
+            
+            dropZone.style.borderColor = '#16a34a';
+            dropZone.style.background = 'linear-gradient(135deg, #d4f4dd 0%, #b8e6c2 100%)';
+            label.innerHTML = `<span style="color: #16a34a; font-weight: bold;">✓ DONE</span><br><span style="font-size: 0.9em;">${file.name} (${formatBytes(file.size)})</span>`;
+            
             displayFiles();
-            fileList.style.display = 'block';
+            
+            // Show success message
+            const fileCount = Object.values(selectedFiles).filter(f => f !== null).length;
+            showAlert('success', `${type} file uploaded! (${fileCount}/4 files ready)`);
         }
         
         function displayFiles() {
+            console.log('displayFiles called', selectedFiles);
             fileItems.innerHTML = '';
+            let hasFiles = false;
             
-            selectedFiles.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <div class="file-info">
-                        <div class="file-icon">📄</div>
-                        <div class="file-details">
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-size">${formatBytes(file.size)}</div>
+            Object.keys(selectedFiles).forEach(type => {
+                const file = selectedFiles[type];
+                if (file) {
+                    hasFiles = true;
+                    console.log('Adding file:', type, file.name);
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    const icon = type === 'Classroom' ? '🏫' : '📄';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-icon">${icon}</div>
+                            <div class="file-details">
+                                <div class="file-name">${type}: ${file.name}</div>
+                                <div class="file-size">${formatBytes(file.size)}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="file-status">
-                        <span class="status-badge status-ready">Ready</span>
-                        <button class="remove-button" onclick="removeFile(${index})">✕ Remove</button>
-                    </div>
-                `;
-                fileItems.appendChild(fileItem);
+                        <div class="file-status">
+                            <span class="status-badge status-ready">Ready</span>
+                            <button class="remove-button" onclick="removeFile('${type}')">✕ Remove</button>
+                        </div>
+                    `;
+                    fileItems.appendChild(fileItem);
+                }
             });
+            
+            console.log('hasFiles:', hasFiles);
+            if (hasFiles) {
+                fileList.style.display = 'block';
+                // Check if all 4 files are uploaded
+                const allUploaded = selectedFiles.CSE && selectedFiles.ECE && selectedFiles.DSAI && selectedFiles.Classroom;
+                uploadButton.disabled = !allUploaded;
+                console.log('All uploaded:', allUploaded);
+                if (!allUploaded) {
+                    uploadButton.style.opacity = '0.5';
+                } else {
+                    uploadButton.style.opacity = '1';
+                }
+            } else {
+                fileList.style.display = 'none';
+            }
         }
         
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            if (selectedFiles.length === 0) {
-                fileList.style.display = 'none';
+        function removeFile(type) {
+            selectedFiles[type] = null;
+            
+            // Reset the drop zone
+            const dropZone = document.getElementById('dropZone' + type);
+            const label = document.getElementById('label' + type);
+            const fileInput = document.getElementById('fileInput' + type);
+            
+            dropZone.style.borderColor = '#667eea';
+            dropZone.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
+            
+            if (type === 'Classroom') {
+                label.innerHTML = 'Click to upload Classroom CSV';
             } else {
-                displayFiles();
+                label.innerHTML = `Click to upload ${type} course CSV`;
             }
+            
+            fileInput.value = '';
+            displayFiles();
+            
+            showAlert('info', `${type} file removed`);
         }
         
         function formatBytes(bytes, decimals = 2) {
@@ -533,7 +612,13 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
         
-        async function simulateUpload() {
+        async function uploadFiles() {
+            // Validate all files are present
+            if (!selectedFiles.CSE || !selectedFiles.ECE || !selectedFiles.DSAI || !selectedFiles.Classroom) {
+                showAlert('warning', 'Please upload all 4 required files (CSE, ECE, DSAI, Classroom)');
+                return;
+            }
+            
             // Upload files to backend server
             uploadButton.disabled = true;
             uploadButton.innerHTML = '⏳ Uploading...';
@@ -545,11 +630,12 @@
             });
             
             try {
-                // Create FormData object
+                // Create FormData object with named files
                 const formData = new FormData();
-                selectedFiles.forEach(file => {
-                    formData.append('files[]', file);
-                });
+                formData.append('cse_file', selectedFiles.CSE);
+                formData.append('ece_file', selectedFiles.ECE);
+                formData.append('dsai_file', selectedFiles.DSAI);
+                formData.append('classroom_file', selectedFiles.Classroom);
                 
                 // Send to backend
                 const response = await fetch(`${API_BASE}/api/upload`, {
@@ -558,6 +644,7 @@
                 });
                 
                 const result = await response.json();
+                console.log('Upload response:', result);
                 
                 if (result.success) {
                     statusBadges.forEach(badge => {
@@ -565,67 +652,23 @@
                         badge.textContent = '✓ Uploaded';
                     });
                     
-                    uploadButton.innerHTML = '🔄 Regenerating Timetables...';
-                    uploadButton.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
+                    uploadButton.innerHTML = '✓ Files Uploaded!';
+                    uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
                     
-                    const deleteMsg = result.deleted_count > 0 ? `Deleted ${result.deleted_count} old file(s). ` : '';
-                    showAlert('success', `${deleteMsg}Uploaded ${result.files.length} new file(s). Regenerating timetables...`);
+                    currentVersion = result.version;
+                    showAlert('success', `✅ Successfully uploaded ${result.files.length} files to version ${result.version}! Click "Generate Timetables" to process.`);
                     
-                    // AUTOMATICALLY REGENERATE TIMETABLES
-                    try {
-                        const regenResponse = await fetch(`${API_BASE}/api/regenerate`, {
-                            method: 'POST'
-                        });
-                        
-                        const regenResult = await regenResponse.json();
-                        
-                        if (regenResult.success) {
-                            uploadButton.innerHTML = '✓ Timetables Updated!';
-                            uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
-                            showAlert('success', '🎉 Timetables regenerated successfully! Refresh the timetable pages to see updates.');
-                            // If server returned an index_url, open it in a new tab and show persistent view button
-                            if (result.index_url) {
-                                try {
-                                    window.open(result.index_url, '_blank');
-                                } catch (e) {
-                                    // popup blocked - still show persistent button below
-                                }
-                                showViewButton(result.index_url);
-                            }
-                            // Refresh versions list to include the new one
-                            fetchVersions();
-                            
-                            // Reset after 5 seconds
-                            setTimeout(() => {
-                                selectedFiles = [];
-                                fileList.style.display = 'none';
-                                fileInput.value = '';
-                                uploadButton.disabled = false;
-                                uploadButton.innerHTML = '🚀 Upload Files';
-                                uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
-                            }, 5000);
-                        } else {
-                            throw new Error(regenResult.error || 'Regeneration failed');
-                        }
-                    } catch (regenError) {
-                        uploadButton.innerHTML = '⚠️ Upload OK, Regen Failed';
-                        uploadButton.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
-                        showAlert('warning', `Files uploaded but timetable regeneration failed: ${regenError.message}. You may need to regenerate manually.`);
-                        
-                        setTimeout(() => {
-                            selectedFiles = [];
-                            fileList.style.display = 'none';
-                            fileInput.value = '';
-                            uploadButton.disabled = false;
-                            uploadButton.innerHTML = '🚀 Upload Files';
-                            uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
-                        }, 5000);
-                    }
+                    // Show generate button
+                    generateSection.style.display = 'block';
+                    
+                    // Refresh versions list
+                    fetchVersions();
                 } else {
                     throw new Error(result.error || 'Upload failed');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
+                console.error('Error details:', error.stack);
                 
                 statusBadges.forEach(badge => {
                     badge.className = 'status-badge status-error';
@@ -635,8 +678,79 @@
                 uploadButton.disabled = false;
                 uploadButton.innerHTML = '🚀 Retry Upload';
                 
-                showAlert('error', `Upload failed: ${error.message}. Make sure the server is running (py upload_server.py)`);
+                showAlert('error', `Upload error: ${error.message}. Check browser console for details.`);
             }
+        }
+
+        async function generateTimetables() {
+            if (!currentVersion) {
+                showAlert('warning', 'Please upload files first');
+                return;
+            }
+
+            generateButton.disabled = true;
+            generateButton.innerHTML = '⏳ Generating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/regenerate`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                console.log('Generation response:', result);
+                
+                if (result.success) {
+                    generateButton.innerHTML = '✓ Timetables Generated!';
+                    generateButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
+                    showAlert('success', '🎉 Timetables generated successfully!');
+                    
+                    // Open the generated timetables in a new tab
+                    if (result.index_url) {
+                        window.open(result.index_url, '_blank');
+                        showViewButton(result.index_url);
+                    }
+                    
+                    // Refresh versions to show generated outputs
+                    fetchVersions();
+                    
+                    // Reset after 10 seconds to give user time to see success
+                    setTimeout(() => {
+                        resetForm();
+                    }, 10000);
+                } else {
+                    throw new Error(result.error || result.details || 'Generation failed');
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                
+                generateButton.disabled = false;
+                generateButton.innerHTML = '⚡ Retry Generation';
+                generateButton.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                
+                showAlert('error', `Generation failed: ${error.message}. Check server logs for details.`);
+            }
+        }
+        
+        function resetForm() {
+            Object.keys(selectedFiles).forEach(type => {
+                removeFile(type);
+            });
+            selectedFiles = {
+                CSE: null,
+                ECE: null,
+                DSAI: null,
+                Classroom: null
+            };
+            currentVersion = null;
+            fileList.style.display = 'none';
+            generateSection.style.display = 'none';
+            uploadButton.disabled = false;
+            uploadButton.innerHTML = '🚀 Upload Files';
+            uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
+            uploadButton.style.opacity = '1';
+            generateButton.disabled = false;
+            generateButton.innerHTML = '⚡ Generate Timetables';
+            generateButton.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
         }
         
         // Check if server is running on page load
@@ -660,12 +774,12 @@
             const container = document.getElementById('versionsList');
             container.innerHTML = 'Loading versions...';
             try {
-                const resp = await fetch(`${API_BASE}/api/list-versions`);
+                const resp = await fetch(`${API_BASE}/api/list-generated`);
                 const data = await resp.json();
                 if (!data.success) throw new Error(data.error || 'Failed to list versions');
 
                 if (!data.versions || data.versions.length === 0) {
-                    container.innerHTML = '<div class="alert alert-info">No versions found yet. Upload some CSVs to generate a timetable.</div>';
+                    container.innerHTML = '<div class="alert alert-info" style="padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; color: #1e40af; border-radius: 8px;">No timetables generated yet. Upload CSV files and click Generate to create your first timetable.</div>';
                     document.getElementById('versionsSection').style.display = 'none';
                     return;
                 }
@@ -673,11 +787,11 @@
                 document.getElementById('versionsSection').style.display = 'block';
                 container.innerHTML = '';
 
-                // If the most recent version has an index_path, show the view button for it
+                // If the most recent version has HTML, show the view button for it
                 if (data.versions && data.versions.length > 0) {
                     const newest = data.versions[0];
-                    if (newest.index_path) {
-                        const full = `${location.protocol}//${location.host}/${newest.index_path}`;
+                    if (newest.html_url) {
+                        const full = `${location.protocol}//${location.host}${newest.html_url}`;
                         showViewButton(full);
                     }
                 }
@@ -685,23 +799,27 @@
                 data.versions.forEach(v => {
                     const el = document.createElement('div');
                     el.className = 'file-item';
-                    const created = new Date(v.created * 1000).toLocaleString();
+                    el.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                    el.style.border = '2px solid #cbd5e1';
                     el.innerHTML = `
                         <div class="file-info">
-                            <div class="file-icon">🗂️</div>
+                            <div class="file-icon" style="font-size: 2em;">📅</div>
                             <div class="file-details">
-                                <div class="file-name">${v.version} &nbsp; <small style="color:#64748b;">${created}</small></div>
-                                <div class="file-size">${v.input_count} input file(s)</div>
+                                <div class="file-name" style="font-weight: 600; color: #1e293b;">${v.display_time}</div>
+                                <div class="file-size" style="color: #64748b;">
+                                    ${v.csv_count} CSV file(s) • ${v.has_html ? '✅ HTML Generated' : '⏳ Processing'}
+                                </div>
                             </div>
                         </div>
-                        <div class="file-status">
-                            ${v.index_path ? `<a class="status-badge status-success" href="/${v.index_path}" target="_blank">View</a>` : `<span class="status-badge status-ready">Processing</span>`}
+                        <div class="file-status" style="gap: 10px; display: flex; flex-wrap: wrap;">
+                            ${v.has_html ? `<a class="status-badge" href="${v.html_url}" target="_blank" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 600;">📊 View Timetables</a>` : ''}
+                            ${v.has_csv ? `<button class="status-badge" onclick="window.open('${v.csv_folder}', '_blank')" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: 600;">📁 CSV Files</button>` : ''}
                         </div>
                     `;
                     container.appendChild(el);
                 });
             } catch (err) {
-                container.innerHTML = `<div class="alert alert-error">Error fetching versions: ${err.message}</div>`;
+                container.innerHTML = `<div class="alert alert-error" style="padding: 15px; background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; border-radius: 8px;">Error fetching versions: ${err.message}</div>`;
                 document.getElementById('versionsSection').style.display = 'none';
             }
         }
@@ -735,7 +853,12 @@
                 <div>${message}</div>
             `;
             
-            document.querySelector('.upload-section').insertBefore(alert, document.querySelector('.drop-zone'));
+            const uploadSection = document.querySelector('.upload-section');
+            if (uploadSection) {
+                uploadSection.insertBefore(alert, uploadSection.firstChild);
+            } else {
+                document.body.insertBefore(alert, document.body.firstChild);
+            }
             
             setTimeout(() => {
                 alert.remove();
