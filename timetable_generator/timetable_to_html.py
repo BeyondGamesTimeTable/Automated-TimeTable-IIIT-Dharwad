@@ -940,13 +940,15 @@ class TimetableHTMLConverter:
         """Load and display 1-credit and 2-credit courses (till midsem) from the original CSV"""
         try:
             # Find the original CSV file with course information
-            # The path pattern: input_files/versions/TIMESTAMP/DEPT.csv
-            base_dir = Path(timetable_file).parent.parent.parent  # Go up from timetable_outputs/TIMESTAMP/
-            input_versions = base_dir / 'timetable_generator' / 'input_files' / 'versions'
+            # The timetable_file path: timetable_outputs/TIMESTAMP/DEPT_SemX_SectionY_Timetable.csv
+            # We need: input_files/versions/TIMESTAMP/DEPT.csv
             
-            # Get the latest version (matching timestamp)
+            # Get base directory (timetable_generator folder)
+            base_dir = Path(timetable_file).parent.parent  # Go up from timetable_outputs/TIMESTAMP/
+            
+            # Get the timestamp from the timetable file path
             timestamp = Path(timetable_file).parent.name
-            course_csv = input_versions / timestamp / f"{dept}.csv"
+            course_csv = base_dir / 'input_files' / 'versions' / timestamp / f"{dept}.csv"
             
             if not course_csv.exists():
                 return ""
@@ -1054,6 +1056,7 @@ class TimetableHTMLConverter:
                     # Get cell class, override with red if till midsem
                     if is_till_midsem:
                         cell_class = 'till-midsem-cell'
+                        # Till midsem cells get red background, no custom color
                     elif course_code and cell_value.lower() != 'free' and 'lunch' not in cell_value.lower():
                         # Use course-specific color
                         colors = self._get_course_color(course_code)
