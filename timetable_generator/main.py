@@ -286,15 +286,25 @@ class TimetableGenerator:
         return shared_courses
     
     def is_common_course(self, row):
-        """Check if course is common across sections"""
+        """Check if course is common across sections
+        
+        A course is common if:
+        1. Section column is empty (NaN or empty string) - means it's taught to both sections together
+        2. NOT an elective (if Electives column exists and is 'T')
+        """
         import pandas as pd
-        elective = str(row.get('Electives', '')).strip().upper()
         section = row.get('Section', '')
         
-        # Common if it's a foundation course (F) without specific section
         # Section is empty if it's NaN, None, or empty string
         section_empty = pd.isna(section) or str(section).strip() == ''
-        return elective == 'F' and section_empty
+        
+        # Check if it's an elective (Type elective = 'T')
+        # If there's no Electives column, default to empty (not elective)
+        elective_type = str(row.get('Electives', '')).strip().upper()
+        is_type_elective = elective_type == 'T'
+        
+        # Common course: empty section AND not a type elective
+        return section_empty and not is_type_elective
     
     def is_elective_course(self, row):
         """Check if course is an elective (Type elective)"""
