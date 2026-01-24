@@ -704,8 +704,34 @@ class TimetableGenerator:
                             issues.append(f"  [!] Lab session not in lab room: {classroom}")
                             lab_allocation_ok = False
         
-        # Check 4: No double-booking (already prevented by global_classroom_usage, just report)
-        # This is implicitly checked during scheduling
+        # Check 4: No double-booking - verify no classroom is used by multiple courses at same time
+        classroom_conflicts = []
+        for day in self.global_classroom_usage:
+            for time_str in self.global_classroom_usage[day]:
+                classroom_usage = {}  # classroom -> [(dept, sem, sec, course), ...]
+                
+                for classroom in self.global_classroom_usage[day][time_str]:
+                    if classroom not in classroom_usage:
+                        classroom_usage[classroom] = []
+                    
+                    usage_info = self.global_classroom_usage[day][time_str][classroom]
+                    if isinstance(usage_info, dict):
+                        dept = usage_info.get('dept', 'Unknown')
+                        sem = usage_info.get('semester', 'Unknown')
+                        sec = usage_info.get('section', 'Unknown')
+                        course = usage_info.get('course', 'Unknown')
+                        classroom_usage[classroom].append(f"{dept}-Sem{sem}-{sec}: {course}")
+                
+                # Check for conflicts (same classroom, multiple entries)
+                for classroom, usages in classroom_usage.items():
+                    if len(usages) > 1:
+                        classroom_conflicts.append(f"  [CONFLICT] {day} {time_str} - {classroom}: {' AND '.join(usages)}")
+        
+        if classroom_conflicts:
+            issues.extend(classroom_conflicts)
+            print(f"\n[ERROR] CLASSROOM CONFLICTS DETECTED ({len(classroom_conflicts)}):")
+            for conflict in classroom_conflicts:
+                print(conflict)
         
         # Print results
         print(f"\n[OK] Classrooms loaded from CSV: {len(self.classrooms)}")
