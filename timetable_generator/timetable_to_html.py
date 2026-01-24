@@ -9,6 +9,34 @@ class TimetableHTMLConverter:
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
         self.till_midsem_courses = {}  # Store 2-credit courses
+        self.course_colors = {}  # Cache for course code colors
+    
+    def _get_course_color(self, course_code):
+        """Generate a consistent color for a course code using hash"""
+        if course_code in self.course_colors:
+            return self.course_colors[course_code]
+        
+        # Hash the course code to generate consistent colors
+        hash_value = hash(course_code)
+        
+        # Generate pastel colors with good contrast
+        hue = (hash_value % 360)
+        saturation = 45 + (hash_value % 25)  # 45-70%
+        lightness = 75 + (hash_value % 15)   # 75-90%
+        
+        bg_color = f"hsl({hue}, {saturation}%, {lightness}%)"
+        border_hue = (hue + 180) % 360  # Complementary color for border
+        border_color = f"hsl({border_hue}, 70%, 45%)"
+        text_color = f"hsl({hue}, 60%, 25%)"  # Dark version for text
+        
+        colors = {
+            'background': bg_color,
+            'border': border_color,
+            'text': text_color
+        }
+        
+        self.course_colors[course_code] = colors
+        return colors
         
     def csv_to_html(self, csv_file, html_file):
         """Convert CSV timetable to beautiful HTML"""
@@ -1019,9 +1047,18 @@ class TimetableHTMLConverter:
                     # Check if this cell contains a till midsem course (1-2 credits)
                     is_till_midsem = self._is_till_midsem_course(cell_value)
                     
+                    # Extract course code and get course-specific color
+                    course_code = self._extract_course_code(cell_value)
+                    cell_style = ""
+                    
                     # Get cell class, override with red if till midsem
                     if is_till_midsem:
                         cell_class = 'till-midsem-cell'
+                    elif course_code and cell_value.lower() != 'free' and 'lunch' not in cell_value.lower():
+                        # Use course-specific color
+                        colors = self._get_course_color(course_code)
+                        cell_class = 'course-slot'
+                        cell_style = f"background: {colors['background']}; border-left: 6px solid {colors['border']}; color: {colors['text']};"
                     else:
                         cell_class = self._get_cell_class(cell_value)
                     
@@ -1051,14 +1088,14 @@ class TimetableHTMLConverter:
                         display_label = f"{cleaned} \u2014 Tutorial (1 hour)"
 
                         html += (
-                            f'<td class="{cell_class}">'
+                            f'<td class="{cell_class}" style="{cell_style}">')
                             f'<div class="cell-inner">'
                             f'<div class="duration-segment tutorial-seg" style="width:{width_pct}%;"></div>'
                             f'<div class="cell-text">{display_label}</div>'
                             f'</div></td>\n'
                         )
                     else:
-                        html += f'<td class="{cell_class}">{display_clean}</td>\n'
+                        html += f'<td class="{cell_class}" style="{cell_style}">{display_clean}</td>\n'
             
             html += '</tr>\n'
         
@@ -1081,6 +1118,10 @@ class TimetableHTMLConverter:
         
         # Check if this is a till midsem course
         is_till_midsem = self._is_till_midsem_course(cell_value)
+        
+        # Extract course code and get course-specific color
+        course_code = self._extract_course_code(cell_value)
+        cell_style = ""
         
         # Parse duration from cell value (e.g., "[120min]", "[90min]", "[60min]")
         duration_minutes = 120  # Default to full slot
@@ -1115,10 +1156,18 @@ class TimetableHTMLConverter:
         display_value = cell_value.replace('[120min]', '').replace('[90min]', '').replace('[60min]', '').replace('[EVENING]', '').strip()
         
         # Override with till midsem class if needed
-        cell_class = 'till-midsem-cell' if is_till_midsem else 'afternoon-flex-slot'
+        if is_till_midsem:
+            cell_class = 'till-midsem-cell'
+        elif course_code:
+            # Use course-specific color
+            colors = self._get_course_color(course_code)
+            cell_class = 'afternoon-flex-slot'
+            cell_style = f"background: {colors['background']}; border-left: 6px solid {colors['border']}; color: {colors['text']};"
+        else:
+            cell_class = 'afternoon-flex-slot'
         
         # Generate cell HTML with duration bar
-        cell_html = f'''<td class="{cell_class}">
+        cell_html = f'''<td class="{cell_class}" style="{cell_style}">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar {duration_class}">
@@ -1142,6 +1191,15 @@ class TimetableHTMLConverter:
                 return True
         
         return False
+    
+    def _extract_course_code(self, cell_value):
+        """Extract course code from cell value (e.g., CS101, MA102, etc.)"""
+        import re
+        # Match patterns like CS101, MA102, EC201, etc.
+        match = re.search(r'[A-Z]{2,4}\d{3}', cell_value)
+        if match:
+            return match.group(0)
+        return None
     
     def _get_cell_class(self, value):
         """Determine CSS class based on cell content"""
