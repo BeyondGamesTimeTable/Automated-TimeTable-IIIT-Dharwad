@@ -2058,7 +2058,10 @@ class TimetableGenerator:
         return False
     
     def export_to_csv(self, timetable, filename, electives=None, rotated_out=None, output_dir='timetable_outputs'):
-        """Export timetable to CSV with elective information appended below"""
+        """Export timetable to CSV with elective information appended below
+        
+        Only shows baskets that are actually scheduled in THIS timetable
+        """
         if timetable is None:
             return False
         
@@ -2069,6 +2072,15 @@ class TimetableGenerator:
 
         filepath = os.path.join(output_dir, filename)
         
+        # Find which baskets are actually scheduled in THIS timetable
+        baskets_in_timetable = set()
+        for day in timetable:
+            for time_slot, content in timetable[day].items():
+                if isinstance(content, str) and 'Basket' in content:
+                    # Extract basket name (remove section suffix if present)
+                    basket_name = content.split('[')[0].strip()
+                    baskets_in_timetable.add(basket_name)
+        
         # Create a list to hold all rows (timetable + elective info)
         rows_list = []
         
@@ -2077,27 +2089,25 @@ class TimetableGenerator:
         for _, row in df_reset.iterrows():
             rows_list.append(row.to_dict())
         
-        # Add elective information below the timetable
-        if electives and len(electives) > 0:
+        # Add elective information ONLY for baskets scheduled in THIS timetable
+        scheduled_electives = {basket: courses for basket, courses in (electives or {}).items() 
+                               if basket in baskets_in_timetable}
+        
+        if scheduled_electives:
             # Add separator row
             rows_list.append({})
             rows_list.append({'index': '=' * 80})
-            rows_list.append({'index': 'ELECTIVE COURSES - Choose ONE from each basket'})
+            rows_list.append({'index': 'ELECTIVE BASKETS SCHEDULED IN THIS TIMETABLE'})
             rows_list.append({'index': '=' * 80})
             rows_list.append({})
             
-            available_classrooms = self.backup_large_classrooms.copy()
-            classroom_idx = 0
-            
-            for basket, courses in sorted(electives.items()):
-                rows_list.append({'index': f'Basket: {basket}'})
-                rows_list.append({'index': '-' * 40})
+            for basket, courses in sorted(scheduled_electives.items()):
+                rows_list.append({'index': f'{basket}'})
+                rows_list.append({'index': '-' * 60})
+                rows_list.append({'index': 'Choose ONE course from this basket:'})
+                rows_list.append({})
                 
                 for course in courses:
-                    # Assign different classrooms to each course in the basket
-                    assigned_classroom = available_classrooms[classroom_idx % len(available_classrooms)]
-                    classroom_idx += 1
-                    
                     # Get LTPSC details
                     L = course.get('L', 0)
                     T = course.get('T', 0)
@@ -2105,22 +2115,41 @@ class TimetableGenerator:
                     
                     ltpsc_info = f" ({L}L-{T}T-{P}P)" if (L > 0 or T > 0 or P > 0) else ""
                     tutorial_info = " [Has Tutorial]" if T > 0 else ""
+                    classroom_info = course.get('classroom', 'TBD')
                     
                     rows_list.append({
                         'index': f"  {course['code']}: {course['title']}{ltpsc_info}{tutorial_info}",
-                        'Monday': f"Classroom: {assigned_classroom}"
+                        'Monday': f"Classroom: {classroom_info}"
                     })
                 rows_list.append({})
         
-        # Add till-midsem and after-midsem courses
-        if rotated_out and len(rotated_out) > 0:
+        # Add till-midsem and after-midsem courses (only those relevant to this timetable)
+        # Extract department/semester from filename
+        scheduled_rotated = {}
+        if rotated_out:
+            for basket, courses in rotated_out.items():
+                # Check if this basket belongs to this timetable based on basket name
+                # Basket names like "CSE Till-Midsem Basket", "Global After-Midsem Basket"
+                basket_lower = basket.lower()
+                filename_lower = filename.lower()
+                
+                # Extract dept from filename (e.g., "CSE_Sem2_SectionA_Timetable.csv")
+                dept_in_filename = filename.split('_')[0].upper() if '_' in filename else ''
+                
+                # Include basket if:
+                # - It's a Global basket (no department prefix), OR
+                # - It matches the department in the filename
+                if 'global' in basket_lower or dept_in_filename.lower() in basket_lower:
+                    scheduled_rotated[basket] = courses
+        
+        if scheduled_rotated:
             rows_list.append({})
             rows_list.append({'index': '=' * 80})
-            rows_list.append({'index': 'ELECTIVE DETAILS - Till-Midsem and After-Midsem Courses'})
+            rows_list.append({'index': 'TILL-MIDSEM AND AFTER-MIDSEM ELECTIVES'})
             rows_list.append({'index': '=' * 80})
             rows_list.append({})
             
-            for basket, courses in sorted(rotated_out.items()):
+            for basket, courses in sorted(scheduled_rotated.items()):
                 # Determine if it's till-midsem or after-midsem
                 if 'Till-Midsem' in basket or 'Till Midsem' in basket:
                     basket_type = "(Till Midsem - First half of semester)"
@@ -2131,6 +2160,8 @@ class TimetableGenerator:
                 
                 rows_list.append({'index': f'{basket} {basket_type}'})
                 rows_list.append({'index': '-' * 60})
+                rows_list.append({'index': 'Choose ONE course from this basket:'})
+                rows_list.append({})
                 
                 for course in courses:
                     L = course.get('L', 0)
