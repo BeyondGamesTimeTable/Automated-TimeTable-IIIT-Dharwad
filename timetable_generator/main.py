@@ -271,52 +271,55 @@ class TimetableGenerator:
         3. HSS vs non-HSS
         
         Branch column logic:
-        - Empty = Common to all branches
-        - "Cse" = Only for CSE
-        - "Dsai" = Only for DSAI
-        - "Cse+Dsai" = Common for CSE and DSAI
+        - Empty = GLOBAL - Common to ALL branches (same time for CSE, DSAI, ECE)
+        - "Cse" = BRANCH-SPECIFIC - Only for CSE
+        - "Dsai" = BRANCH-SPECIFIC - Only for DSAI
+        - "Cse+Dsai" = Common for CSE and DSAI only
         
-        Creates SIMPLE baskets:
-        - ONE HSS basket for ALL HSS courses (filtered by branch)
-        - ONE Elective basket for full semester courses
-        - ONE Till-Midsem basket for 1-2 credit courses
-        - After-midsem courses stored separately
-        
-        Returns: {basket_name: [courses]}
+        Returns: {'global': {baskets...}, 'branch_specific': {baskets...}}
         """
         if electives_df is None or electives_df.empty:
-            return {}
+            return {'global': {}, 'branch_specific': {}}
         
         # Filter electives for this semester
         sem_electives = electives_df[electives_df['Semester'] == semester].copy()
         if sem_electives.empty:
-            return {}
+            return {'global': {}, 'branch_specific': {}}
         
-        # Filter by branch/department
-        filtered_electives = []
+        # Separate global and branch-specific courses
+        global_courses = []
+        branch_specific_courses = []
+        
         for _, row in sem_electives.iterrows():
             branch_val = str(row.get('Branch', '')).strip()
-            # Include if:
-            # 1. Branch is empty (common to all)
-            # 2. Branch matches department (e.g., "Cse" for CSE)
-            # 3. Branch contains department (e.g., "Cse+Dsai" for CSE)
-            if not branch_val or \
-               branch_val.lower() == department.lower() or \
-               department.lower() in branch_val.lower():
-                filtered_electives.append(row)
+            
+            if not branch_val:
+                # Empty branch = global (common to all)
+                global_courses.append(row)
+            else:
+                # Has branch value = check if it matches this department
+                if branch_val.lower() == department.lower() or \
+                   department.lower() in branch_val.lower():
+                    branch_specific_courses.append(row)
         
-        if not filtered_electives:
-            return {}
+        # Create baskets for global courses
+        global_baskets = self._create_baskets_from_courses(global_courses, 'Global')
         
-        # Initialize simple baskets
+        # Create baskets for branch-specific courses
+        branch_baskets = self._create_baskets_from_courses(branch_specific_courses, department)
+        
+        return {'global': global_baskets, 'branch_specific': branch_baskets}
+    
+    def _create_baskets_from_courses(self, courses, prefix):
+        """Helper to create baskets from course list"""
         baskets = {
-            'HSS Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': True, 'courses': []},
-            'Elective Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': False, 'courses': []},
-            'Till-Midsem Basket': {'ltpsc': 'varies', 'duration': 'till_midsem', 'is_hss': False, 'courses': []},
-            'After-Midsem Basket': {'ltpsc': 'varies', 'duration': 'after_midsem', 'is_hss': False, 'courses': []}
+            f'{prefix} HSS Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': True, 'courses': []},
+            f'{prefix} Elective Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': False, 'courses': []},
+            f'{prefix} Till-Midsem Basket': {'ltpsc': 'varies', 'duration': 'till_midsem', 'is_hss': False, 'courses': []},
+            f'{prefix} After-Midsem Basket': {'ltpsc': 'varies', 'duration': 'after_midsem', 'is_hss': False, 'courses': []}
         }
         
-        for row in filtered_electives:
+        for row in courses:
             credits = int(row.get('Credits', 0))
             course_code = str(row['Course Code']).strip()
             
@@ -330,17 +333,16 @@ class TimetableGenerator:
             
             # Determine which basket
             if is_hss:
-                basket_key = 'HSS Basket'
+                basket_key = f'{prefix} HSS Basket'
             elif credits <= 2:
                 # 1-2 credits: half go to till-midsem, half to after-midsem
-                # Simple split based on row index to balance
                 import random
                 if random.random() < 0.5:
-                    basket_key = 'Till-Midsem Basket'
+                    basket_key = f'{prefix} Till-Midsem Basket'
                 else:
-                    basket_key = 'After-Midsem Basket'
+                    basket_key = f'{prefix} After-Midsem Basket'
             else:
-                basket_key = 'Elective Basket'
+                basket_key = f'{prefix} Elective Basket'
             
             # Add course to basket
             baskets[basket_key]['courses'].append({
@@ -356,11 +358,6 @@ class TimetableGenerator:
         
         # Remove empty baskets
         baskets = {name: info for name, info in baskets.items() if info['courses']}
-        
-        print(f"\n   >> Created {len(baskets)} elective baskets for Semester {semester}")
-        for basket_name, basket_info in baskets.items():
-            print(f"      - {basket_name}: {len(basket_info['courses'])} courses ({basket_info['ltpsc']})")
-        
         return baskets
     
     def get_courses_by_semester(self, df, semester):
@@ -403,59 +400,80 @@ class TimetableGenerator:
         
         return shared_courses
     
-    def schedule_elective_baskets(self, timetable, used_slots, baskets, semester, section, department):
+    def schedule_elective_baskets(self, timetable, used_slots, basket_groups, semester, section, department):
         """
         Schedule elective baskets into the timetable.
-        IMPORTANT: Electives are COMMON across sections of SAME branch for same semester.
-        - CSE Section A and B share same times
-        - DSAI has its own times
-        - ECE has its own times
         
-        First section of a branch to schedule will create the slots, other sections reuse same times.
-        
-        Each basket gets multiple slots based on LTPSC:
-        - 3L means 2 lecture slots (90 min each)
-        - 1T means 1 tutorial slot (60 min)
-        - 2P means 1 practical slot (120 min)
+        Two types of baskets:
+        1. GLOBAL baskets (empty branch) - Same time for ALL branches (CSE, DSAI, ECE)
+        2. BRANCH-SPECIFIC baskets - Same time within branch sections only (CSE A & B)
         
         Args:
-            timetable: Current timetable dictionary
-            used_slots: Dictionary tracking used slots
-            baskets: Dictionary of basket_name -> {ltpsc, duration, courses}
-            semester: Current semester
-            section: Current section
-            department: Current department (CSE/DSAI/ECE)
-        
-        Returns:
-            Dictionary of basket assignments {basket_name: [(day, time_str, classrooms_dict)]}
+            basket_groups: {'global': {...}, 'branch_specific': {...}}
         """
         basket_assignments = {}
         
-        # Check if elective schedule already exists for this branch+semester (scheduled by another section)
+        # Initialize global schedule if not exists
+        if 'global' not in self.elective_basket_schedule:
+            self.elective_basket_schedule['global'] = {}
+        
+        # Initialize branch schedule if not exists
         if department not in self.elective_basket_schedule:
             self.elective_basket_schedule[department] = {}
         
-        if semester in self.elective_basket_schedule[department]:
-            # Reuse existing schedule from first section of this branch
-            print(f"\n   >> Reusing elective basket schedule from first {department} section (electives common within branch)")
-            for basket_name, slots in self.elective_basket_schedule[department][semester].items():
-                basket_assignments[basket_name] = slots
-                for day, time_str, classrooms in slots:
-                    # Mark slots as used in this section's timetable
-                    basket_label = basket_name
-                    if '[' in basket_name:  # Tutorial or Lab
-                        basket_label = basket_name.split('[')[0].strip()
-                    if day in timetable and time_str in timetable[day]:
-                        timetable[day][time_str] = basket_label
-                    # Mark slot as used (used_slots is a dict structure)
-                    if time_str not in used_slots[day]:
-                        used_slots[day][time_str] = {}
-                    used_slots[day][time_str][basket_label] = classrooms
-                print(f"      {basket_name}: {day} {time_str}")
-            return basket_assignments
+        # STEP 1: Schedule GLOBAL baskets (or reuse if already scheduled)
+        global_baskets = basket_groups.get('global', {})
+        if global_baskets:
+            if semester in self.elective_basket_schedule['global']:
+                # Reuse global schedule
+                print(f"\n   >> Reusing GLOBAL elective baskets (common to ALL branches)")
+                for basket_name, slots in self.elective_basket_schedule['global'][semester].items():
+                    basket_assignments[basket_name] = slots
+                    self._apply_basket_schedule_to_timetable(timetable, used_slots, basket_name, slots)
+            else:
+                # First branch - create global schedule
+                print(f"\n   >> Scheduling GLOBAL elective baskets (common to ALL branches)")
+                self.elective_basket_schedule['global'][semester] = {}
+                global_assignments = self._schedule_baskets(timetable, used_slots, global_baskets, semester, department)
+                basket_assignments.update(global_assignments)
+                self.elective_basket_schedule['global'][semester].update(global_assignments)
         
-        # First section of this branch - create the schedule
-        self.elective_basket_schedule[department][semester] = {}
+        # STEP 2: Schedule BRANCH-SPECIFIC baskets (or reuse within same branch)
+        branch_baskets = basket_groups.get('branch_specific', {})
+        if branch_baskets:
+            if semester in self.elective_basket_schedule[department]:
+                # Reuse branch schedule from first section
+                print(f"\n   >> Reusing {department} branch-specific baskets (within branch sections)")
+                for basket_name, slots in self.elective_basket_schedule[department][semester].items():
+                    basket_assignments[basket_name] = slots
+                    self._apply_basket_schedule_to_timetable(timetable, used_slots, basket_name, slots)
+            else:
+                # First section of branch - create branch schedule
+                print(f"\n   >> Scheduling {department} branch-specific baskets")
+                self.elective_basket_schedule[department][semester] = {}
+                branch_assignments = self._schedule_baskets(timetable, used_slots, branch_baskets, semester, department)
+                basket_assignments.update(branch_assignments)
+                self.elective_basket_schedule[department][semester].update(branch_assignments)
+        
+        print(f"   >> Successfully scheduled {len(basket_assignments)} total elective baskets")
+        return basket_assignments
+    
+    def _apply_basket_schedule_to_timetable(self, timetable, used_slots, basket_name, slots):
+        """Apply pre-existing basket schedule to current timetable"""
+        for day, time_str, classrooms in slots:
+            basket_label = basket_name
+            if '[' in basket_name:
+                basket_label = basket_name.split('[')[0].strip()
+            if day in timetable and time_str in timetable[day]:
+                timetable[day][time_str] = basket_label
+            if time_str not in used_slots[day]:
+                used_slots[day][time_str] = {}
+            used_slots[day][time_str][basket_label] = classrooms
+            print(f"      {basket_name}: {day} {time_str}")
+    
+    def _schedule_baskets(self, timetable, used_slots, baskets, semester, department):
+        """Schedule a set of baskets and return assignments"""
+        basket_assignments = {}
         
         for basket_name, basket_info in baskets.items():
             duration = basket_info['duration']
@@ -499,8 +517,8 @@ class TimetableGenerator:
             num_tutorials = T
             num_practicals = P // 2
             
-            print(f"\n   >> Scheduling {basket_name}: {num_lectures}L + {num_tutorials}T + {num_practicals}P sessions")
-            print(f"      Courses in basket: {len(courses)}")
+            print(f"      {basket_name}: {num_lectures}L + {num_tutorials}T + {num_practicals}P sessions")
+            print(f"        Courses: {len(courses)}")
             
             basket_slots = []
             used_days_for_basket = set()  # Track which days we've used for this basket
@@ -514,9 +532,9 @@ class TimetableGenerator:
                     classrooms = self._assign_classrooms_to_basket(courses)
                     basket_slots.append((day, time_str, classrooms))
                     self._mark_basket_slot_used(timetable, used_slots, day, time_str, basket_name, classrooms)
-                    print(f"      Lecture {i+1}: {day} {time_str}")
+                    print(f"        Lecture {i+1}: {day} {time_str}")
                     for course_code, classroom in classrooms.items():
-                        print(f"        {course_code}: {classroom}")
+                        print(f"          {course_code}: {classroom}")
             
             # Store till-midsem basket courses for display
             if duration == 'till_midsem':
@@ -537,7 +555,6 @@ class TimetableGenerator:
             
             if basket_slots:
                 basket_assignments[basket_name] = basket_slots
-                self.elective_basket_schedule[department][semester][basket_name] = basket_slots
         
         return basket_assignments
     
