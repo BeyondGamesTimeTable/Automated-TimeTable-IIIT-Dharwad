@@ -318,12 +318,14 @@ def regenerate_timetables():
         print(f"   OUTPUT_HTML_DIR: {env['OUTPUT_HTML_DIR']}")
         print(f"\n🚀 Running main.py...")
         
-        # Run the timetable generation script
+        # Run the timetable generation script with UTF-8 encoding
         result = subprocess.run(
             [sys.executable, main_script],
             cwd=tg_dir,
             capture_output=True,
             text=True,
+            encoding='utf-8',
+            errors='replace',  # Replace encoding errors instead of failing
             env=env,
             timeout=600  # 10 minutes timeout
         )
@@ -349,6 +351,8 @@ def regenerate_timetables():
                 cwd=tg_dir,
                 capture_output=True,
                 text=True,
+                encoding='utf-8',
+                errors='replace',  # Replace encoding errors instead of failing
                 env=env2,
                 timeout=300
             )

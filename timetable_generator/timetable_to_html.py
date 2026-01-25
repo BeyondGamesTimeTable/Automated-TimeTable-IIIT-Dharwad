@@ -1951,25 +1951,47 @@ class TimetableHTMLConverter:
             
             # Find all basket names in the timetable
             baskets_found = set()
+            basket_time_slots = {}  # Track time slots for each basket
+            
             for col in df.columns:
-                for val in df[col]:
-                    if isinstance(val, str) and 'Basket' in val:
-                        # Extract basket name (remove any extra info like "[...]")
+                for idx, val in enumerate(df[col]):
+                    # Look for elective baskets (contains "Basket" or "Elective")
+                    if isinstance(val, str) and ('Basket' in val or 'Elective' in val or 'HSS' in val):
+                        # Extract basket name (remove any extra info like "[...]" or "-T")
                         basket_name = val.split('[')[0].strip()
+                        # Remove tutorial suffix (-T)
+                        if basket_name.endswith('-T'):
+                            basket_name = basket_name[:-2]
                         baskets_found.add(basket_name)
+                        
+                        # Track the day and time slot
+                        day = df.index[idx]
+                        if basket_name not in basket_time_slots:
+                            basket_time_slots[basket_name] = []
+                        # Include tutorial indicator in time slot display
+                        time_display = f"{day} {col}"
+                        if val.endswith('-T'):
+                            time_display += " (Tutorial)"
+                        basket_time_slots[basket_name].append(time_display)
+            
+            # Load elective basket data from JSON file
+            json_filepath = csv_file.replace('.csv', '_Electives.json')
+            elective_data = {}
+            
+            if os.path.exists(json_filepath):
+                import json
+                with open(json_filepath, 'r', encoding='utf-8') as f:
+                    elective_data = json.load(f)
+            
+            # Add all baskets from JSON to baskets_found (including Elective B which isn't in CSV)
+            for key in elective_data.keys():
+                if not key.endswith('_meta'):
+                    baskets_found.add(key)
             
             if not baskets_found:
                 return ""  # No baskets in this timetable
             
-            # Now load the actual electives data to get course details
-            # This would come from self.elective_courses which was populated during generation
-            # For now, we'll extract info from the main.py elective tracking
-            # We need to load this from a data file or pass it through
-            
-            # Try to find electives info file
-            elective_info_file = csv_file.replace('_Timetable.csv', '_ElectiveInfo.txt')
-            
-            # For now, create a simple display showing the baskets
+            # Create HTML display
             html = f"""
         <div class="electives-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px; border: 3px solid #6366f1;">
             <h2 style="color: #3730a3; margin-bottom: 15px;">📚 Elective Baskets in This Timetable</h2>
@@ -1978,10 +2000,76 @@ class TimetableHTMLConverter:
 """
             
             for basket in sorted(baskets_found):
+                # Special handling for Elective B (uses Elective A's time slots)
+                time_info = ""
+                special_note = ""
+                
+                if basket == 'Elective B':
+                    # Elective B uses Elective A's time slots
+                    if 'Elective A' in basket_time_slots and basket_time_slots['Elective A']:
+                        time_info = f"<p style='color: #6b7280; font-size: 0.9em; margin-bottom: 15px;'><strong>⏰ Time:</strong> {', '.join(sorted(set(basket_time_slots['Elective A'])))} (Same as Elective A)</p>"
+                    special_note = """
+                    <div style="background: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 15px;">
+                        <strong style="color: #b45309;">⏳ After Mid-Semester Only:</strong><br>
+                        <span style="color: #78350f; font-size: 0.95em;">These courses START AFTER mid-semester exams and use the SAME time slots as Elective A courses shown above.</span>
+                    </div>
+"""
+                elif basket in basket_time_slots and basket_time_slots[basket]:
+                    time_info = f"<p style='color: #6b7280; font-size: 0.9em; margin-bottom: 15px;'><strong>⏰ Time:</strong> {', '.join(sorted(set(basket_time_slots[basket])))}</p>"
+                
                 html += f"""
                 <div class="basket-card" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #6366f1;">
                     <h3 style="color: #3730a3; margin-bottom: 10px;">🎯 {basket}</h3>
+                    {time_info}
+                    {special_note}
+                    <p style="color: #4338ca; font-weight: 600; margin-bottom: 10px;">Courses in this basket (all run at the same time):</p>
+"""
+                
+                # Add course list if available
+                if basket in elective_data and len(elective_data[basket]) > 0:
+                    # Check if basket has tutorials
+                    meta_key = basket + '_meta'
+                    has_tutorials = False
+                    tutorial_courses = []
+                    if meta_key in elective_data:
+                        has_tutorials = elective_data[meta_key].get('has_tutorials', False)
+                        tutorial_courses = elective_data[meta_key].get('tutorial_courses', [])
+                    
+                    html += """
+                    <ul style="list-style-type: none; padding-left: 0; margin: 10px 0;">
+"""
+                    for course in elective_data[basket]:
+                        tutorial_indicator = ""
+                        if course.get('tutorials', 0) > 0:
+                            tutorial_indicator = f" | 📝 Tutorial: {course['tutorials']}T"
+                        
+                        credit_info = f" ({course.get('credits', 0)} Credits)"
+                        
+                        html += f"""
+                        <li style="padding: 8px; margin: 5px 0; background: #f3f4f6; border-radius: 5px;">
+                            <strong style="color: #3730a3;">{course['code']}</strong> - {course['title']}{credit_info}<br>
+                            <span style="color: #6b7280; font-size: 0.9em;">📍 Classroom: {course['classroom']}{tutorial_indicator}</span>
+                        </li>
+"""
+                    html += """
+                    </ul>
+"""
+                    
+                    # Add tutorial note if basket has tutorials
+                    if has_tutorials:
+                        html += f"""
+                    <div style="background: #fef3c7; padding: 10px; border-radius: 5px; border-left: 3px solid #f59e0b; margin-top: 10px;">
+                        <strong style="color: #b45309;">⚠️ Tutorial Requirement:</strong><br>
+                        <span style="color: #78350f; font-size: 0.9em;">This basket includes courses with tutorial sessions. 
+                        Courses with tutorials: {', '.join(tutorial_courses)}</span>
+                    </div>
+"""
+                else:
+                    html += """
                     <p style="color: #6b7280; font-size: 0.95em;">Choose one course from this basket. All courses run at the same time in different classrooms.</p>
+"""
+                
+                html += """
                 </div>
 """
             
