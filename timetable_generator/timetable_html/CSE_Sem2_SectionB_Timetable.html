@@ -231,6 +231,7 @@
             font-weight: 500;
         }
         
+        /* Individual section classes - Blue */
         .course-slot {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border-left: 6px solid #3b82f6;
@@ -239,6 +240,7 @@
             padding: 18px 15px;
         }
         
+        /* Common classes (CSE A+B or DSAI+ECE) - Yellow/Amber */
         .common-course {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 6px solid #f59e0b;
@@ -247,6 +249,7 @@
             padding: 18px 15px;
         }
         
+        /* 2-hour Labs - Purple */
         .lab-slot {
             background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
             border-left: 6px solid #a855f7;
@@ -255,12 +258,111 @@
             padding: 18px 15px;
         }
         
+        /* 1-hour Tutorials - Green */
         .tutorial-slot {
             background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
             border-left: 6px solid #14b8a6;
             font-weight: 600;
             color: #115e59;
             padding: 18px 15px;
+        }
+        
+        /* Electives - Orange */
+        .elective-slot {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-left: 6px solid #ea580c;
+            font-weight: 600;
+            color: #7c2d12;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Courses - Red background (entire cell) */
+        .till-midsem-cell {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+            border-left: 6px solid #dc2626 !important;
+            font-weight: 600;
+            color: #7f1d1d !important;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Badge (deprecated - using red cell instead) */
+        .till-midsem-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            color: #7f1d1d;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-left: 8px;
+            border: 1px solid #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Till Midsem Section */
+        .till-midsem-section {
+            padding: 25px;
+            margin: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 15px;
+            border: 3px solid #dc2626;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+        
+        .till-midsem-section h2 {
+            color: #991b1b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .till-midsem-note {
+            text-align: center;
+            color: #7f1d1d;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .till-midsem-courses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .till-midsem-course-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #dc2626;
+            transition: transform 0.2s ease;
+        }
+        
+        .till-midsem-course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .till-midsem-course-card .course-code {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .till-midsem-course-card .course-title {
+            color: #4b5563;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        
+        .till-midsem-course-card .course-credits {
+            color: #991b1b;
+            font-size: 0.85em;
+            font-weight: 600;
         }
         
         .legend {
@@ -602,133 +704,660 @@
             </div>
         </div>
         
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;"></div>
+                <span><strong>Individual Section Classes</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%); border-left: 4px solid #14b8a6;"></div>
+                <span><strong>1-Hour Tutorials</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%); border-left: 4px solid #a855f7;"></div>
+                <span><strong>2-Hour Labs</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;"></div>
+                <span><strong>Common Classes (A+B / DSAI+ECE)</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); border-left: 4px solid #ea580c;"></div>
+                <span><strong>Electives</strong></span>
+            </div>
+        </div>
+        
         <div class="timetable-wrapper">
             <table>
 <thead>
 <tr>
 <th style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Day/Time</th>
-<th class="time-slot">⏰ 08:00-09:30</th>
-<th class="time-slot">⏰ 09:45-11:15</th>
-<th class="time-slot">⏰ 11:30-13:00</th>
-<th class="time-slot">⏰ 13:00-14:30</th>
+<th class="time-slot">⏰ 09:00-10:30</th>
+<th class="time-slot">⏰ 10:45-12:15</th>
+<th class="time-slot">⏰ 12:30-13:30</th>
+<th class="time-slot">⏰ 13:30-14:30</th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 14:30-16:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 16:30-18:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
+<th class="time-slot">⏰ Monday</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="day-column">Monday</td>
-<td class="common-course">CS165 (Common) | C004</td>
-<td class="free-slot">Free</td>
-<td class="common-course">Elective (E1)</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
+<td class="course-slot" style="background: hsl(131, 46%, 86%); border-left: 6px solid hsl(311, 70%, 45%); color: hsl(131, 60%, 25%);">CS165 (Common) | C004</td>
+<td class="course-slot" style="background: hsl(157, 62%, 82%); border-left: 6px solid hsl(337, 70%, 45%); color: hsl(157, 60%, 25%);">CS163-B | C102</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="afternoon-flex-slot" style="">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar lecture-duration">
-                <div class="course-info">Elective (B4)</div>
+                <div class="course-info">CSE HSS Basket</div>
                 <div class="duration-tag">1.5 Hours</div>
             </div>
         </div>
     </div>
 </td>
 <td class="free-slot">Free</td>
+<td class="course-slot" style="">nan</td>
 </tr>
 <tr>
 <td class="day-column">Tuesday</td>
-<td class="common-course">CS165 (Common) | C004</td>
-<td class="free-slot">Free</td>
-<td class="common-course">Elective (B3)</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
+<td class="course-slot" style="background: hsl(131, 46%, 86%); border-left: 6px solid hsl(311, 70%, 45%); color: hsl(131, 60%, 25%);">CS165 (Common) | C004</td>
+<td class="course-slot" style="background: hsl(157, 62%, 82%); border-left: 6px solid hsl(337, 70%, 45%); color: hsl(157, 60%, 25%);">CS163-B | C102</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="afternoon-flex-slot" style="">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar lecture-duration">
-                <div class="course-info">Elective (B4)</div>
+                <div class="course-info">CSE HSS Basket</div>
                 <div class="duration-tag">1.5 Hours</div>
             </div>
         </div>
     </div>
 </td>
 <td class="free-slot">Free</td>
+<td class="course-slot" style="">nan</td>
 </tr>
 <tr>
 <td class="day-column">Wednesday</td>
-<td class="course-slot">MA163-B | C203</td>
-<td class="common-course">Elective (B3)</td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
+<td class="course-slot" style="background: hsl(33, 48%, 78%); border-left: 6px solid hsl(213, 70%, 45%); color: hsl(33, 60%, 25%);">MA163-B | C102</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="afternoon-flex-slot" style="background: hsl(157, 62%, 82%); border-left: 6px solid hsl(337, 70%, 45%); color: hsl(157, 60%, 25%);">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar lab-duration">
-                <div class="course-info">CS163-Lab-B  | Lab-2</div>
+                <div class="course-info">CS163-Lab-B  | L207 & L208</div>
                 <div class="duration-tag">2 Hours</div>
             </div>
         </div>
     </div>
 </td>
 <td class="free-slot">Free</td>
+<td class="course-slot" style="">nan</td>
 </tr>
 <tr>
 <td class="day-column">Thursday</td>
-<td class="course-slot">MA163-B | C203</td>
-<td class="common-course">Elective (E1)</td>
-<td class="common-course">Elective (B3)</td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot" style="background: hsl(33, 48%, 78%); border-left: 6px solid hsl(213, 70%, 45%); color: hsl(33, 60%, 25%);">MA163-B | C102</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
+<td class="course-slot" style="">nan</td>
 </tr>
 <tr>
 <td class="day-column">Friday</td>
-<td class="tutorial-slot"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">MA163B | C203 — Tutorial (1 hour)</div></div></td>
-<td class="common-course">Elective (E1)</td>
-<td class="common-course">Elective (B4)</td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot" style="background: hsl(33, 48%, 78%); border-left: 6px solid hsl(213, 70%, 45%); color: hsl(33, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">MA163B | C102 — Tutorial (1 hour)</div></div></td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
+<td class="course-slot" style="">nan</td>
+</tr>
+<tr>
+<td class="day-column">nan</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 09:00-10:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 10:45-12:15, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 12:30-13:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 13:30-14:30, dtype: object</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 14:30-16:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 16:30-18:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: Monday, dtype: object</td>
+</tr>
+<tr>
+<td class="day-column">================================================================================</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 09:00-10:30, dtype: object</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 10:45-12:15, dtype: object</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 12:30-13:30, dtype: object</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 13:30-14:30, dtype: object</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 14:30-16:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 16:30-18:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: Monday, dtype: object</td>
+</tr>
+<tr>
+<td class="day-column">ELECTIVE BASKETS SCHEDULED IN THIS TIMETABLE</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">nan</td>
+</tr>
+<tr>
+<td class="day-column">================================================================================</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 09:00-10:30, dtype: object</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 10:45-12:15, dtype: object</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 12:30-13:30, dtype: object</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 13:30-14:30, dtype: object</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 14:30-16:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+================================================================================    NaN
+================================================================================    NaN
+Name: 16:30-18:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">index
+================================================================================    NaN
+================================================================================    NaN
+Name: Monday, dtype: object</td>
+</tr>
+<tr>
+<td class="day-column">nan</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 09:00-10:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 10:45-12:15, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 12:30-13:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 13:30-14:30, dtype: object</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 14:30-16:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 16:30-18:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: Monday, dtype: object</td>
+</tr>
+<tr>
+<td class="day-column">CSE HSS Basket</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">nan</td>
+</tr>
+<tr>
+<td class="day-column">------------------------------------------------------------</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">nan</td>
+</tr>
+<tr>
+<td class="day-column">Choose ONE course from this basket:</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">nan</td>
+</tr>
+<tr>
+<td class="day-column">nan</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 09:00-10:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 10:45-12:15, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 12:30-13:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 13:30-14:30, dtype: object</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 14:30-16:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 16:30-18:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: Monday, dtype: object</td>
+</tr>
+<tr>
+<td class="day-column">  HS153: Innovation and Entrepreneurship (3L-1T-0P) [Has Tutorial]</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">Classroom: C003</td>
+</tr>
+<tr>
+<td class="day-column">  HS204: Economics (2L-1T-0P) [Has Tutorial]</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="course-slot" style="">nan</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">nan</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">Classroom: C002</td>
+</tr>
+<tr>
+<td class="day-column">nan</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 09:00-10:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 10:45-12:15, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 12:30-13:30, dtype: object</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 13:30-14:30, dtype: object</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 14:30-16:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="afternoon-flex-slot" style="">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lecture-duration">
+                <div class="course-info">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: 16:30-18:30, dtype: object</div>
+                <div class="duration-tag">1.5 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="course-slot" style="">index
+NaN    NaN
+NaN    NaN
+NaN    NaN
+NaN    NaN
+Name: Monday, dtype: object</td>
 </tr>
 </tbody>
 </table>
         </div>
         
         
-        <div class="electives-section">
-            <h2>📚 Elective Courses</h2>
-            <p class="elective-note">Students must choose <strong>ONE course</strong> from each basket below:</p>
+        
+        
+        <div class="electives-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px; border: 3px solid #6366f1;">
+            <h2 style="color: #3730a3; margin-bottom: 15px;">📚 Elective Baskets in This Timetable</h2>
+            <p style="color: #4338ca; font-weight: 600; margin-bottom: 20px;">The following elective baskets are scheduled in your timetable. Choose <strong>ONE course</strong> from each basket:</p>
             <div class="electives-container">
 
-                <div class="basket-card">
-                    <h3>Basket B3</h3>
-                    <ul class="course-list">
-                        <li><strong>CS152: Data Science with Python</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
-                        <li><strong>EC154: Introduction to Digital VLSI Design</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
-                        <li><strong>HS155: Industry Insights Program Part 1</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C103</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card">
-                    <h3>Basket B4</h3>
-                    <ul class="course-list">
-                        <li><strong>DS151: Linux for Engineers</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
-                        <li><strong>HS156: Introduction to Holistic Personality Development</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
-                        <li><strong>HS154: Photography101</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C103</span></li>
-                        <li><strong>ASD152: Visual Design-PAPC</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C202</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card">
-                    <h3>Basket E1</h3>
-                    <ul class="course-list">
-                        <li><strong>HS153: Innovation and Entrepreneurship</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
-                        <li><strong>HS204: Economics</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
-
-                    </ul>
+                <div class="basket-card" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #6366f1;">
+                    <h3 style="color: #3730a3; margin-bottom: 10px;">🎯 CSE HSS Basket</h3>
+                    <p style="color: #6b7280; font-size: 0.95em;">Choose one course from this basket. All courses run at the same time in different classrooms.</p>
                 </div>
 
             </div>
+            <p style="margin-top: 20px; color: #4338ca; font-style: italic; font-size: 0.95em;">
+                💡 <strong>Note:</strong> Check with your department for the complete list of courses in each basket and their classrooms.
+            </p>
         </div>
 
     </div>

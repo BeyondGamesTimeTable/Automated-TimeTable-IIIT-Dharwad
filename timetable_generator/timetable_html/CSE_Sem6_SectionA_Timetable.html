@@ -231,6 +231,7 @@
             font-weight: 500;
         }
         
+        /* Individual section classes - Blue */
         .course-slot {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border-left: 6px solid #3b82f6;
@@ -239,6 +240,7 @@
             padding: 18px 15px;
         }
         
+        /* Common classes (CSE A+B or DSAI+ECE) - Yellow/Amber */
         .common-course {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 6px solid #f59e0b;
@@ -247,6 +249,7 @@
             padding: 18px 15px;
         }
         
+        /* 2-hour Labs - Purple */
         .lab-slot {
             background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
             border-left: 6px solid #a855f7;
@@ -255,12 +258,111 @@
             padding: 18px 15px;
         }
         
+        /* 1-hour Tutorials - Green */
         .tutorial-slot {
             background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
             border-left: 6px solid #14b8a6;
             font-weight: 600;
             color: #115e59;
             padding: 18px 15px;
+        }
+        
+        /* Electives - Orange */
+        .elective-slot {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-left: 6px solid #ea580c;
+            font-weight: 600;
+            color: #7c2d12;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Courses - Red background (entire cell) */
+        .till-midsem-cell {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+            border-left: 6px solid #dc2626 !important;
+            font-weight: 600;
+            color: #7f1d1d !important;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Badge (deprecated - using red cell instead) */
+        .till-midsem-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            color: #7f1d1d;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-left: 8px;
+            border: 1px solid #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Till Midsem Section */
+        .till-midsem-section {
+            padding: 25px;
+            margin: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 15px;
+            border: 3px solid #dc2626;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+        
+        .till-midsem-section h2 {
+            color: #991b1b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .till-midsem-note {
+            text-align: center;
+            color: #7f1d1d;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .till-midsem-courses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .till-midsem-course-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #dc2626;
+            transition: transform 0.2s ease;
+        }
+        
+        .till-midsem-course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .till-midsem-course-card .course-code {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .till-midsem-course-card .course-title {
+            color: #4b5563;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        
+        .till-midsem-course-card .course-credits {
+            color: #991b1b;
+            font-size: 0.85em;
+            font-weight: 600;
         }
         
         .legend {
@@ -602,15 +704,38 @@
             </div>
         </div>
         
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;"></div>
+                <span><strong>Individual Section Classes</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%); border-left: 4px solid #14b8a6;"></div>
+                <span><strong>1-Hour Tutorials</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%); border-left: 4px solid #a855f7;"></div>
+                <span><strong>2-Hour Labs</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;"></div>
+                <span><strong>Common Classes (A+B / DSAI+ECE)</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); border-left: 4px solid #ea580c;"></div>
+                <span><strong>Electives</strong></span>
+            </div>
+        </div>
+        
         <div class="timetable-wrapper">
             <table>
 <thead>
 <tr>
 <th style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Day/Time</th>
-<th class="time-slot">⏰ 08:00-09:30</th>
-<th class="time-slot">⏰ 09:45-11:15</th>
-<th class="time-slot">⏰ 11:30-13:00</th>
-<th class="time-slot">⏰ 13:00-14:30</th>
+<th class="time-slot">⏰ 09:00-10:30</th>
+<th class="time-slot">⏰ 10:45-12:15</th>
+<th class="time-slot">⏰ 12:30-13:30</th>
+<th class="time-slot">⏰ 13:30-14:30</th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 14:30-16:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 16:30-18:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
 </tr>
@@ -618,55 +743,55 @@
 <tbody>
 <tr>
 <td class="day-column">Monday</td>
-<td class="course-slot">CS307-A | C304</td>
-<td class="common-course"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">Elective (B1) — Tutorial (1 hour)</div></div></td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot" style="background: hsl(236, 61%, 86%); border-left: 6px solid hsl(56, 70%, 45%); color: hsl(236, 60%, 25%);">CS307-A | C104</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 </tr>
 <tr>
 <td class="day-column">Tuesday</td>
-<td class="course-slot">CS307-A | C304</td>
-<td class="common-course">Elective (B3)</td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="course-slot" style="background: hsl(236, 61%, 86%); border-left: 6px solid hsl(56, 70%, 45%); color: hsl(236, 60%, 25%);">CS307-A | C104</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 </tr>
 <tr>
 <td class="day-column">Wednesday</td>
-<td class="common-course">Elective (B3)</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
+<td class="afternoon-flex-slot" style="background: hsl(236, 61%, 86%); border-left: 6px solid hsl(56, 70%, 45%); color: hsl(236, 60%, 25%);">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar lab-duration">
-                <div class="course-info">CS307-Lab-A  | Lab-5</div>
+                <div class="course-info">CS307-Lab-A  | L207 & L208</div>
                 <div class="duration-tag">2 Hours</div>
             </div>
         </div>
     </div>
 </td>
-<td class="free-slot">Free</td>
 </tr>
 <tr>
 <td class="day-column">Thursday</td>
-<td class="common-course">Elective (B1)</td>
-<td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 </tr>
 <tr>
 <td class="day-column">Friday</td>
-<td class="common-course">Elective (B1)</td>
-<td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
 </tr>
@@ -675,109 +800,8 @@
         </div>
         
         
-        <div class="electives-section">
-            <h2>📚 Elective Courses</h2>
-            <p class="elective-note">Students must choose <strong>ONE course</strong> from each basket below:</p>
-            <div class="electives-container">
-
-                <div class="basket-card">
-                    <h3>Basket B1</h3>
-                    <ul class="course-list">
-                        <li><strong>CS471: Deep Computer Vision</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
-                        <li><strong>DS357: Large Languange Models</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
-                        <li><strong>CS458: Natural Language Processing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C103</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card">
-                    <h3>Basket B3</h3>
-                    <ul class="course-list">
-                        <li><strong>EC362: Automotive Embedded and Multimedia Systems</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
-                        <li><strong>CS462: Computer Graphics</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C102</span></li>
-                        <li><strong>CS469: Virtualization and Cloud Computing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C103</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card">
-                    <h3>Basket B2 (After Midsems)</h3>
-                    <ul class="course-list">
-                        <li><strong>CS455: Blockchain Technology</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C302</span></li>
-                        <li><strong>EC361: Introduction to 5G Network</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C303</span></li>
-                        <li><strong>CS365: Model Checking</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C305</span></li>
-                        <li><strong>PH352: Quantum Communication</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C304</span></li>
-                        <li><strong>PH353: Quantum HPC and AI</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 Online</span></li>
-                        <li><strong>ASD351: Design Thinking and Innovation</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C204</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card">
-                    <h3>Basket B4 (After Midsems)</h3>
-                    <ul class="course-list">
-                        <li><strong>DS355: Data Analytics and Visualization</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C002</span></li>
-                        <li><strong>DS351: Statistics for Health Technology</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C303</span></li>
-                        <li><strong>DS356: Medical Image Analysis</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C304</span></li>
-                        <li><strong>CS472: Bioinformatics</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C305</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card">
-                    <h3>Basket Minor (After Midsems)</h3>
-                    <ul class="course-list">
-                        <li><strong>DS358: Deep Speech Processing</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C305</span></li>
-
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="after-midsems-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 15px; border: 3px solid #f59e0b;">
-            <h2 style="color: #92400e; margin-bottom: 15px;">🔄 After Midsems - Second Half Electives</h2>
-            <p style="color: #78350f; font-weight: 600; margin-bottom: 20px;">These elective baskets will be offered <strong>after mid-semester exams</strong> in the same time slots:</p>
-            <div class="electives-container">
-
-                <div class="basket-card" style="border: 2px solid #f59e0b; background: white;">
-                    <h3 style="color: #92400e;">Basket B2 <span style="font-size: 0.8em; color: #f59e0b;">(After Midsems)</span></h3>
-                    <ul class="course-list">
-                        <li><strong>CS455: Blockchain Technology</strong><br><span class="classroom-info">📍 C302</span></li>
-                        <li><strong>EC361: Introduction to 5G Network</strong><br><span class="classroom-info">📍 C303</span></li>
-                        <li><strong>CS365: Model Checking</strong><br><span class="classroom-info">📍 C305</span></li>
-                        <li><strong>PH352: Quantum Communication</strong><br><span class="classroom-info">📍 C304</span></li>
-                        <li><strong>PH353: Quantum HPC and AI</strong><br><span class="classroom-info">📍 Online</span></li>
-                        <li><strong>ASD351: Design Thinking and Innovation</strong><br><span class="classroom-info">📍 C204</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card" style="border: 2px solid #f59e0b; background: white;">
-                    <h3 style="color: #92400e;">Basket B4 <span style="font-size: 0.8em; color: #f59e0b;">(After Midsems)</span></h3>
-                    <ul class="course-list">
-                        <li><strong>DS355: Data Analytics and Visualization</strong><br><span class="classroom-info">📍 C002</span></li>
-                        <li><strong>DS351: Statistics for Health Technology</strong><br><span class="classroom-info">📍 C303</span></li>
-                        <li><strong>DS356: Medical Image Analysis</strong><br><span class="classroom-info">📍 C304</span></li>
-                        <li><strong>CS472: Bioinformatics</strong><br><span class="classroom-info">📍 C305</span></li>
-
-                    </ul>
-                </div>
-
-                <div class="basket-card" style="border: 2px solid #f59e0b; background: white;">
-                    <h3 style="color: #92400e;">Basket Minor <span style="font-size: 0.8em; color: #f59e0b;">(After Midsems)</span></h3>
-                    <ul class="course-list">
-                        <li><strong>DS358: Deep Speech Processing</strong><br><span class="classroom-info">📍 C305</span></li>
-
-                    </ul>
-                </div>
-
-            </div>
-            <p style="margin-top: 20px; color: #78350f; font-style: italic; font-size: 0.95em;">
-                💡 <strong>Note:</strong> These courses will replace the current electives in the timetable after midsem exams, using the same classroom and time slots.
-            </p>
-        </div>
-
+        
+        
     </div>
 </body>
 </html>

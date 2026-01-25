@@ -53,9 +53,8 @@ class TimetableHTMLConverter:
             # Load 2-credit courses (till midsem) information
             till_midsem_html = self._load_till_midsem_courses(csv_file, dept, semester, section)
             
-            # Load elective information if available
-            elective_file = csv_file.replace('.csv', '_Electives.txt')
-            electives_html = self._load_electives(elective_file)
+            # Load elective basket information from CSV (scheduled baskets only)
+            electives_html = self._load_elective_baskets_from_csv(csv_file, dept, semester, section)
             
             html_content = f"""
 <!DOCTYPE html>
@@ -1943,6 +1942,62 @@ class TimetableHTMLConverter:
         print(f"Open index.html to view all timetables")
         
         return True
+    
+    def _load_elective_baskets_from_csv(self, csv_file, dept, semester, section):
+        """Load and display elective baskets that are scheduled in this timetable"""
+        try:
+            # Read the CSV to find which baskets are scheduled
+            df = pd.read_csv(csv_file, index_col=0)
+            
+            # Find all basket names in the timetable
+            baskets_found = set()
+            for col in df.columns:
+                for val in df[col]:
+                    if isinstance(val, str) and 'Basket' in val:
+                        # Extract basket name (remove any extra info like "[...]")
+                        basket_name = val.split('[')[0].strip()
+                        baskets_found.add(basket_name)
+            
+            if not baskets_found:
+                return ""  # No baskets in this timetable
+            
+            # Now load the actual electives data to get course details
+            # This would come from self.elective_courses which was populated during generation
+            # For now, we'll extract info from the main.py elective tracking
+            # We need to load this from a data file or pass it through
+            
+            # Try to find electives info file
+            elective_info_file = csv_file.replace('_Timetable.csv', '_ElectiveInfo.txt')
+            
+            # For now, create a simple display showing the baskets
+            html = f"""
+        <div class="electives-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px; border: 3px solid #6366f1;">
+            <h2 style="color: #3730a3; margin-bottom: 15px;">📚 Elective Baskets in This Timetable</h2>
+            <p style="color: #4338ca; font-weight: 600; margin-bottom: 20px;">The following elective baskets are scheduled in your timetable. Choose <strong>ONE course</strong> from each basket:</p>
+            <div class="electives-container">
+"""
+            
+            for basket in sorted(baskets_found):
+                html += f"""
+                <div class="basket-card" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #6366f1;">
+                    <h3 style="color: #3730a3; margin-bottom: 10px;">🎯 {basket}</h3>
+                    <p style="color: #6b7280; font-size: 0.95em;">Choose one course from this basket. All courses run at the same time in different classrooms.</p>
+                </div>
+"""
+            
+            html += """
+            </div>
+            <p style="margin-top: 20px; color: #4338ca; font-style: italic; font-size: 0.95em;">
+                💡 <strong>Note:</strong> Check with your department for the complete list of courses in each basket and their classrooms.
+            </p>
+        </div>
+"""
+            
+            return html
+            
+        except Exception as e:
+            print(f"Warning: Could not load elective baskets from {csv_file}: {e}")
+            return ""
 
 def main():
     """Main function"""

@@ -2058,10 +2058,7 @@ class TimetableGenerator:
         return False
     
     def export_to_csv(self, timetable, filename, electives=None, rotated_out=None, output_dir='timetable_outputs'):
-        """Export timetable to CSV with elective information appended below
-        
-        Only shows baskets that are actually scheduled in THIS timetable
-        """
+        """Export timetable to CSV"""
         if timetable is None:
             return False
         
@@ -2072,116 +2069,8 @@ class TimetableGenerator:
 
         filepath = os.path.join(output_dir, filename)
         
-        # Find which baskets are actually scheduled in THIS timetable
-        baskets_in_timetable = set()
-        for day in timetable:
-            for time_slot, content in timetable[day].items():
-                if isinstance(content, str) and 'Basket' in content:
-                    # Extract basket name (remove section suffix if present)
-                    basket_name = content.split('[')[0].strip()
-                    baskets_in_timetable.add(basket_name)
-        
-        # Create a list to hold all rows (timetable + elective info)
-        rows_list = []
-        
-        # Add timetable rows
-        df_reset = df.reset_index()
-        for _, row in df_reset.iterrows():
-            rows_list.append(row.to_dict())
-        
-        # Add elective information ONLY for baskets scheduled in THIS timetable
-        scheduled_electives = {basket: courses for basket, courses in (electives or {}).items() 
-                               if basket in baskets_in_timetable}
-        
-        if scheduled_electives:
-            # Add separator row
-            rows_list.append({})
-            rows_list.append({'index': '=' * 80})
-            rows_list.append({'index': 'ELECTIVE BASKETS SCHEDULED IN THIS TIMETABLE'})
-            rows_list.append({'index': '=' * 80})
-            rows_list.append({})
-            
-            for basket, courses in sorted(scheduled_electives.items()):
-                rows_list.append({'index': f'{basket}'})
-                rows_list.append({'index': '-' * 60})
-                rows_list.append({'index': 'Choose ONE course from this basket:'})
-                rows_list.append({})
-                
-                for course in courses:
-                    # Get LTPSC details
-                    L = course.get('L', 0)
-                    T = course.get('T', 0)
-                    P = course.get('P', 0)
-                    
-                    ltpsc_info = f" ({L}L-{T}T-{P}P)" if (L > 0 or T > 0 or P > 0) else ""
-                    tutorial_info = " [Has Tutorial]" if T > 0 else ""
-                    classroom_info = course.get('classroom', 'TBD')
-                    
-                    rows_list.append({
-                        'index': f"  {course['code']}: {course['title']}{ltpsc_info}{tutorial_info}",
-                        'Monday': f"Classroom: {classroom_info}"
-                    })
-                rows_list.append({})
-        
-        # Add till-midsem and after-midsem courses (only those relevant to this timetable)
-        # Extract department/semester from filename
-        scheduled_rotated = {}
-        if rotated_out:
-            for basket, courses in rotated_out.items():
-                # Check if this basket belongs to this timetable based on basket name
-                # Basket names like "CSE Till-Midsem Basket", "Global After-Midsem Basket"
-                basket_lower = basket.lower()
-                filename_lower = filename.lower()
-                
-                # Extract dept from filename (e.g., "CSE_Sem2_SectionA_Timetable.csv")
-                dept_in_filename = filename.split('_')[0].upper() if '_' in filename else ''
-                
-                # Include basket if:
-                # - It's a Global basket (no department prefix), OR
-                # - It matches the department in the filename
-                if 'global' in basket_lower or dept_in_filename.lower() in basket_lower:
-                    scheduled_rotated[basket] = courses
-        
-        if scheduled_rotated:
-            rows_list.append({})
-            rows_list.append({'index': '=' * 80})
-            rows_list.append({'index': 'TILL-MIDSEM AND AFTER-MIDSEM ELECTIVES'})
-            rows_list.append({'index': '=' * 80})
-            rows_list.append({})
-            
-            for basket, courses in sorted(scheduled_rotated.items()):
-                # Determine if it's till-midsem or after-midsem
-                if 'Till-Midsem' in basket or 'Till Midsem' in basket:
-                    basket_type = "(Till Midsem - First half of semester)"
-                elif 'After-Midsem' in basket or 'After Midsems' in basket:
-                    basket_type = "(After Midsem - Second half of semester)"
-                else:
-                    basket_type = ""
-                
-                rows_list.append({'index': f'{basket} {basket_type}'})
-                rows_list.append({'index': '-' * 60})
-                rows_list.append({'index': 'Choose ONE course from this basket:'})
-                rows_list.append({})
-                
-                for course in courses:
-                    L = course.get('L', 0)
-                    T = course.get('T', 0)
-                    P = course.get('P', 0)
-                    
-                    ltpsc_info = f" ({L}L-{T}T-{P}P)" if (L > 0 or T > 0 or P > 0) else ""
-                    tutorial_info = " [Has Tutorial]" if T > 0 else ""
-                    classroom_info = course.get('classroom', 'TBD')
-                    faculty_info = course.get('faculty', 'TBD')
-                    
-                    rows_list.append({
-                        'index': f"  {course['code']}: {course['title']}{ltpsc_info}{tutorial_info}",
-                        'Monday': f"Faculty: {faculty_info}, Classroom: {classroom_info}"
-                    })
-                rows_list.append({})
-        
-        # Create final DataFrame and save
-        final_df = pd.DataFrame(rows_list)
-        final_df.to_csv(filepath, index=False, encoding='utf-8')
+        # Export timetable to CSV (clean, without elective info in CSV)
+        df.to_csv(filepath, index=True, encoding='utf-8')
         
         print(f"Timetable saved: {filepath}")
         return True

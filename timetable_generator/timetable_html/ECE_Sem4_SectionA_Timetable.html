@@ -231,6 +231,7 @@
             font-weight: 500;
         }
         
+        /* Individual section classes - Blue */
         .course-slot {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border-left: 6px solid #3b82f6;
@@ -239,6 +240,7 @@
             padding: 18px 15px;
         }
         
+        /* Common classes (CSE A+B or DSAI+ECE) - Yellow/Amber */
         .common-course {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 6px solid #f59e0b;
@@ -247,6 +249,7 @@
             padding: 18px 15px;
         }
         
+        /* 2-hour Labs - Purple */
         .lab-slot {
             background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
             border-left: 6px solid #a855f7;
@@ -255,12 +258,111 @@
             padding: 18px 15px;
         }
         
+        /* 1-hour Tutorials - Green */
         .tutorial-slot {
             background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
             border-left: 6px solid #14b8a6;
             font-weight: 600;
             color: #115e59;
             padding: 18px 15px;
+        }
+        
+        /* Electives - Orange */
+        .elective-slot {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-left: 6px solid #ea580c;
+            font-weight: 600;
+            color: #7c2d12;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Courses - Red background (entire cell) */
+        .till-midsem-cell {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+            border-left: 6px solid #dc2626 !important;
+            font-weight: 600;
+            color: #7f1d1d !important;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Badge (deprecated - using red cell instead) */
+        .till-midsem-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            color: #7f1d1d;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-left: 8px;
+            border: 1px solid #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Till Midsem Section */
+        .till-midsem-section {
+            padding: 25px;
+            margin: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 15px;
+            border: 3px solid #dc2626;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+        
+        .till-midsem-section h2 {
+            color: #991b1b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .till-midsem-note {
+            text-align: center;
+            color: #7f1d1d;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .till-midsem-courses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .till-midsem-course-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #dc2626;
+            transition: transform 0.2s ease;
+        }
+        
+        .till-midsem-course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .till-midsem-course-card .course-code {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .till-midsem-course-card .course-title {
+            color: #4b5563;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        
+        .till-midsem-course-card .course-credits {
+            color: #991b1b;
+            font-size: 0.85em;
+            font-weight: 600;
         }
         
         .legend {
@@ -602,15 +704,38 @@
             </div>
         </div>
         
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;"></div>
+                <span><strong>Individual Section Classes</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%); border-left: 4px solid #14b8a6;"></div>
+                <span><strong>1-Hour Tutorials</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%); border-left: 4px solid #a855f7;"></div>
+                <span><strong>2-Hour Labs</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;"></div>
+                <span><strong>Common Classes (A+B / DSAI+ECE)</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); border-left: 4px solid #ea580c;"></div>
+                <span><strong>Electives</strong></span>
+            </div>
+        </div>
+        
         <div class="timetable-wrapper">
             <table>
 <thead>
 <tr>
 <th style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Day/Time</th>
-<th class="time-slot">⏰ 08:00-09:30</th>
-<th class="time-slot">⏰ 09:45-11:15</th>
-<th class="time-slot">⏰ 11:30-13:00</th>
-<th class="time-slot">⏰ 13:00-14:30</th>
+<th class="time-slot">⏰ 09:00-10:30</th>
+<th class="time-slot">⏰ 10:45-12:15</th>
+<th class="time-slot">⏰ 12:30-13:30</th>
+<th class="time-slot">⏰ 13:30-14:30</th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 14:30-16:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
 <th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 16:30-18:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
 </tr>
@@ -618,98 +743,44 @@
 <tbody>
 <tr>
 <td class="day-column">Monday</td>
-<td class="common-course">Elective (Minor)</td>
+<td class="course-slot" style="background: hsl(184, 64%, 79%); border-left: 6px solid hsl(4, 70%, 45%); color: hsl(184, 60%, 25%);">EC205-A | C205</td>
+<td class="course-slot" style="background: hsl(352, 67%, 82%); border-left: 6px solid hsl(172, 70%, 45%); color: hsl(352, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">EC310A | C203 — Tutorial (1 hour)</div></div></td>
+<td class="course-slot" style="background: hsl(147, 67%, 87%); border-left: 6px solid hsl(327, 70%, 45%); color: hsl(147, 60%, 25%);">HS204-A | C202</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lab-duration">
-                <div class="course-info">EC204-Lab-A  | Lab-2</div>
-                <div class="duration-tag">2 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">EC310-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
 </tr>
 <tr>
 <td class="day-column">Tuesday</td>
-<td class="common-course">Elective (Minor)</td>
+<td class="course-slot" style="background: hsl(184, 64%, 79%); border-left: 6px solid hsl(4, 70%, 45%); color: hsl(184, 60%, 25%);">EC205-A | C303</td>
+<td class="course-slot" style="background: hsl(302, 67%, 77%); border-left: 6px solid hsl(122, 70%, 45%); color: hsl(302, 60%, 25%);">EC204-A | C203</td>
+<td class="course-slot" style="background: hsl(147, 67%, 87%); border-left: 6px solid hsl(327, 70%, 45%); color: hsl(147, 60%, 25%);">HS204-A | C202</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
-<td class="course-slot">HS205-A | C004</td>
-<td class="lunch-break">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">EC310-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
 </tr>
 <tr>
 <td class="day-column">Wednesday</td>
+<td class="course-slot" style="background: hsl(352, 67%, 82%); border-left: 6px solid hsl(172, 70%, 45%); color: hsl(352, 60%, 25%);">EC310-A | C205</td>
+<td class="course-slot" style="background: hsl(302, 67%, 77%); border-left: 6px solid hsl(122, 70%, 45%); color: hsl(302, 60%, 25%);">EC204-A | C203</td>
+<td class="course-slot" style="background: hsl(147, 67%, 87%); border-left: 6px solid hsl(327, 70%, 45%); color: hsl(147, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">HS204A | C203 — Tutorial (1 hour)</div></div></td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
 <td class="free-slot">Free</td>
-<td class="course-slot">EC205-A | C101</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar tutorial-duration">
-                <div class="course-info">EC310-T-A  | C101</div>
-                <div class="duration-tag">1 Hour</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar tutorial-duration">
-                <div class="course-info">EC204-T-A  | C101</div>
-                <div class="duration-tag">1 Hour</div>
-            </div>
-        </div>
-    </div>
-</td>
 </tr>
 <tr>
 <td class="day-column">Thursday</td>
+<td class="course-slot" style="background: hsl(302, 67%, 77%); border-left: 6px solid hsl(122, 70%, 45%); color: hsl(302, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">EC204A | C205 — Tutorial (1 hour)</div></div></td>
+<td class="course-slot" style="background: hsl(246, 46%, 81%); border-left: 6px solid hsl(66, 70%, 45%); color: hsl(246, 60%, 25%);">HS205-A | C203</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
 <td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="course-slot">HS205-A | C004</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
+<td class="afternoon-flex-slot" style="background: hsl(184, 64%, 79%); border-left: 6px solid hsl(4, 70%, 45%); color: hsl(184, 60%, 25%);">
     <div class="session-container">
         <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">EC205-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">EC204-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
+            <div class="duration-bar lab-duration">
+                <div class="course-info">EC205-Lab-A  | L106 & L107</div>
+                <div class="duration-tag">2 Hours</div>
             </div>
         </div>
     </div>
@@ -717,52 +788,29 @@
 </tr>
 <tr>
 <td class="day-column">Friday</td>
-<td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="free-slot">Free</td>
-<td class="lunch-break">LUNCH BREAK</td>
-<td class="afternoon-flex-slot">
+<td class="course-slot" style="background: hsl(352, 67%, 82%); border-left: 6px solid hsl(172, 70%, 45%); color: hsl(352, 60%, 25%);">EC310-A | C205</td>
+<td class="course-slot" style="background: hsl(246, 46%, 81%); border-left: 6px solid hsl(66, 70%, 45%); color: hsl(246, 60%, 25%);">HS205-A | C203</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="afternoon-flex-slot" style="background: hsl(302, 67%, 77%); border-left: 6px solid hsl(122, 70%, 45%); color: hsl(302, 60%, 25%);">
     <div class="session-container">
         <div class="duration-bar-wrapper">
             <div class="duration-bar lab-duration">
-                <div class="course-info">EC205-Lab-A  | Lab-1</div>
+                <div class="course-info">EC204-Lab-A  | L207 & L208</div>
                 <div class="duration-tag">2 Hours</div>
             </div>
         </div>
     </div>
 </td>
-<td class="afternoon-flex-slot">
-    <div class="session-container">
-        <div class="duration-bar-wrapper">
-            <div class="duration-bar lecture-duration">
-                <div class="course-info">EC204-A  | C101</div>
-                <div class="duration-tag">1.5 Hours</div>
-            </div>
-        </div>
-    </div>
-</td>
+<td class="free-slot">Free</td>
 </tr>
 </tbody>
 </table>
         </div>
         
         
-        <div class="electives-section">
-            <h2>📚 Elective Courses</h2>
-            <p class="elective-note">Students must choose <strong>ONE course</strong> from each basket below:</p>
-            <div class="electives-container">
-
-                <div class="basket-card">
-                    <h3>Basket Minor</h3>
-                    <ul class="course-list">
-                        <li><strong>DS357: Large Languange Models</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 C101</span></li>
-
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-
+        
+        
     </div>
 </body>
 </html>
