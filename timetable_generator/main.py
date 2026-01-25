@@ -445,7 +445,7 @@ class TimetableGenerator:
                         # Mark slot as used and update timetable
                         self._mark_basket_slot_used(timetable, used_slots, day, time_str, basket_name, classrooms)
                     else:
-                        print(f"      ⚠️  Could not find slot for lecture {i+1} of {basket_name}")
+                        print(f"      Warning: Could not find slot for lecture {i+1} of {basket_name}")
                 
                 # Schedule tutorial sessions
                 tutorial_slots = []
@@ -519,7 +519,23 @@ class TimetableGenerator:
     def _assign_classrooms_to_basket(self, courses):
         """Assign different classroom to each course in an elective basket"""
         classrooms = {}
-        available_classrooms = self.regular_classrooms.copy()
+        # Use backup large classrooms for electives (not C004 auditorium)
+        available_classrooms = self.backup_large_classrooms.copy() if self.backup_large_classrooms else []
+        
+        # Fallback to regular classrooms if available
+        if not available_classrooms and self.regular_classrooms:
+            available_classrooms = self.regular_classrooms.copy()
+        
+        # Final fallback: use all non-auditorium classrooms
+        if not available_classrooms:
+            available_classrooms = [
+                room for room in self.classrooms.keys()
+                if room != self.large_auditorium and 'lab' not in self.classrooms[room]['type'].lower()
+            ]
+        
+        if not available_classrooms:
+            print("      Warning: No classrooms available for electives!")
+            return {}
         
         for idx, course in enumerate(courses):
             if idx < len(available_classrooms):
@@ -564,9 +580,18 @@ class TimetableGenerator:
         
         # Mark each classroom as globally used
         for course_code, classroom in classrooms.items():
-            self._mark_classroom_globally_used(day, time_str, classroom, self.current_department, 
-                                              self.current_semester, self.current_section, 
-                                              f"{basket_label} - {course_code}")
+            # Track global classroom usage
+            if day not in self.global_classroom_usage:
+                self.global_classroom_usage[day] = {}
+            if time_str not in self.global_classroom_usage[day]:
+                self.global_classroom_usage[day][time_str] = {}
+            
+            self.global_classroom_usage[day][time_str][classroom] = {
+                'dept': self.current_department,
+                'semester': self.current_semester,
+                'section': self.current_section,
+                'course': f"{basket_label} - {course_code}"
+            }
     
     def _get_course_classroom_from_assignments(self, course_code, lecture_slots):
         """Get classroom assigned to a course from lecture slot assignments"""
@@ -583,8 +608,17 @@ class TimetableGenerator:
         if course_code in self.elective_classroom_assignments:
             return self.elective_classroom_assignments[course_code]
         
+        # Use backup large classrooms for electives
+        available = self.backup_large_classrooms.copy() if self.backup_large_classrooms else []
+        if not available and self.regular_classrooms:
+            available = self.regular_classrooms.copy()
+        if not available:
+            available = [room for room in self.classrooms.keys() if room != self.large_auditorium]
+        
+        if not available:
+            return "TBD"
+        
         # Assign new classroom
-        available = self.regular_classrooms.copy()
         idx = len(self.elective_classroom_assignments) % len(available)
         classroom = available[idx]
         self.elective_classroom_assignments[course_code] = classroom
