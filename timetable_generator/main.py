@@ -113,9 +113,10 @@ class TimetableGenerator:
         # Format: common_course_schedule[dept][semester] = {course_code: [(day, time_str, classroom, label), ...]}
         self.common_course_schedule = {}
         
-        # ELECTIVE BASKET SCHEDULE - shared across ALL branches and sections for same semester
-        # Format: elective_basket_schedule[semester] = {basket_name: [(day, time_str, classrooms_dict), ...]}
-        # This ensures all sections/branches use SAME time slots for electives
+        # ELECTIVE BASKET SCHEDULE - shared across sections of SAME branch for same semester
+        # Format: elective_basket_schedule[department][semester] = {basket_name: [(day, time_str, classrooms_dict), ...]}
+        # This ensures sections within same branch (e.g., CSE A and B) use SAME time slots
+        # But different branches (CSE vs DSAI vs ECE) can have different times
         self.elective_basket_schedule = {}
         
         # Strict scheduling rules: max 1 lecture/tutorial/lab per course per day
@@ -262,15 +263,21 @@ class TimetableGenerator:
         print(f"   >> Loaded {len(df)} elective courses from electives.csv")
         return df
     
-    def group_electives_into_baskets(self, electives_df, semester):
+    def group_electives_into_baskets(self, electives_df, semester, department):
         """
         Group elective courses into baskets based on:
-        1. Duration (Full semester vs Till-midsem vs After-midsem)
-        2. HSS vs non-HSS
-        3. Duration (full semester / till-midsem / after-midsem)
+        1. Branch/Department specificity (from Branch column)
+        2. Duration (Full semester vs Till-midsem vs After-midsem)
+        3. HSS vs non-HSS
+        
+        Branch column logic:
+        - Empty = Common to all branches
+        - "Cse" = Only for CSE
+        - "Dsai" = Only for DSAI
+        - "Cse+Dsai" = Common for CSE and DSAI
         
         Creates SIMPLE baskets:
-        - ONE HSS basket for ALL HSS courses
+        - ONE HSS basket for ALL HSS courses (filtered by branch)
         - ONE Elective basket for full semester courses
         - ONE Till-Midsem basket for 1-2 credit courses
         - After-midsem courses stored separately
@@ -285,6 +292,22 @@ class TimetableGenerator:
         if sem_electives.empty:
             return {}
         
+        # Filter by branch/department
+        filtered_electives = []
+        for _, row in sem_electives.iterrows():
+            branch_val = str(row.get('Branch', '')).strip()
+            # Include if:
+            # 1. Branch is empty (common to all)
+            # 2. Branch matches department (e.g., "Cse" for CSE)
+            # 3. Branch contains department (e.g., "Cse+Dsai" for CSE)
+            if not branch_val or \
+               branch_val.lower() == department.lower() or \
+               department.lower() in branch_val.lower():
+                filtered_electives.append(row)
+        
+        if not filtered_electives:
+            return {}
+        
         # Initialize simple baskets
         baskets = {
             'HSS Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': True, 'courses': []},
@@ -293,7 +316,7 @@ class TimetableGenerator:
             'After-Midsem Basket': {'ltpsc': 'varies', 'duration': 'after_midsem', 'is_hss': False, 'courses': []}
         }
         
-        for _, row in sem_electives.iterrows():
+        for row in filtered_electives:
             credits = int(row.get('Credits', 0))
             course_code = str(row['Course Code']).strip()
             
@@ -380,11 +403,15 @@ class TimetableGenerator:
         
         return shared_courses
     
-    def schedule_elective_baskets(self, timetable, used_slots, baskets, semester, section):
+    def schedule_elective_baskets(self, timetable, used_slots, baskets, semester, section, department):
         """
         Schedule elective baskets into the timetable.
-        IMPORTANT: Electives are COMMON across all branches/sections for same semester.
-        First section to schedule will create the slots, others will reuse same times.
+        IMPORTANT: Electives are COMMON across sections of SAME branch for same semester.
+        - CSE Section A and B share same times
+        - DSAI has its own times
+        - ECE has its own times
+        
+        First section of a branch to schedule will create the slots, other sections reuse same times.
         
         Each basket gets multiple slots based on LTPSC:
         - 3L means 2 lecture slots (90 min each)
@@ -397,17 +424,21 @@ class TimetableGenerator:
             baskets: Dictionary of basket_name -> {ltpsc, duration, courses}
             semester: Current semester
             section: Current section
+            department: Current department (CSE/DSAI/ECE)
         
         Returns:
             Dictionary of basket assignments {basket_name: [(day, time_str, classrooms_dict)]}
         """
         basket_assignments = {}
         
-        # Check if elective schedule already exists for this semester (scheduled by another section/branch)
-        if semester in self.elective_basket_schedule:
-            # Reuse existing schedule
-            print(f"\n   >> Reusing elective basket schedule from first section (electives are common)")
-            for basket_name, slots in self.elective_basket_schedule[semester].items():
+        # Check if elective schedule already exists for this branch+semester (scheduled by another section)
+        if department not in self.elective_basket_schedule:
+            self.elective_basket_schedule[department] = {}
+        
+        if semester in self.elective_basket_schedule[department]:
+            # Reuse existing schedule from first section of this branch
+            print(f"\n   >> Reusing elective basket schedule from first {department} section (electives common within branch)")
+            for basket_name, slots in self.elective_basket_schedule[department][semester].items():
                 basket_assignments[basket_name] = slots
                 for day, time_str, classrooms in slots:
                     # Mark slots as used in this section's timetable
@@ -423,8 +454,8 @@ class TimetableGenerator:
                 print(f"      {basket_name}: {day} {time_str}")
             return basket_assignments
         
-        # First section - create the schedule
-        self.elective_basket_schedule[semester] = {}
+        # First section of this branch - create the schedule
+        self.elective_basket_schedule[department][semester] = {}
         
         for basket_name, basket_info in baskets.items():
             duration = basket_info['duration']
@@ -506,7 +537,7 @@ class TimetableGenerator:
             
             if basket_slots:
                 basket_assignments[basket_name] = basket_slots
-                self.elective_basket_schedule[semester][basket_name] = basket_slots
+                self.elective_basket_schedule[department][semester][basket_name] = basket_slots
         
         return basket_assignments
     
@@ -1033,10 +1064,10 @@ class TimetableGenerator:
         # Load and group electives
         electives_df = self.load_electives_data()
         if electives_df is not None:
-            elective_baskets = self.group_electives_into_baskets(electives_df, semester)
+            elective_baskets = self.group_electives_into_baskets(electives_df, semester, department)
             if elective_baskets:
                 basket_assignments = self.schedule_elective_baskets(
-                    timetable, used_slots, elective_baskets, semester, section
+                    timetable, used_slots, elective_baskets, semester, section, department
                 )
                 print(f"   >> Successfully scheduled {len(basket_assignments)} elective baskets")
             else:
