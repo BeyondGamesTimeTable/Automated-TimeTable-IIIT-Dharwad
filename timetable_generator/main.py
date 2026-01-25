@@ -262,7 +262,13 @@ class TimetableGenerator:
         Group elective courses into baskets based on:
         1. Duration (Full semester vs Till-midsem vs After-midsem)
         2. HSS vs non-HSS
-        3. LTPSC pattern (courses with same LTPSC go in same basket)
+        3. Duration (full semester / till-midsem / after-midsem)
+        
+        Creates SIMPLE baskets:
+        - ONE HSS basket for ALL HSS courses
+        - ONE Elective basket for full semester courses
+        - ONE Till-Midsem basket for 1-2 credit courses
+        - After-midsem courses stored separately
         
         Returns: {basket_name: [courses]}
         """
@@ -274,8 +280,13 @@ class TimetableGenerator:
         if sem_electives.empty:
             return {}
         
-        baskets = {}
-        basket_counter = {'full_sem': 1, 'till_midsem': 1, 'after_midsem': 1}
+        # Initialize simple baskets
+        baskets = {
+            'HSS Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': True, 'courses': []},
+            'Elective Basket': {'ltpsc': 'varies', 'duration': 'full_sem', 'is_hss': False, 'courses': []},
+            'Till-Midsem Basket': {'ltpsc': 'varies', 'duration': 'till_midsem', 'is_hss': False, 'courses': []},
+            'After-Midsem Basket': {'ltpsc': 'varies', 'duration': 'after_midsem', 'is_hss': False, 'courses': []}
+        }
         
         for _, row in sem_electives.iterrows():
             credits = int(row.get('Credits', 0))
@@ -284,43 +295,26 @@ class TimetableGenerator:
             # Check if HSS course
             is_hss = course_code.startswith('HS')
             
-            # Get LTPSC pattern
+            # Get LTPSC
             L = int(row.get('Lectures', 0))
             T = int(row.get('Tutorials', 0))
             P = int(row.get('Practicals', 0))
-            ltpsc_pattern = f"{L}L-{T}T-{P}P"
             
-            # Determine duration
-            if credits <= 2:
-                # 1-2 credit courses can be till-midsem or after-midsem
-                # Default: till-midsem, we'll split them later if needed
-                duration = 'till_midsem'
-            else:
-                duration = 'full_sem'
-            
-            # Create basket key
+            # Determine which basket
             if is_hss:
                 basket_key = 'HSS Basket'
-            else:
-                if duration == 'full_sem':
-                    basket_key = f"Elective Basket {chr(64 + basket_counter['full_sem'])}"  # A, B, C...
-                elif duration == 'till_midsem':
-                    basket_key = f"Till-Midsem Basket {chr(64 + basket_counter['till_midsem'])}"
+            elif credits <= 2:
+                # 1-2 credits: half go to till-midsem, half to after-midsem
+                # Simple split based on row index to balance
+                import random
+                if random.random() < 0.5:
+                    basket_key = 'Till-Midsem Basket'
                 else:
-                    basket_key = f"After-Midsem Basket {chr(64 + basket_counter['after_midsem'])}"
+                    basket_key = 'After-Midsem Basket'
+            else:
+                basket_key = 'Elective Basket'
             
             # Add course to basket
-            if basket_key not in baskets:
-                baskets[basket_key] = {
-                    'ltpsc': ltpsc_pattern,
-                    'duration': duration,
-                    'is_hss': is_hss,
-                    'courses': []
-                }
-                # Increment counter for next basket of same type
-                if not is_hss:
-                    basket_counter[duration] += 1
-            
             baskets[basket_key]['courses'].append({
                 'code': course_code,
                 'title': row['Course Title'],
@@ -329,8 +323,11 @@ class TimetableGenerator:
                 'T': T,
                 'P': P,
                 'credits': credits,
-                'branch': row.get('Branch', '')  # Branch-specific or common
+                'branch': row.get('Branch', '')
             })
+        
+        # Remove empty baskets
+        baskets = {name: info for name, info in baskets.items() if info['courses']}
         
         print(f"\n   >> Created {len(baskets)} elective baskets for Semester {semester}")
         for basket_name, basket_info in baskets.items():
@@ -401,6 +398,9 @@ class TimetableGenerator:
             is_hss = basket_info['is_hss']
             courses = basket_info['courses']
             
+            if not courses:
+                continue
+            
             # Skip after-midsem baskets - they don't get scheduled in main timetable
             if duration == 'after_midsem':
                 print(f"   >> Skipping {basket_name} (After-Midsem) - will list below timetable")
@@ -415,79 +415,52 @@ class TimetableGenerator:
                         'title': course['title'],
                         'classroom': classroom,
                         'faculty': course['faculty'],
-                        'credits': course['credits']
+                        'credits': course['credits'],
+                        'L': course['L'],
+                        'T': course['T'],
+                        'P': course['P']
                     })
                 continue
             
-            # Calculate number of slots needed based on LTPSC
-            if len(courses) > 0:
-                sample_course = courses[0]
-                L, T, P = sample_course['L'], sample_course['T'], sample_course['P']
+            # Schedule basket with ONE lecture slot only (90 minutes)
+            # Tutorial/practical variations will be mentioned below timetable
+            print(f"\n   >> Scheduling {basket_name}: 1 slot (90 min)")
+            print(f"      Courses in basket: {len(courses)}")
+            
+            slot = self._find_free_slot_for_basket(timetable, used_slots, basket_name, 90, semester, is_hss)
+            if slot:
+                day, time_str = slot
+                # Assign different classroom to each course in basket
+                classrooms = self._assign_classrooms_to_basket(courses)
                 
-                # Calculate sessions needed
-                num_lectures = int(L * 2 / 3) if L > 0 else 0  # 3L = 2 sessions of 90min
-                num_tutorials = T  # 1T = 1 session of 60min
-                num_practicals = P // 2  # 2P = 1 session of 120min
+                # Mark slot as used and update timetable
+                self._mark_basket_slot_used(timetable, used_slots, day, time_str, basket_name, classrooms)
                 
-                print(f"\n   >> Scheduling {basket_name}: {num_lectures}L + {num_tutorials}T + {num_practicals}P sessions")
-                print(f"      Courses in basket: {len(courses)}")
+                basket_assignments[basket_name] = [(day, time_str, classrooms)]
                 
-                # Schedule lecture sessions
-                lecture_slots = []
-                for i in range(num_lectures):
-                    slot = self._find_free_slot_for_basket(timetable, used_slots, basket_name, 90, semester, is_hss)
-                    if slot:
-                        day, time_str = slot
-                        # Assign different classroom to each course in basket
-                        classrooms = self._assign_classrooms_to_basket(courses)
-                        lecture_slots.append((day, time_str, classrooms))
-                        
-                        # Mark slot as used and update timetable
-                        self._mark_basket_slot_used(timetable, used_slots, day, time_str, basket_name, classrooms)
-                    else:
-                        print(f"      Warning: Could not find slot for lecture {i+1} of {basket_name}")
+                # Print classroom assignments
+                print(f"      {basket_name}: {day} {time_str}")
+                for course_code, classroom in classrooms.items():
+                    print(f"        {course_code}: {classroom}")
                 
-                # Schedule tutorial sessions
-                tutorial_slots = []
-                for i in range(num_tutorials):
-                    slot = self._find_free_slot_for_basket(timetable, used_slots, f"{basket_name}-T", 60, semester, is_hss)
-                    if slot:
-                        day, time_str = slot
-                        classrooms = self._assign_classrooms_to_basket(courses)
-                        tutorial_slots.append((day, time_str, classrooms))
-                        self._mark_basket_slot_used(timetable, used_slots, day, time_str, f"{basket_name} (Tutorial)", classrooms)
-                
-                # Schedule practical sessions
-                practical_slots = []
-                for i in range(num_practicals):
-                    slot = self._find_free_slot_for_basket(timetable, used_slots, f"{basket_name}-Lab", 120, semester, is_hss)
-                    if slot:
-                        day, time_str = slot
-                        # Labs need lab rooms, not regular classrooms
-                        lab_rooms = self._assign_lab_rooms_to_basket(courses)
-                        practical_slots.append((day, time_str, lab_rooms))
-                        self._mark_basket_slot_used(timetable, used_slots, day, time_str, f"{basket_name} (Lab)", lab_rooms)
-                
-                # Store assignments
-                basket_assignments[basket_name] = {
-                    'lectures': lecture_slots,
-                    'tutorials': tutorial_slots,
-                    'practicals': practical_slots,
-                    'courses': courses
-                }
-                
-                # Add to elective_courses for summary display
-                if basket_name not in self.elective_courses:
-                    self.elective_courses[basket_name] = []
+                # Store courses with tutorials/practicals for display below timetable
                 for course in courses:
-                    classroom = self._get_course_classroom_from_assignments(course['code'], lecture_slots)
-                    self.elective_courses[basket_name].append({
-                        'code': course['code'],
-                        'title': course['title'],
-                        'classroom': classroom,
-                        'faculty': course['faculty'],
-                        'credits': course['credits']
-                    })
+                    if course['T'] > 0 or course['P'] > 0:
+                        if basket_name not in self.rotated_out_electives:
+                            self.rotated_out_electives[basket_name] = []
+                        self.rotated_out_electives[basket_name].append({
+                            'code': course['code'],
+                            'title': course['title'],
+                            'classroom': classrooms.get(course['code'], 'TBD'),
+                            'faculty': course['faculty'],
+                            'credits': course['credits'],
+                            'L': course['L'],
+                            'T': course['T'],
+                            'P': course['P'],
+                            'note': f"Tutorial/Practical sessions to be scheduled separately"
+                        })
+            else:
+                print(f"      Warning: Could not find slot for {basket_name}")
         
         return basket_assignments
     
