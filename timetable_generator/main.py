@@ -431,9 +431,9 @@ class TimetableGenerator:
                     basket_assignments[basket_name] = slots
                     # Find basket courses from global_baskets
                     basket_courses = None
-                    for bname, courses in global_baskets.items():
+                    for bname, basket_data in global_baskets.items():
                         if bname == basket_name:
-                            basket_courses = courses
+                            basket_courses = basket_data.get('courses', [])
                             break
                     self._apply_basket_schedule_to_timetable(timetable, used_slots, basket_name, slots, basket_courses)
             else:
@@ -454,9 +454,9 @@ class TimetableGenerator:
                     basket_assignments[basket_name] = slots
                     # Find basket courses from branch_baskets
                     basket_courses = None
-                    for bname, courses in branch_baskets.items():
+                    for bname, basket_data in branch_baskets.items():
                         if bname == basket_name:
-                            basket_courses = courses
+                            basket_courses = basket_data.get('courses', [])
                             break
                     self._apply_basket_schedule_to_timetable(timetable, used_slots, basket_name, slots, basket_courses)
             else:
