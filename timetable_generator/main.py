@@ -460,7 +460,11 @@ class TimetableGenerator:
             L, T, P = sample_course['L'], sample_course['T'], sample_course['P']
             
             # LTPSC rules: 3L = 2 slots of 90min, 1T = 1 slot of 60min, 2P = 1 slot of 120min
-            num_lectures = int(L * 2 / 3) if L > 0 else 0
+            # For electives: if L > 0, schedule at least 1 lecture slot
+            if L > 0:
+                num_lectures = max(1, int(L * 2 / 3))  # At least 1 lecture slot if L > 0
+            else:
+                num_lectures = 0
             num_tutorials = T
             num_practicals = P // 2
             
@@ -468,12 +472,14 @@ class TimetableGenerator:
             print(f"      Courses in basket: {len(courses)}")
             
             basket_slots = []
+            used_days_for_basket = set()  # Track which days we've used for this basket
             
             # Schedule lecture sessions
             for i in range(num_lectures):
-                slot = self._find_free_slot_for_basket(timetable, used_slots, basket_name, 90, semester, is_hss)
+                slot = self._find_free_slot_for_basket(timetable, used_slots, basket_name, 90, semester, is_hss, used_days_for_basket)
                 if slot:
                     day, time_str = slot
+                    used_days_for_basket.add(day)  # Mark this day as used for this basket
                     classrooms = self._assign_classrooms_to_basket(courses)
                     basket_slots.append((day, time_str, classrooms))
                     self._mark_basket_slot_used(timetable, used_slots, day, time_str, basket_name, classrooms)
@@ -504,9 +510,20 @@ class TimetableGenerator:
         
         return basket_assignments
     
-    def _find_free_slot_for_basket(self, timetable, used_slots, basket_name, duration_minutes, semester, is_hss=False):
-        """Find a free slot for an elective basket"""
+    def _find_free_slot_for_basket(self, timetable, used_slots, basket_name, duration_minutes, semester, is_hss=False, used_days=None):
+        """Find a free slot for an elective basket
+        
+        Args:
+            used_days: Set of days already used for this basket (to prevent same-day scheduling)
+        """
+        if used_days is None:
+            used_days = set()
+            
         for day in self.days:
+            # Skip days already used for this basket
+            if day in used_days:
+                continue
+                
             for time_slot in self.time_slots:
                 time_str = f"{time_slot[0]}-{time_slot[1]}"
                 
@@ -1989,16 +2006,31 @@ class TimetableGenerator:
                 # Add "After Midsems" section for rotated-out electives
                 if rotated_out and len(rotated_out) > 0:
                     f.write("\n" + "="*80 + "\n")
-                    f.write("AFTER MIDSEMS - These electives will be offered after mid-semester exams\n")
+                    f.write("ELECTIVE DETAILS - Till-Midsem and After-Midsem Courses\n")
                     f.write("="*80 + "\n\n")
                     
                     for basket, courses in sorted(rotated_out.items()):
-                        f.write(f"Basket {basket} (After Midsems):\n")
-                        f.write("-" * 40 + "\n")
+                        # Determine if it's till-midsem or after-midsem
+                        if 'Till-Midsem' in basket:
+                            basket_type = "(Till Midsem - First half of semester)"
+                        elif 'After-Midsem' in basket or 'After Midsems' in basket:
+                            basket_type = "(After Midsem - Second half of semester)"
+                        else:
+                            basket_type = ""
+                        
+                        f.write(f"{basket} {basket_type}:\\n")
+                        f.write("-" * 60 + "\\n")
                         for course in courses:
-                            f.write(f"  • {course['code']}: {course['title']}\n")
-                            f.write(f"    Classroom: {course['classroom']}\n")
-                        f.write("\n")
+                            f.write(f"  • {course['code']}: {course['title']}\\n")
+                            f.write(f"    Faculty: {course.get('faculty', 'TBD')}\\n")
+                            f.write(f"    Classroom: {course.get('classroom', 'TBD')}\\n")
+                            # Show LTPSC details
+                            L = course.get('L', 0)
+                            T = course.get('T', 0)
+                            P = course.get('P', 0)
+                            if L > 0 or T > 0 or P > 0:
+                                f.write(f"    Structure: {L}L-{T}T-{P}P\\n")
+                        f.write("\\n")
         
         print(f"Timetable saved: {filepath}")
         return True
