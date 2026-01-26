@@ -280,7 +280,8 @@
         
         .file-name {
             font-weight: 600;
-            color: #e2e8f0;
+            color: #a5b4fc;
+            font-size: 1.05em;
         }
         
         .file-size {
@@ -480,6 +481,29 @@
             font-size: 1.5em;
         }
         
+        /* Server Status Indicator */
+        .server-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 40px;
+            border-radius: 6px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .server-status.connected {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.6);
+        }
+        
+        .server-status.disconnected {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6);
+        }
+        
         /* Loading Overlay with Rotating Chakra */
         .loading-overlay {
             display: none;
@@ -559,23 +583,12 @@
     <div class="container">
         <a href="index.html" class="back-button">← Back to Main Menu</a>
         
+        <!-- Server Status Indicator -->
+        <div class="server-status" id="serverStatusIndicator"></div>
+        
         <div class="header">
             <h1>Upload Course Data</h1>
             <p>Add or update CSV files for timetable generation</p>
-        </div>
-        
-        <div class="alert alert-success" id="serverStatus" style="display: none;">
-            <div class="alert-icon"></div>
-            <div>
-                <strong>Server Connected!</strong> Upload functionality is active. Files will be saved to input_files/sdtt_inputs/
-            </div>
-        </div>
-        
-        <div class="alert alert-warning" id="serverError" style="display: none;">
-            <div class="alert-icon"></div>
-            <div>
-                <strong>Server Offline:</strong> Please start the backend server by running: <code>py upload_server.py</code>
-            </div>
         </div>
         
         <div class="upload-section">
@@ -664,25 +677,20 @@
         <div class="instructions" style="background: rgba(99, 102, 241, 0.08); padding: 25px; border-radius: 15px; margin-top: 30px; border-left: 4px solid rgba(99, 102, 241, 0.6);">
             <h3 style="color: #a5b4fc; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">File Upload Instructions</h3>
             <ul style="list-style: none; padding-left: 0;">
-                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>CSE/ECE/DSAI Files:</strong> Upload course data CSV files containing columns: Course Code, Course Title, Lectures, Tutorials, Practicals, Self-Study, Credits, Faculty, Semester, Section, Lab</span>
+                <li style="padding: 8px 0; color: #cbd5e1;">
+                    <strong>CSE/ECE/DSAI Files:</strong> Upload course data CSV files containing columns: Course Code, Course Title, Lectures, Tutorials, Practicals, Self-Study, Credits, Faculty, Semester, Section, Lab
                 </li>
-                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>Classroom File:</strong> Upload CSV with columns: Room, Description, Seating Capacity</span>
+                <li style="padding: 8px 0; color: #cbd5e1;">
+                    <strong>Classroom File:</strong> Upload CSV with columns: Room, Description, Seating Capacity
                 </li>
-                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>All 4 files required:</strong> System will only process once all files are uploaded</span>
+                <li style="padding: 8px 0; color: #cbd5e1;">
+                    <strong>All 4 files required:</strong> System will only process once all files are uploaded
                 </li>
-                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>Auto-generation:</strong> Timetables are automatically generated after successful upload</span>
+                <li style="padding: 8px 0; color: #cbd5e1;">
+                    <strong>Auto-generation:</strong> Timetables are automatically generated after successful upload
                 </li>
-                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>Version Control:</strong> Each upload creates a new timestamped version preserving history</span>
+                <li style="padding: 8px 0; color: #cbd5e1;">
+                    <strong>Version Control:</strong> Each upload creates a new timestamped version preserving history
                 </li>
             </ul>
         </div>
@@ -981,17 +989,16 @@
         
         // Check if server is running on page load
         async function checkServerStatus() {
+            const indicator = document.getElementById('serverStatusIndicator');
             try {
                 const response = await fetch(`${API_BASE}/api/health`);
                 const data = await response.json();
                 
                 if (data.status === 'healthy') {
-                    document.getElementById('serverStatus').style.display = 'flex';
-                    document.getElementById('serverError').style.display = 'none';
+                    indicator.className = 'server-status connected';
                 }
             } catch (error) {
-                document.getElementById('serverStatus').style.display = 'none';
-                document.getElementById('serverError').style.display = 'flex';
+                indicator.className = 'server-status disconnected';
             }
         }
         
