@@ -160,13 +160,13 @@
         .drop-zone {
             border: 2px dashed rgba(99, 102, 241, 0.4);
             border-radius: 12px;
-            padding: 30px 25px;
+            padding: 18px 20px;
             text-align: center;
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             position: relative;
             overflow: hidden;
         }
@@ -480,6 +480,52 @@
             font-size: 1.5em;
         }
         
+        /* Loading Overlay with Rotating Chakra */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-chakra {
+            font-size: 120px;
+            color: #FFD700;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 60px rgba(255, 215, 0, 0.6));
+            animation: chakraRotate 2s linear infinite;
+        }
+        
+        @keyframes chakraRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8em;
+            color: #a5b4fc;
+            font-weight: 600;
+            animation: loadingPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -492,40 +538,53 @@
             .drop-zone {
                 padding: 40px 20px;
             }
+            
+            .loading-chakra {
+                font-size: 80px;
+            }
+            
+            .loading-text {
+                font-size: 1.4em;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-chakra">☸</div>
+        <div class="loading-text">Generating Timetables...</div>
+    </div>
+    
     <div class="container">
-        <a href="index.html" class="back-button">🏠 Back to Main Menu</a>
+        <a href="index.html" class="back-button">← Back to Main Menu</a>
         
         <div class="header">
-            <h1>📤 Upload Course Data</h1>
+            <h1>Upload Course Data</h1>
             <p>Add or update CSV files for timetable generation</p>
         </div>
         
         <div class="alert alert-success" id="serverStatus" style="display: none;">
-            <div class="alert-icon">✓</div>
+            <div class="alert-icon"></div>
             <div>
                 <strong>Server Connected!</strong> Upload functionality is active. Files will be saved to input_files/sdtt_inputs/
             </div>
         </div>
         
         <div class="alert alert-warning" id="serverError" style="display: none;">
-            <div class="alert-icon">⚠️</div>
+            <div class="alert-icon"></div>
             <div>
                 <strong>Server Offline:</strong> Please start the backend server by running: <code>py upload_server.py</code>
             </div>
         </div>
         
         <div class="upload-section">
-            <h2 class="section-title">📁 Upload Required Files</h2>
+            <h2 class="section-title">Upload Required Files</h2>
             
             <!-- CSE Course File -->
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 10px;">📘 CSE Course File *</label>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 8px;">CSE Course File *</label>
                 <div class="drop-zone" id="dropZoneCSE" onclick="document.getElementById('fileInputCSE').click()">
-                    <div class="drop-zone-icon">📄</div>
                     <div class="drop-zone-text" id="labelCSE">Click to upload CSE course CSV</div>
                     <div class="drop-zone-subtext">File: CSE.csv or CSE_course.csv</div>
                 </div>
@@ -533,10 +592,9 @@
             </div>
 
             <!-- ECE Course File -->
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 10px;">📗 ECE Course File *</label>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 8px;">ECE Course File *</label>
                 <div class="drop-zone" id="dropZoneECE" onclick="document.getElementById('fileInputECE').click()">
-                    <div class="drop-zone-icon">📄</div>
                     <div class="drop-zone-text" id="labelECE">Click to upload ECE course CSV</div>
                     <div class="drop-zone-subtext">File: ECE.csv or ECE_course.csv</div>
                 </div>
@@ -544,10 +602,9 @@
             </div>
 
             <!-- DSAI Course File -->
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 10px;">📙 DSAI Course File *</label>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 8px;">DSAI Course File *</label>
                 <div class="drop-zone" id="dropZoneDSAI" onclick="document.getElementById('fileInputDSAI').click()">
-                    <div class="drop-zone-icon">📄</div>
                     <div class="drop-zone-text" id="labelDSAI">Click to upload DSAI course CSV</div>
                     <div class="drop-zone-subtext">File: DSAI.csv or DSAI_course.csv</div>
                 </div>
@@ -555,36 +612,33 @@
             </div>
 
             <!-- Classroom File -->
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 10px;">🏫 Classroom File *</label>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 8px;">Classroom File *</label>
                 <div class="drop-zone" id="dropZoneClassroom" onclick="document.getElementById('fileInputClassroom').click()">
-                    <div class="drop-zone-icon">📄</div>
                     <div class="drop-zone-text" id="labelClassroom">Click to upload Classroom CSV</div>
                     <div class="drop-zone-subtext">File: classrooms.csv</div>
                 </div>
                 <input type="file" id="fileInputClassroom" class="file-input" accept=".csv" onchange="handleFileSelection('Classroom', this.files[0])">
             </div>
             
-            <div style="margin: 40px 0; border-top: 2px dashed #cbd5e1; padding-top: 30px;">
-                <h3 style="color: #64748b; font-size: 1.2em; margin-bottom: 20px;">📚 Optional Files</h3>
+            <div style="margin: 30px 0; border-top: 2px dashed rgba(99, 102, 241, 0.3); padding-top: 20px;">
+                <h3 style="color: #94a3b8; font-size: 1.1em; margin-bottom: 15px;">Optional Files</h3>
                 
                 <!-- Electives File (Optional) -->
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 10px;">📚 Electives File (Optional)</label>
-                    <div class="drop-zone" id="dropZoneElectives" style="border: 2px dashed #cbd5e1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);" onclick="document.getElementById('fileInputElectives').click()">
-                        <div class="drop-zone-icon" style="opacity: 0.6;">📄</div>
-                        <div class="drop-zone-text" style="color: #64748b;" id="labelElectives">Click to upload Electives CSV (Optional)</div>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #94a3b8; display: block; margin-bottom: 8px;">Electives File (Optional)</label>
+                    <div class="drop-zone" id="dropZoneElectives" style="border: 2px dashed rgba(148, 163, 184, 0.4); background: rgba(255, 255, 255, 0.02);" onclick="document.getElementById('fileInputElectives').click()">
+                        <div class="drop-zone-text" style="color: #94a3b8;" id="labelElectives">Click to upload Electives CSV (Optional)</div>
                         <div class="drop-zone-subtext">File: electives.csv</div>
                     </div>
                     <input type="file" id="fileInputElectives" class="file-input" accept=".csv" onchange="handleFileSelection('Electives', this.files[0])">
                 </div>
                 
                 <!-- Minors File (Optional) -->
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 10px;">📖 Minors File (Optional)</label>
-                    <div class="drop-zone" id="dropZoneMinors" style="border: 2px dashed #cbd5e1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);" onclick="document.getElementById('fileInputMinors').click()">
-                        <div class="drop-zone-icon" style="opacity: 0.6;">📄</div>
-                        <div class="drop-zone-text" style="color: #64748b;" id="labelMinors">Click to upload Minors CSV (Optional)</div>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #94a3b8; display: block; margin-bottom: 8px;">Minors File (Optional)</label>
+                    <div class="drop-zone" id="dropZoneMinors" style="border: 2px dashed rgba(148, 163, 184, 0.4); background: rgba(255, 255, 255, 0.02);" onclick="document.getElementById('fileInputMinors').click()">
+                        <div class="drop-zone-text" style="color: #94a3b8;" id="labelMinors">Click to upload Minors CSV (Optional)</div>
                         <div class="drop-zone-subtext">File: minors.csv</div>
                     </div>
                     <input type="file" id="fileInputMinors" class="file-input" accept=".csv" onchange="handleFileSelection('Minors', this.files[0])">
@@ -593,41 +647,41 @@
         </div>
         
         <div class="file-list" id="fileList" style="display: none;">
-            <h2 class="section-title">📋 Selected Files</h2>
+            <h2 class="section-title">Selected Files</h2>
             <div id="fileItems"></div>
             <button class="upload-all-button" id="uploadButton" onclick="uploadFiles()">
-                🚀 Upload Files
+                Upload Files
             </button>
         </div>
 
         <!-- Generate button (shown after successful upload) -->
         <div id="generateSection" style="display:none; margin-top:18px;">
-            <button id="generateButton" class="upload-all-button" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);" onclick="generateTimetables()">
-                ⚡ Generate Timetables
+            <button id="generateButton" class="upload-all-button" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%);" onclick="generateTimetables()">
+                Generate Timetables
             </button>
         </div>
 
-        <div class="instructions" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px; border-radius: 15px; margin-top: 30px; border-left: 5px solid #3b82f6;">
-            <h3 style="color: #1e40af; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">📋 File Upload Instructions</h3>
+        <div class="instructions" style="background: rgba(99, 102, 241, 0.08); padding: 25px; border-radius: 15px; margin-top: 30px; border-left: 4px solid rgba(99, 102, 241, 0.6);">
+            <h3 style="color: #a5b4fc; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">File Upload Instructions</h3>
             <ul style="list-style: none; padding-left: 0;">
-                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>CSE/ECE/DSAI Files:</strong> Upload course data CSV files containing Course Code, Course Title, Lectures, Tutorials, Practicals, Credits, Faculty, Semester, Section, etc.</span>
+                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>CSE/ECE/DSAI Files:</strong> Upload course data CSV files containing columns: Course Code, Course Title, Lectures, Tutorials, Practicals, Self-Study, Credits, Faculty, Semester, Section, Lab</span>
                 </li>
-                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
-                    <span><strong>Classroom File:</strong> Upload CSV with columns: <code>Classroom, Capacity, Type</code> (e.g., "C004,240,Lecture Hall")</span>
+                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
+                    <span><strong>Classroom File:</strong> Upload CSV with columns: Room, Description, Seating Capacity</span>
                 </li>
-                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
                     <span><strong>All 4 files required:</strong> System will only process once all files are uploaded</span>
                 </li>
-                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
                     <span><strong>Auto-generation:</strong> Timetables are automatically generated after successful upload</span>
                 </li>
-                <li style="padding: 8px 0; color: #1e293b; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: #16a34a; font-weight: bold; font-size: 1.2em;">✓</span>
+                <li style="padding: 8px 0; color: #cbd5e1; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #4ade80; font-weight: bold; font-size: 1.2em;">✓</span>
                     <span><strong>Version Control:</strong> Each upload creates a new timestamped version preserving history</span>
                 </li>
             </ul>
@@ -677,7 +731,7 @@
             
             dropZone.style.borderColor = '#16a34a';
             dropZone.style.background = 'linear-gradient(135deg, #d4f4dd 0%, #b8e6c2 100%)';
-            label.innerHTML = `<span style="color: #16a34a; font-weight: bold;">✓ DONE</span><br><span style="font-size: 0.9em;">${file.name} (${formatBytes(file.size)})</span>`;
+            label.innerHTML = `<span style="color: #16a34a; font-weight: bold;">DONE</span><br><span style="font-size: 0.9em;">${file.name} (${formatBytes(file.size)})</span>`;
             
             displayFiles();
             
@@ -699,10 +753,8 @@
                     console.log('Adding file:', type, file.name);
                     const fileItem = document.createElement('div');
                     fileItem.className = 'file-item';
-                    const icon = type === 'Classroom' ? '🏫' : '📄';
                     fileItem.innerHTML = `
                         <div class="file-info">
-                            <div class="file-icon">${icon}</div>
                             <div class="file-details">
                                 <div class="file-name">${type}: ${file.name}</div>
                                 <div class="file-size">${formatBytes(file.size)}</div>
@@ -710,7 +762,7 @@
                         </div>
                         <div class="file-status">
                             <span class="status-badge status-ready">Ready</span>
-                            <button class="remove-button" onclick="removeFile('${type}')">✕ Remove</button>
+                            <button class="remove-button" onclick="removeFile('${type}')">Remove</button>
                         </div>
                     `;
                     fileItems.appendChild(fileItem);
@@ -781,7 +833,7 @@
             
             // Upload files to backend server
             uploadButton.disabled = true;
-            uploadButton.innerHTML = '⏳ Uploading...';
+            uploadButton.innerHTML = 'Uploading...';
             
             const statusBadges = document.querySelectorAll('.status-badge');
             statusBadges.forEach(badge => {
@@ -817,14 +869,14 @@
                 if (result.success) {
                     statusBadges.forEach(badge => {
                         badge.className = 'status-badge status-success';
-                        badge.textContent = '✓ Uploaded';
+                        badge.textContent = 'Uploaded';
                     });
                     
-                    uploadButton.innerHTML = '✓ Files Uploaded!';
+                    uploadButton.innerHTML = 'Files Uploaded!';
                     uploadButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
                     
                     currentVersion = result.version;
-                    showAlert('success', `✅ Successfully uploaded ${result.files.length} files to version ${result.version}! Click "Generate Timetables" to process.`);
+                    showAlert('success', `Upload Successful - ${result.files.length} files to version ${result.version}! Click "Generate Timetables" to process.`);
                     
                     // Show generate button
                     generateSection.style.display = 'block';
@@ -837,11 +889,11 @@
                 
                 statusBadges.forEach(badge => {
                     badge.className = 'status-badge status-error';
-                    badge.textContent = '✕ Failed';
+                    badge.textContent = 'Failed';
                 });
                 
                 uploadButton.disabled = false;
-                uploadButton.innerHTML = '🚀 Retry Upload';
+                uploadButton.innerHTML = 'Retry Upload';
                 
                 showAlert('error', `Upload error: ${error.message}. Check browser console for details.`);
             }
@@ -853,8 +905,12 @@
                 return;
             }
 
+            // Show loading overlay with rotating chakra
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('active');
+            
             generateButton.disabled = true;
-            generateButton.innerHTML = '⏳ Generating...';
+            generateButton.innerHTML = 'Generating...';
             
             try {
                 const response = await fetch(`${API_BASE}/api/regenerate`, {
@@ -867,9 +923,12 @@
                 console.log('API_BASE:', API_BASE);
                 
                 if (result.success) {
-                    generateButton.innerHTML = '✓ Timetables Generated!';
+                    generateButton.innerHTML = 'Timetables Generated!';
                     generateButton.style.background = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
-                    showAlert('success', '🎉 Timetables generated successfully!');
+                    showAlert('success', 'Timetables generated successfully!');
+                    
+                    // Hide loading overlay
+                    loadingOverlay.classList.remove('active');
                     
                     // Open the generated timetables in a new tab
                     if (result.index_url) {
@@ -887,8 +946,11 @@
             } catch (error) {
                 console.error('Generation error:', error);
                 
+                // Hide loading overlay on error
+                loadingOverlay.classList.remove('active');
+                
                 generateButton.disabled = false;
-                generateButton.innerHTML = '⚡ Retry Generation';
+                generateButton.innerHTML = 'Retry Generation';
                 generateButton.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
                 
                 showAlert('error', `Generation failed: ${error.message}. Check server logs for details.`);
@@ -909,12 +971,12 @@
             fileList.style.display = 'none';
             generateSection.style.display = 'none';
             uploadButton.disabled = false;
-            uploadButton.innerHTML = '🚀 Upload Files';
+            uploadButton.innerHTML = 'Upload Files';
             uploadButton.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
             uploadButton.style.opacity = '1';
             generateButton.disabled = false;
-            generateButton.innerHTML = '⚡ Generate Timetables';
-            generateButton.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
+            generateButton.innerHTML = 'Generate Timetables';
+            generateButton.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%)';
         }
         
         // Check if server is running on page load
@@ -944,10 +1006,10 @@
             alert.className = `alert alert-${type}`;
             
             const icons = {
-                info: 'ℹ️',
-                success: '✓',
-                warning: '⚠️',
-                error: '✕'
+                info: '',
+                success: '',
+                warning: '',
+                error: ''
             };
             
             alert.innerHTML = `
