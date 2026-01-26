@@ -806,22 +806,22 @@ class TimetableHTMLConverter:
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎓 {dept} Timetable</h1>
+            <h1>{dept} Timetable</h1>
             <div class="subtitle">{semester} - {section}</div>
         </div>
         
         <div style="display: flex; gap: 15px; margin: 20px; flex-wrap: wrap;">
-            <a href="index.html" class="back-button">← Back to Timetable Menu</a>
+            <a href="index.html" class="back-button">← Back</a>
         </div>
         
         <div class="download-section"
-            <h3>📥 Download Timetable</h3>
+            <h3>Download Timetable</h3>
             <div class="download-buttons">
                 <a href="../timetable_outputs/{filename}.csv" class="download-btn csv-btn" download="{filename}.csv">
-                    📊 Download CSV
+                    Download CSV
                 </a>
                 <button class="download-btn image-btn" onclick="downloadAsImage()">
-                    🖼️ Download as Image
+                    Download as Image
                 </button>
             </div>
         </div>
@@ -883,7 +883,7 @@ class TimetableHTMLConverter:
             # Parse the elective file
             html = """
         <div class="electives-section">
-            <h2>📚 Elective Courses</h2>
+            <h2>Elective Courses</h2>
             <p class="elective-note">Students must choose <strong>ONE course</strong> from each basket below:</p>
             <div class="electives-container">
 """
@@ -1083,7 +1083,7 @@ class TimetableHTMLConverter:
                 <div class="till-midsem-course-card">
                     <div class="course-code">{course_code}</div>
                     <div class="course-title">{course_title}</div>
-                    <div class="course-credits">👨‍🏫 {faculty} | 📊 {credits} Credit{'s' if credits > 1 else ''}</div>
+                    <div class="course-credits">{faculty} | {credits} Credit{'s' if credits > 1 else ''}</div>
                 </div>
 """
             
@@ -1198,7 +1198,7 @@ class TimetableHTMLConverter:
         if cell_value.lower() == 'free':
             return '<td class="free-slot">Free</td>\n'
         elif 'lunch' in cell_value.lower():
-            return '<td class="lunch-break">🍽️ LUNCH BREAK</td>\n'
+            return '<td class="lunch-break">LUNCH BREAK</td>\n'
         
         # Check if this is a till midsem course
         is_till_midsem = self._is_till_midsem_course(cell_value)
@@ -1586,10 +1586,10 @@ class TimetableHTMLConverter:
 </head>
 <body>
     <div class="container">
-        <a href="/upload.html" class="back-to-main">🏠 Back to Main Menu</a>
+        <a href="/upload.html" class="back-to-main">← Back</a>
         
         <div class="header">
-            <h1>🎓 BeyondGames Timetable Viewer</h1>
+            <h1>Sankalp Timetable Viewer</h1>
             <p>Select your department, semester, and section to view timetable</p>
         </div>
         
@@ -1604,16 +1604,16 @@ class TimetableHTMLConverter:
         }
         
         dept_emojis = {
-            'CSE': '💻',
-            'DSAI': '📊',
-            'ECE': '⚡'
+            'CSE': '',
+            'DSAI': '',
+            'ECE': ''
         }
         
         for dept in sorted(dept_data.keys()):
             html_content += f"""
             <div class="department-card">
                 <div class="dept-header">
-                    <h2>{dept_emojis.get(dept, '🎓')} {dept}</h2>
+                    <h2>{dept}</h2>
                     <p>{dept_names.get(dept, dept)}</p>
                 </div>
 """
@@ -1621,7 +1621,7 @@ class TimetableHTMLConverter:
             for semester in sorted(dept_data[dept].keys()):
                 html_content += f"""
                 <div class="semester-group">
-                    <div class="semester-title">📚 {semester}</div>
+                    <div class="semester-title">{semester}</div>
 """
                 
                 # Check if DSAI or ECE (they don't have sections)
@@ -2160,7 +2160,7 @@ class TimetableHTMLConverter:
             # Create HTML display
             html = f"""
         <div class="electives-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px; border: 3px solid #6366f1;">
-            <h2 style="color: #3730a3; margin-bottom: 15px;">📚 Elective Baskets in This Timetable</h2>
+            <h2 style="color: #3730a3; margin-bottom: 15px;">Elective Baskets in This Timetable</h2>
             <p style="color: #4338ca; font-weight: 600; margin-bottom: 20px;">The following elective baskets are scheduled in your timetable. Choose <strong>ONE course</strong> from each basket:</p>
             <div class="electives-container">
 """
