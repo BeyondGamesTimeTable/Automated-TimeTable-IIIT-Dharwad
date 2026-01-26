@@ -50,6 +50,9 @@ class TimetableHTMLConverter:
             semester = parts[1]
             section = parts[2]
             
+            # For DSAI and ECE, don't show section in subtitle
+            subtitle = f"{semester} - {section}" if dept == 'CSE' else semester
+            
             # Load 2-credit courses (till midsem) information
             till_midsem_html = self._load_till_midsem_courses(csv_file, dept, semester, section)
             
@@ -773,7 +776,7 @@ class TimetableHTMLConverter:
                 scale: 2, // Higher quality
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#ffffff',
+                backgroundColor: '#1e293b',
                 width: timetableContainer.scrollWidth,
                 height: timetableContainer.scrollHeight,
                 scrollX: 0,
@@ -807,14 +810,14 @@ class TimetableHTMLConverter:
     <div class="container">
         <div class="header">
             <h1>{dept} Timetable</h1>
-            <div class="subtitle">{semester} - {section}</div>
+            <div class="subtitle">{subtitle}</div>
         </div>
         
         <div style="display: flex; gap: 15px; margin: 20px; flex-wrap: wrap;">
             <a href="index.html" class="back-button">← Back</a>
         </div>
         
-        <div class="download-section"
+        <div class="download-section">
             <h3>Download Timetable</h3>
             <div class="download-buttons">
                 <a href="../timetable_outputs/{filename}.csv" class="download-btn csv-btn" download="{filename}.csv">
@@ -823,29 +826,6 @@ class TimetableHTMLConverter:
                 <button class="download-btn image-btn" onclick="downloadAsImage()">
                     Download as Image
                 </button>
-            </div>
-        </div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;"></div>
-                <span><strong>Individual Section Classes</strong></span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%); border-left: 4px solid #14b8a6;"></div>
-                <span><strong>1-Hour Tutorials</strong></span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%); border-left: 4px solid #a855f7;"></div>
-                <span><strong>2-Hour Labs</strong></span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;"></div>
-                <span><strong>Common Classes (A+B / DSAI+ECE)</strong></span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); border-left: 4px solid #ea580c;"></div>
-                <span><strong>Electives</strong></span>
             </div>
         </div>
         
@@ -1332,24 +1312,12 @@ class TimetableHTMLConverter:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeyondGames Timetable Viewer</title>
+    <title>Sankalp Timetable Viewer</title>
     <style>
         * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }}
-        
-        @keyframes gradient {{
-            0% {{
-                background-position: 0% 50%;
-            }}
-            50% {{
-                background-position: 100% 50%;
-            }}
-            100% {{
-                background-position: 0% 50%;
-            }}
         }}
         
         @keyframes float {{
@@ -1362,10 +1330,8 @@ class TimetableHTMLConverter:
         }}
         
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe, #43e97b, #fa709a);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             padding: 20px;
             position: relative;
@@ -1379,11 +1345,24 @@ class TimetableHTMLConverter:
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: float 20s ease-in-out infinite;
-            pointer-events: none;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.15) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.15) 2px, transparent 2px);
+            background-size: 80px 80px;
+            animation: gridPulse 20s ease-in-out infinite;
             z-index: 0;
+            pointer-events: none;
+        }}
+        
+        @keyframes gridPulse {{
+            0%, 100% {{
+                transform: translate(0, 0) scale(1);
+                opacity: 0.5;
+            }}
+            50% {{
+                transform: translate(40px, 40px) scale(1.05);
+                opacity: 0.8;
+            }}
         }}
         
         .container {{
@@ -1401,16 +1380,20 @@ class TimetableHTMLConverter:
         }}
         
         .header h1 {{
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 3em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3),
-                         0 0 20px rgba(255,255,255,0.5),
-                         0 0 40px rgba(255,255,255,0.3);
+            background: linear-gradient(135deg, #a5b4fc 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(165, 180, 252, 0.5);
             animation: float 3s ease-in-out infinite;
         }}
         
         .header p {{
             font-size: 1.2em;
+            color: #cbd5e1;
             opacity: 0.9;
         }}
         
@@ -1422,30 +1405,34 @@ class TimetableHTMLConverter:
         }}
         
         .department-card {{
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3),
-                        0 0 30px rgba(255,255,255,0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                        0 0 80px rgba(99, 102, 241, 0.3);
             transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3);
         }}
         
         .department-card:hover {{
             transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.4),
-                        0 0 50px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8),
+                        0 0 100px rgba(99, 102, 241, 0.5);
+            border-color: rgba(99, 102, 241, 0.6);
         }}
         
         .dept-header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+            backdrop-filter: blur(10px);
             color: white;
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 20px;
             text-align: center;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(99, 102, 241, 0.4);
             position: relative;
             overflow: hidden;
         }}
@@ -1484,10 +1471,10 @@ class TimetableHTMLConverter:
         .semester-title {{
             font-size: 1.2em;
             font-weight: bold;
-            color: #667eea;
+            color: #a5b4fc;
             margin-bottom: 10px;
             padding-bottom: 5px;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.5);
         }}
         
         .section-buttons {{
@@ -1499,17 +1486,18 @@ class TimetableHTMLConverter:
         .timetable-link {{
             display: inline-block;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px);
             color: white;
             text-decoration: none;
             border-radius: 25px;
             font-weight: bold;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
             flex: 1;
             text-align: center;
             min-width: 120px;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             position: relative;
             overflow: hidden;
         }}
@@ -1534,10 +1522,10 @@ class TimetableHTMLConverter:
         
         .timetable-link:hover {{
             transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6),
-                        0 0 20px rgba(240, 147, 251, 0.4);
-            background: linear-gradient(135deg, #f093fb 0%, #764ba2 50%, #667eea 100%);
-            border-color: rgba(255,255,255,0.5);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.7),
+                        0 0 20px rgba(139, 92, 246, 0.6);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            border-color: rgba(255,255,255,0.4);
         }}
         
         .footer {{
@@ -1558,19 +1546,22 @@ class TimetableHTMLConverter:
             gap: 10px;
             margin: 20px;
             padding: 12px 28px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px);
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 600;
             font-size: 1.05em;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .back-to-main:hover {{
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.5);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.7);
         }}
         
         @media (max-width: 768px) {{
