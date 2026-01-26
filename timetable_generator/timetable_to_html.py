@@ -1517,6 +1517,7 @@ class TimetableHTMLConverter:
                     <button id="redoBtn" class="timetable-link" style="background:#f97316;" disabled>Redo</button>
                     <button id="saveCsv" class="timetable-link" style="background:#06b6d4;">Save CSV</button>
                     <span id="editorStatus" style="color:#fff; margin-left:10px; font-weight:600; opacity:0.95;"></span>
+                    <button id="viewFullBtn" class="timetable-link" style="background:#8b5cf6; display:none; margin-left:10px;">🔍 View as Full</button>
                 </div>
                 <iframe id="timetableFrame" src="" style="width:100%; height:720px; border-radius:12px; border:4px solid rgba(255,255,255,0.08); background:white;"></iframe>
             </div>
@@ -1533,6 +1534,7 @@ class TimetableHTMLConverter:
     const saveCsvBtn = document.getElementById('saveCsv');
     const closeBtn = document.getElementById('closeEditor');
     const status = document.getElementById('editorStatus');
+    const viewFullBtn = document.getElementById('viewFullBtn');
     let editEnabled = false;
     let currentHref = null;
     // Undo/Redo history stacks (store table.outerHTML snapshots)
@@ -1553,6 +1555,7 @@ class TimetableHTMLConverter:
             // Show loading state
             status.textContent = 'Loading: ' + href.split('/').pop();
             status.style.color = '#fbbf24'; // yellow
+            viewFullBtn.style.display = 'none';
             editEnabled = false;
             toggleEditBtn.textContent = 'Enable Edit';
             toggleEditBtn.disabled = true;
@@ -1583,6 +1586,7 @@ class TimetableHTMLConverter:
                     }
                     status.textContent = 'Ready: ' + href.split('/').pop();
                     status.style.color = '#10b981'; // green
+                    viewFullBtn.style.display = 'inline-block';
                     toggleEditBtn.disabled = false;
                 } catch (err) {
                     console.error('Iframe load error:', err);
@@ -1607,11 +1611,19 @@ class TimetableHTMLConverter:
         editorPanel.style.display = 'none';
         status.textContent = '';
         status.style.color = '#fff';
+        viewFullBtn.style.display = 'none';
         toggleEditBtn.disabled = false;
         // clear history when closing
         historyStack = [];
         redoStack = [];
         updateHistoryButtons();
+    });
+    
+    // View Full Page button
+    viewFullBtn.addEventListener('click', () => {
+        if (currentHref) {
+            window.open(currentHref, '_blank');
+        }
     });
 
     // Toggle edit mode
