@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIIT Dharwad - Timetable System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,8 +13,8 @@
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -24,7 +24,55 @@
             overflow-x: hidden;
         }
         
-        /* Animated background particles */
+        /* Animated Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.2) 3px, transparent 3px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.2) 3px, transparent 3px);
+            background-size: 100px 100px;
+            animation: gridCircular 15s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        @keyframes gridCircular {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(50px, -50px) rotate(10deg) scale(1.1);
+            }
+            50% {
+                transform: translate(0, -100px) rotate(0deg) scale(0.95);
+            }
+            75% {
+                transform: translate(-50px, -50px) rotate(-10deg) scale(1.05);
+            }
+            100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+        }
+        
+        /* Gradient overlay for depth */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(15, 23, 42, 0.5) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Floating accent dots */
         .particles {
             position: fixed;
             top: 0;
@@ -37,58 +85,59 @@
         
         .particle {
             position: absolute;
-            background: rgba(255, 255, 255, 0.1);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
             border-radius: 50%;
-            animation: float 15s infinite ease-in-out;
+            animation: float 20s infinite ease-in-out;
+            filter: blur(2px);
         }
         
         .particle:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            left: 10%;
+            width: 120px;
+            height: 120px;
+            left: 15%;
             top: 20%;
             animation-delay: 0s;
         }
         
         .particle:nth-child(2) {
-            width: 60px;
-            height: 60px;
-            left: 70%;
-            top: 30%;
-            animation-delay: 2s;
+            width: 80px;
+            height: 80px;
+            left: 75%;
+            top: 25%;
+            animation-delay: 3s;
         }
         
         .particle:nth-child(3) {
-            width: 100px;
-            height: 100px;
-            left: 50%;
-            top: 60%;
-            animation-delay: 4s;
-        }
-        
-        .particle:nth-child(4) {
-            width: 50px;
-            height: 50px;
-            left: 20%;
-            top: 70%;
+            width: 150px;
+            height: 150px;
+            left: 45%;
+            top: 65%;
             animation-delay: 6s;
         }
         
+        .particle:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            left: 25%;
+            top: 75%;
+            animation-delay: 9s;
+        }
+        
         .particle:nth-child(5) {
-            width: 70px;
-            height: 70px;
-            left: 80%;
+            width: 90px;
+            height: 90px;
+            left: 85%;
             top: 80%;
-            animation-delay: 8s;
+            animation-delay: 12s;
         }
         
         @keyframes float {
             0%, 100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translate(0, 0) scale(1);
                 opacity: 0.3;
             }
             50% {
-                transform: translateY(-50px) rotate(180deg);
+                transform: translate(-30px, -30px) scale(1.1);
                 opacity: 0.6;
             }
         }
@@ -113,37 +162,24 @@
         }
         
         .hero-section {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
+            background: transparent;
+            backdrop-filter: none;
+            border-radius: 0;
             padding: 60px 40px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.3),
-                0 0 100px rgba(102, 126, 234, 0.2);
+            box-shadow: none;
             text-align: center;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
+            border: none;
         }
         
         .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shine 3s infinite;
-        }
-        
-        @keyframes shine {
-            0% { left: -100%; }
-            50%, 100% { left: 100%; }
+            display: none;
         }
         
         .logo-container {
             margin-bottom: 30px;
-            animation: bounce 2s infinite;
+            animation: none;
         }
         
         @keyframes bounce {
@@ -154,26 +190,28 @@
         .logo {
             font-size: 80px;
             display: inline-block;
-            text-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            animation: rotate 4s ease-in-out infinite;
+            color: #FFD700;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
+            animation: wheelRotate 6s linear infinite;
         }
         
-        @keyframes rotate {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-5deg); }
-            75% { transform: rotate(5deg); }
+        @keyframes wheelRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         h1 {
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 3.5em;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #a5b4fc 0%, #c7d2fe 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 15px;
             line-height: 1.2;
             animation: fadeInDown 0.8s ease 0.2s both;
+            text-shadow: 0 0 60px rgba(165, 180, 252, 0.5);
         }
         
         @keyframes fadeInDown {
@@ -189,7 +227,7 @@
         
         .subtitle {
             font-size: 1.4em;
-            color: #64748b;
+            color: #cbd5e1;
             margin-bottom: 10px;
             font-weight: 400;
             animation: fadeInUp 0.8s ease 0.4s both;
@@ -200,8 +238,19 @@
             color: #94a3b8;
             font-weight: 300;
             letter-spacing: 1px;
-            margin-bottom: 50px;
+            margin-bottom: 20px;
             animation: fadeInUp 0.8s ease 0.6s both;
+        }
+        
+        .system-description {
+            font-size: 1.05em;
+            color: #cbd5e1;
+            font-weight: 400;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 1.8;
+            animation: fadeInUp 0.8s ease 0.8s both;
+            opacity: 0.9;
         }
         
         @keyframes fadeInUp {
@@ -223,13 +272,16 @@
         }
         
         .card {
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%);
+            backdrop-filter: blur(12px) saturate(180%);
             border-radius: 25px;
             padding: 40px 30px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 3px solid transparent;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.4),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15);
             position: relative;
             overflow: hidden;
             animation: fadeIn 0.8s ease both;
@@ -263,7 +315,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
             opacity: 0;
             transition: opacity 0.4s ease;
         }
@@ -274,8 +326,12 @@
         
         .card:hover {
             transform: translateY(-15px) scale(1.02);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
-            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            box-shadow: 
+                0 25px 70px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(99, 102, 241, 0.4),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            border-color: rgba(99, 102, 241, 0.6);
         }
         
         .card-icon {
@@ -292,16 +348,17 @@
         }
         
         .card-title {
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 2em;
             font-weight: 700;
-            color: #1e293b;
+            color: #e2e8f0;
             margin-bottom: 15px;
             transition: color 0.3s ease;
         }
         
         .card-description {
             font-size: 1.05em;
-            color: #64748b;
+            color: #cbd5e1;
             line-height: 1.7;
             margin-bottom: 30px;
             font-weight: 400;
@@ -312,15 +369,16 @@
             align-items: center;
             gap: 10px;
             padding: 15px 35px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px) saturate(180%);
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 600;
             font-size: 1.05em;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            border: none;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -346,7 +404,8 @@
         
         .card-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.7);
         }
         
         .button-text {
@@ -368,25 +427,28 @@
             display: inline-block;
             margin-top: 20px;
             padding: 12px 30px;
-            background: white;
-            color: #667eea;
+            background: rgba(99, 102, 241, 0.08);
+            backdrop-filter: blur(12px) saturate(180%);
+            color: #a5b4fc;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
             font-size: 1em;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 2px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(99, 102, 241, 0.4);
             position: relative;
             z-index: 10;
             cursor: pointer;
         }
         
         .view-timetables-link:hover {
-            background: #667eea;
-            color: white;
+            background: rgba(99, 102, 241, 0.2);
+            backdrop-filter: blur(15px) saturate(200%);
+            color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            border-color: rgba(99, 102, 241, 0.8);
         }
         
         .footer {
@@ -396,22 +458,23 @@
         }
         
         .footer-content {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: transparent;
+            backdrop-filter: none;
+            border-radius: 0;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
+            border: none;
         }
         
         .footer p {
-            color: #64748b;
+            color: #94a3b8;
             font-size: 1em;
             margin: 8px 0;
         }
         
         .footer .team {
             font-weight: 600;
-            color: #667eea;
+            color: #a5b4fc;
             font-size: 1.1em;
         }
         
@@ -440,11 +503,13 @@
             align-items: center;
             gap: 10px;
             padding: 12px 25px;
-            background: white;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px) saturate(180%);
             border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3);
             font-size: 0.95em;
-            color: #64748b;
+            color: #cbd5e1;
             font-weight: 500;
             animation: fadeInUp 0.8s ease both;
         }
@@ -500,16 +565,17 @@
     <div class="container">
         <div class="hero-section">
             <div class="logo-container">
-                <div class="logo">🎓</div>
+                <div class="logo">☸</div>
             </div>
             
-            <h1>Timetable System</h1>
-            <p class="subtitle">Seamless Scheduling, Simplified</p>
+            <h1>Sankalp</h1>
+            <p class="subtitle">Automatic Timetable Generation System</p>
             <p class="institute-name">Indian Institute of Information Technology, Dharwad</p>
+            <p class="system-description">This system automates timetable generation using constraint-based scheduling algorithms</p>
             
             <div class="cards-container">
                 <!-- Upload Data Card -->
-                <div class="card" style="text-decoration: none; background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c2 100%);">
+                <div class="card" style="text-decoration: none;">
                     <div class="card-icon">📤</div>
                     <h2 class="card-title">Upload Data</h2>
                     <p class="card-description">
@@ -528,9 +594,8 @@
         
         <div class="footer">
             <div class="footer-content">
-                <p class="team">✨ Made with <span class="heart">❤️</span> by BeyondGames Team</p>
-                <p>Automated Timetable Generation System</p>
-                <p>© 2025 IIIT Dharwad. All rights reserved.</p>
+                <p class="team">Sankalp - Automatic Timetable Generation System</p>
+                <p>© 2025 Indian Institute of Information Technology, Dharwad. All rights reserved.</p>
             </div>
         </div>
     </div>
