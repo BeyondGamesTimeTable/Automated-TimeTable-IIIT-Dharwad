@@ -214,6 +214,41 @@ def list_versions():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/list-generated', methods=['GET'])
+def list_generated():
+    """List all generated timetable versions (with HTML output)"""
+    try:
+        html_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timetable_generator', 'timetable_html')
+        versions = []
+        
+        if os.path.exists(html_root):
+            for name in os.listdir(html_root):
+                folder_path = os.path.join(html_root, name)
+                # Only include timestamped folders (format: YYYYMMDD_HHMMSS)
+                if os.path.isdir(folder_path) and len(name) == 15 and '_' in name:
+                    index_path = os.path.join(folder_path, 'index.html')
+                    if os.path.exists(index_path):
+                        # Count HTML files in the folder
+                        html_files = [f for f in os.listdir(folder_path) if f.endswith('.html')]
+                        
+                        # Check for corresponding input files
+                        input_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+                                                   'timetable_generator', 'input_files', 'versions', name)
+                        file_count = 0
+                        if os.path.exists(input_folder):
+                            file_count = len([f for f in os.listdir(input_folder) if f.endswith('.csv')])
+                        
+                        versions.append({
+                            'timestamp': name,
+                            'html_count': len(html_files) - 1,  # Exclude index.html from count
+                            'file_count': file_count,
+                            'created': os.path.getmtime(folder_path)
+                        })
+        
+        return jsonify({'success': True, 'versions': versions}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/delete-file', methods=['DELETE'])
 def delete_file():
     """Delete a specific CSV file"""

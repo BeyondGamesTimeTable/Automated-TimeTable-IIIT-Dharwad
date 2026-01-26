@@ -278,24 +278,6 @@
             border-color: #667eea;
         }
         
-        .card.daily {
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-        }
-        
-        .card.daily:hover {
-            border-color: #0ea5e9;
-            box-shadow: 0 25px 60px rgba(14, 165, 233, 0.3);
-        }
-        
-        .card.exam {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        }
-        
-        .card.exam:hover {
-            border-color: #f59e0b;
-            box-shadow: 0 25px 60px rgba(245, 158, 11, 0.3);
-        }
-        
         .card-icon {
             font-size: 70px;
             margin-bottom: 25px;
@@ -315,14 +297,6 @@
             color: #1e293b;
             margin-bottom: 15px;
             transition: color 0.3s ease;
-        }
-        
-        .card.daily .card-title {
-            color: #0c4a6e;
-        }
-        
-        .card.exam .card-title {
-            color: #78350f;
         }
         
         .card-description {
@@ -375,24 +349,6 @@
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
         }
         
-        .card.daily .card-button {
-            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
-        }
-        
-        .card.daily .card-button:hover {
-            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.6);
-        }
-        
-        .card.exam .card-button {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-        }
-        
-        .card.exam .card-button:hover {
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.6);
-        }
-        
         .button-text {
             position: relative;
             z-index: 1;
@@ -408,73 +364,29 @@
             transform: translateX(5px);
         }
         
-        /* Dropdown menu for exam card */
-        .exam-options {
-            display: none;
+        .view-timetables-link {
+            display: inline-block;
             margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid rgba(245, 158, 11, 0.3);
-            animation: slideDown 0.4s ease;
-        }
-        
-        .exam-options.active {
-            display: block;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .exam-option-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            margin: 10px 0;
+            padding: 12px 30px;
             background: white;
-            border-radius: 15px;
+            color: #667eea;
             text-decoration: none;
-            color: #1e293b;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1em;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #667eea;
             position: relative;
             z-index: 10;
+            cursor: pointer;
         }
         
-        .exam-option-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        }
-        
-        .exam-option-icon {
-            font-size: 30px;
-            min-width: 40px;
-            text-align: center;
-        }
-        
-        .exam-option-content {
-            flex: 1;
-        }
-        
-        .exam-option-title {
-            font-size: 1.1em;
-            font-weight: 600;
-            color: #78350f;
-            margin-bottom: 3px;
-        }
-        
-        .exam-option-desc {
-            font-size: 0.9em;
-            color: #64748b;
+        .view-timetables-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
         
         .footer {
@@ -596,83 +508,21 @@
             <p class="institute-name">Indian Institute of Information Technology, Dharwad</p>
             
             <div class="cards-container">
-                <!-- Daily Timetable Card -->
-                <a href="timetable_generator/timetable_html/index.html" class="card daily">
-                    <div class="card-icon">📅</div>
-                    <h2 class="card-title">Daily Timetable</h2>
-                    <p class="card-description">
-                        Access weekly class schedules for all departments, semesters, and sections with ease
-                    </p>
-                    <div class="card-button">
-                        <span class="button-text">View Schedule</span>
-                        <span class="arrow">→</span>
-                    </div>
-                </a>
-                
-                <!-- Exam Timetable Card -->
-                <div class="card exam" style="text-decoration: none; cursor: pointer;">
-                    <div class="card-icon">📝</div>
-                    <h2 class="card-title">Exam Timetable</h2>
-                    <p class="card-description">
-                        View exam schedules, seating arrangements, and classroom allocations
-                    </p>
-                    
-                    <!-- Exam Options Dropdown -->
-                    <div class="exam-options" id="examOptions">
-                        <a href="exam_timetable/exam_config.html" class="exam-option-item" onclick="event.stopPropagation()">
-                            <div class="exam-option-icon">⚙️</div>
-                            <div class="exam-option-content">
-                                <div class="exam-option-title">Configure & Generate</div>
-                                <div class="exam-option-desc">Set custom dates and generate new exam timetable</div>
-                            </div>
-                        </a>
-                        
-                        <a href="exam_timetable/outputs/exam_timetable.html" class="exam-option-item" onclick="event.stopPropagation()">
-                            <div class="exam-option-icon">📋</div>
-                            <div class="exam-option-content">
-                                <div class="exam-option-title">View Exam Timetable</div>
-                                <div class="exam-option-desc">See complete exam schedule with navigation</div>
-                            </div>
-                        </a>
-                        
-                        <a href="exam_timetable/outputs/seating_charts_viewer.html" class="exam-option-item" onclick="event.stopPropagation()">
-                            <div class="exam-option-icon">🪑</div>
-                            <div class="exam-option-content">
-                                <div class="exam-option-title">Direct to Seating Charts</div>
-                                <div class="exam-option-desc">Browse all 324 classroom seating arrangements</div>
-                            </div>
-                        </a>
-                        
-                        <a href="exam_timetable/outputs/exam_schedule.csv" class="exam-option-item" onclick="event.stopPropagation()" download>
-                            <div class="exam-option-icon">📊</div>
-                            <div class="exam-option-content">
-                                <div class="exam-option-title">Download Schedule CSV</div>
-                                <div class="exam-option-desc">Get exam schedule data file</div>
-                            </div>
-                        </a>
-                        
-                        <a href="exam_timetable/outputs/seating_summary.csv" class="exam-option-item" onclick="event.stopPropagation()" download>
-                            <div class="exam-option-icon">📄</div>
-                            <div class="exam-option-content">
-                                <div class="exam-option-title">Download Seating CSV</div>
-                                <div class="exam-option-desc">Get seating arrangement data file</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                
                 <!-- Upload Data Card -->
-                <a href="upload.html" class="card" style="text-decoration: none; background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c2 100%);">
+                <div class="card" style="text-decoration: none; background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c2 100%);">
                     <div class="card-icon">📤</div>
                     <h2 class="card-title">Upload Data</h2>
                     <p class="card-description">
                         Add or update CSV course data files for timetable generation
                     </p>
-                    <div class="card-button">
+                    <a href="http://localhost:5000/upload.html" class="card-button" style="text-decoration: none;">
                         <span class="button-text">Upload Files</span>
                         <span class="arrow">→</span>
-                    </div>
-                </a>
+                    </a>
+                    <a href="timetable_versions.html" class="view-timetables-link">
+                        📅 View Previously Generated Timetables
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -685,28 +535,5 @@
         </div>
     </div>
     
-    <script>
-        // Toggle exam options dropdown
-        document.addEventListener('DOMContentLoaded', function() {
-            const examCard = document.querySelector('.card.exam');
-            const examOptions = document.getElementById('examOptions');
-            
-            if (examCard && examOptions) {
-                examCard.addEventListener('click', function(e) {
-                    // Don't toggle if clicking on a link inside
-                    if (e.target.closest('.exam-option-item')) {
-                        return;
-                    }
-                    
-                    examOptions.classList.toggle('active');
-                    
-                    // Prevent card hover animation when options are open
-                    if (examOptions.classList.contains('active')) {
-                        examCard.style.transform = 'translateY(0) scale(1)';
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>

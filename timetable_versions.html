@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Versions - IIIT Dharwad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 1.1em;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 2px solid #667eea;
+        }
+        
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .versions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .version-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+        
+        .version-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-color: #667eea;
+        }
+        
+        .version-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .version-icon {
+            font-size: 50px;
+        }
+        
+        .version-info h3 {
+            font-size: 1.3em;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .version-date {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        
+        .version-details {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .view-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            width: 100%;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .view-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .no-versions {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .no-versions-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .no-versions h2 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+        
+        .no-versions p {
+            color: #64748b;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: white;
+            font-size: 1.5em;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .versions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">
+            ← Back to Home
+        </a>
+        
+        <div class="header">
+            <h1>📚 Previously Generated Timetables</h1>
+            <p>Select a version to view its timetables</p>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Loading timetable versions...
+        </div>
+        
+        <div id="versionsContainer" class="versions-grid" style="display: none;"></div>
+        
+        <div id="noVersions" class="no-versions" style="display: none;">
+            <div class="no-versions-icon">📭</div>
+            <h2>No Timetables Generated Yet</h2>
+            <p>Upload CSV files and generate your first timetable to see it here.</p>
+            <a href="http://localhost:5000/upload.html" class="view-button">
+                Upload Files & Generate
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Format timestamp to readable date
+        function formatTimestamp(timestamp) {
+            const year = timestamp.substring(0, 4);
+            const month = timestamp.substring(4, 6);
+            const day = timestamp.substring(6, 8);
+            const hour = timestamp.substring(9, 11);
+            const minute = timestamp.substring(11, 13);
+            const second = timestamp.substring(13, 15);
+            
+            const date = new Date(year, month - 1, day, hour, minute, second);
+            
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            };
+            
+            return date.toLocaleDateString('en-US', options);
+        }
+        
+        // Load timetable versions from server
+        async function loadVersions() {
+            try {
+                const response = await fetch('http://localhost:5000/api/list-generated');
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success && data.versions && data.versions.length > 0) {
+                    displayVersions(data.versions);
+                } else {
+                    document.getElementById('noVersions').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading versions:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('noVersions').style.display = 'block';
+            }
+        }
+        
+        // Display version cards
+        function displayVersions(versions) {
+            const container = document.getElementById('versionsContainer');
+            container.style.display = 'grid';
+            
+            // Sort versions by timestamp (newest first)
+            versions.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+            
+            versions.forEach((version, index) => {
+                const card = document.createElement('div');
+                card.className = 'version-card';
+                
+                const isLatest = index === 0;
+                const badge = isLatest ? '<span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">Latest</span>' : '';
+                
+                card.innerHTML = `
+                    <div class="version-header">
+                        <div class="version-icon">📅</div>
+                        <div class="version-info">
+                            <h3>${formatTimestamp(version.timestamp)}</h3>
+                            <div class="version-date">Version: ${version.timestamp}</div>
+                        </div>
+                    </div>
+                    ${badge ? `<div style="margin-bottom: 15px;">${badge}</div>` : ''}
+                    <div class="version-details">
+                        <div class="detail-row">
+                            <span class="detail-label">CSV Files</span>
+                            <span class="detail-value">${version.file_count || 'N/A'} files</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">HTML Timetables</span>
+                            <span class="detail-value">${version.html_count || 0} generated</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value" style="color: #10b981;">✓ Complete</span>
+                        </div>
+                    </div>
+                    <a href="timetable_generator/timetable_html/${version.timestamp}/index.html" class="view-button">
+                        View Timetables →
+                    </a>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Load versions when page loads
+        document.addEventListener('DOMContentLoaded', loadVersions);
+    </script>
+</body>
+</html>

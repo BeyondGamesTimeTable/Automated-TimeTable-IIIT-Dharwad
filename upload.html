@@ -470,18 +470,6 @@
             </button>
         </div>
 
-        <!-- View generated timetable button (shown after generation) -->
-        <div id="viewGenerated" style="display:none; margin-top:18px;">
-            <button id="viewGeneratedBtn" class="upload-all-button" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);">🔎 View Latest Generated Timetable</button>
-        </div>
-
-        <div class="file-list" id="versionsSection" style="display: none; margin-top: 30px;">
-            <h2 class="section-title">� Previously Generated Timetables</h2>
-            <p style="color: #64748b; margin-bottom: 20px; font-size: 0.95em;">Click on any version below to view the timetables or download CSV files</p>
-            <div id="versionsList">Loading versions...</div>
-            <button class="upload-all-button" id="refreshVersions" style="margin-top:12px; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);" onclick="fetchVersions()">🔄 Refresh List</button>
-        </div>
-        
         <div class="instructions" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px; border-radius: 15px; margin-top: 30px; border-left: 5px solid #3b82f6;">
             <h3 style="color: #1e40af; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">📋 File Upload Instructions</h3>
             <ul style="list-style: none; padding-left: 0;">
@@ -703,9 +691,6 @@
                     
                     // Show generate button
                     generateSection.style.display = 'block';
-                    
-                    // Refresh versions list
-                    fetchVersions();
                 } else {
                     throw new Error(result.error || 'Upload failed');
                 }
@@ -753,11 +738,7 @@
                     if (result.index_url) {
                         console.log('Opening URL:', result.index_url);
                         window.open(result.index_url, '_blank');
-                        showViewButton(result.index_url);
                     }
-                    
-                    // Refresh versions to show generated outputs
-                    fetchVersions();
                     
                     // Reset after 10 seconds to give user time to see success
                     setTimeout(() => {
@@ -815,70 +796,8 @@
             }
         }
         
-        // Fetch and render versions
-        async function fetchVersions() {
-            const container = document.getElementById('versionsList');
-            container.innerHTML = 'Loading versions...';
-            try {
-                const resp = await fetch(`${API_BASE}/api/list-generated`);
-                const data = await resp.json();
-                if (!data.success) throw new Error(data.error || 'Failed to list versions');
-
-                if (!data.versions || data.versions.length === 0) {
-                    container.innerHTML = '<div class="alert alert-info" style="padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; color: #1e40af; border-radius: 8px;">No timetables generated yet. Upload CSV files and click Generate to create your first timetable.</div>';
-                    document.getElementById('versionsSection').style.display = 'none';
-                    return;
-                }
-
-                document.getElementById('versionsSection').style.display = 'block';
-                container.innerHTML = '';
-
-                // If the most recent version has HTML, show the view button for it
-                if (data.versions && data.versions.length > 0) {
-                    const newest = data.versions[0];
-                    if (newest.html_url) {
-                        const full = `${location.protocol}//${location.host}${newest.html_url}`;
-                        showViewButton(full);
-                    }
-                }
-
-                data.versions.forEach(v => {
-                    const el = document.createElement('div');
-                    el.className = 'file-item';
-                    el.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
-                    el.style.border = '2px solid #cbd5e1';
-                    el.innerHTML = `
-                        <div class="file-info">
-                            <div class="file-icon" style="font-size: 2em;">📅</div>
-                            <div class="file-details">
-                                <div class="file-name" style="font-weight: 600; color: #1e293b;">${v.display_time}</div>
-                                <div class="file-size" style="color: #64748b;">
-                                    ${v.csv_count} CSV file(s) • ${v.has_html ? '✅ HTML Generated' : '⏳ Processing'}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="file-status" style="gap: 10px; display: flex; flex-wrap: wrap;">
-                            ${v.has_html ? `<a class="status-badge" href="${v.html_url}" target="_blank" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 600;">📊 View Timetables</a>` : ''}
-                            ${v.has_csv ? `<button class="status-badge" onclick="window.open('${v.csv_folder}', '_blank')" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: 600;">📁 CSV Files</button>` : ''}
-                        </div>
-                    `;
-                    container.appendChild(el);
-                });
-            } catch (err) {
-                container.innerHTML = `<div class="alert alert-error" style="padding: 15px; background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; border-radius: 8px;">Error fetching versions: ${err.message}</div>`;
-                document.getElementById('versionsSection').style.display = 'none';
-            }
-        }
-
-        function showViewButton(url) {
-            const wrapper = document.getElementById('viewGenerated');
-            const btn = document.getElementById('viewGeneratedBtn');
-            btn.onclick = () => window.open(url, '_blank');
-            wrapper.style.display = 'block';
-        }
-
         // Check server status when page loads
-        window.addEventListener('load', () => { checkServerStatus(); fetchVersions(); });
+        window.addEventListener('load', () => { checkServerStatus(); });
         
         function showAlert(type, message) {
             const existingAlerts = document.querySelectorAll('.alert:not(#infoAlert)');
