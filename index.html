@@ -147,17 +147,19 @@
             width: 100%;
             position: relative;
             z-index: 1;
-            animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        @keyframes slideUp {
+        .container > *:not(.hero-section) {
+            animation: fadeInContent 1s ease 2s forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeInContent {
             from {
                 opacity: 0;
-                transform: translateY(50px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
         }
         
@@ -173,13 +175,49 @@
             border: none;
         }
         
+        .hero-section > *:not(.logo-container) {
+            animation: fadeInContent 1s ease 2s forwards;
+            opacity: 0;
+        }
+        
         .hero-section::before {
             display: none;
         }
         
         .logo-container {
             margin-bottom: 30px;
-            animation: none;
+            animation: logoIntro 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes logoIntro {
+            0% {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(3);
+                z-index: 10000;
+            }
+            60% {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(3);
+                z-index: 10000;
+            }
+            99% {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(1);
+                z-index: 10000;
+            }
+            100% {
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
+                z-index: 1;
+            }
         }
         
         @keyframes bounce {
@@ -192,10 +230,25 @@
             display: inline-block;
             color: #FFD700;
             filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
-            animation: wheelRotate 6s linear infinite;
+            animation: wheelRotate 3s linear infinite;
         }
         
         @keyframes wheelRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes iconRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes hourHand {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes minuteHand {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -576,17 +629,15 @@
             <div class="cards-container">
                 <!-- Upload Data Card -->
                 <div class="card" style="text-decoration: none;">
-                    <div class="card-icon">📤</div>
-                    <h2 class="card-title">Upload Data</h2>
+                    <h2 class="card-title">Initialize Scheduling</h2>
                     <p class="card-description">
                         Add or update CSV course data files for timetable generation
                     </p>
                     <a href="http://localhost:5000/upload.html" class="card-button" style="text-decoration: none;">
-                        <span class="button-text">Upload Files</span>
-                        <span class="arrow">→</span>
+                        <span class="button-text">Upload Scheduling Data</span>
                     </a>
                     <a href="timetable_versions.html" class="view-timetables-link">
-                        📅 View Previously Generated Timetables
+                        View Generated Timetables
                     </a>
                 </div>
             </div>
