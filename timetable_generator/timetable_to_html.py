@@ -63,6 +63,7 @@ class TimetableHTMLConverter:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{dept} - {semester} - {section} Timetable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {{
             margin: 0;
@@ -71,36 +72,79 @@ class TimetableHTMLConverter:
         }}
         
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }}
+        
+        /* Moving Diagonal Grid Background */
+        body::before {{
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(45deg, rgba(99, 102, 241, 0.08) 1.5px, transparent 1.5px),
+                linear-gradient(-45deg, rgba(139, 92, 246, 0.08) 1.5px, transparent 1.5px);
+            background-size: 50px 50px;
+            animation: gridSlide 30s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }}
+        
+        @keyframes gridSlide {{
+            0% {{
+                transform: translate(0, 0);
+            }}
+            100% {{
+                transform: translate(50px, 50px);
+            }}
         }}
         
         .container {{
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                0 0 80px rgba(99, 102, 241, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3);
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }}
         
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
             color: white;
             padding: 30px;
             text-align: center;
         }}
         
         .header h1 {{
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #a5b4fc 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(165, 180, 252, 0.5);
         }}
         
         .header .subtitle {{
             font-size: 1.2em;
+            color: #cbd5e1;
             opacity: 0.9;
         }}
         
@@ -110,17 +154,18 @@ class TimetableHTMLConverter:
             gap: 10px;
             margin: 20px;
             padding: 14px 32px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px);
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 600;
             font-size: 1.05em;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
             position: relative;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .back-button::before {{
@@ -138,7 +183,8 @@ class TimetableHTMLConverter:
         
         .back-button:hover {{
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.5);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.7);
             border-color: rgba(255, 255, 255, 0.4);
         }}
         
@@ -156,13 +202,16 @@ class TimetableHTMLConverter:
             text-align: center;
             margin: 20px;
             padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3);
         }}
         
         .download-section h3 {{
-            color: #667eea;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #a5b4fc;
             margin-bottom: 15px;
             font-size: 1.3em;
         }}
@@ -195,13 +244,17 @@ class TimetableHTMLConverter:
         }}
         
         .csv-btn {{
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.7) 0%, rgba(5, 150, 105, 0.7) 100%);
+            backdrop-filter: blur(10px);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .image-btn {{
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.7) 0%, rgba(217, 119, 6, 0.7) 100%);
+            backdrop-filter: blur(10px);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .timetable-wrapper {{
@@ -213,32 +266,38 @@ class TimetableHTMLConverter:
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
             border-radius: 10px;
             overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
         }}
         
         thead {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+            backdrop-filter: blur(10px);
             color: white;
         }}
         
         th {{
             padding: 15px;
             text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 1em;
             letter-spacing: 1px;
+            color: #e2e8f0;
         }}
         
         th.time-slot {{
             font-weight: 700;
             font-size: 1.1em;
-            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            border-right: 2px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.5) 0%, rgba(45, 55, 72, 0.5) 100%);
+            backdrop-filter: blur(10px);
+            color: #f1f5f9;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border-right: 2px solid rgba(99, 102, 241, 0.3);
         }}
         
         th.time-slot:last-child {{
@@ -247,9 +306,10 @@ class TimetableHTMLConverter:
         
         td {{
             padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
-            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            border-right: 1px solid rgba(99, 102, 241, 0.2);
             vertical-align: top;
+            color: #cbd5e1;
         }}
         
         td:last-child {{
@@ -261,29 +321,33 @@ class TimetableHTMLConverter:
         }}
         
         tbody tr:hover {{
-            background-color: #f5f5f5;
+            background-color: rgba(99, 102, 241, 0.1);
             transition: background-color 0.3s ease;
         }}
         
         .day-column {{
             font-weight: bold;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.3) 0%, rgba(245, 87, 108, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: #f3e8ff;
             text-align: center;
             font-size: 1.1em;
         }}
         
         .lunch-break {{
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: #333;
+            background: linear-gradient(135deg, rgba(250, 112, 154, 0.3) 0%, rgba(254, 225, 64, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: #fde68a;
             font-weight: bold;
             text-align: center;
             padding: 15px;
+            border: 1px solid rgba(254, 225, 64, 0.4);
         }}
         
         .free-slot {{
-            background-color: #f0f4f8;
-            color: #64748b;
+            background-color: rgba(240, 244, 248, 0.05);
+            color: #94a3b8;
             text-align: center;
             font-style: italic;
             font-weight: 500;
