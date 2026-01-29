@@ -58,8 +58,12 @@ def serve_static(path):
 
 @app.route('/api/upload', methods=['POST'])
 def upload_files():
-    """Handle file upload - Expects 4 required files + 2 optional files"""
+    """Handle file upload - Expects 4 required files + 2 optional files + semester type"""
     try:
+        # Get semester type (default to 'even' if not provided)
+        semester_type = request.form.get('semester_type', 'even')
+        print(f"📅 Semester Type: {semester_type}")
+        
         # Check if all required files are present
         required_files = ['cse_file', 'ece_file', 'dsai_file', 'classroom_file']
         optional_files = ['electives_file', 'minors_file']
@@ -78,6 +82,12 @@ def upload_files():
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         version_dir = os.path.join(versions_root, timestamp)
         os.makedirs(version_dir, exist_ok=True)
+        
+        # Save semester type configuration to a file
+        config_file = os.path.join(version_dir, 'config.json')
+        with open(config_file, 'w') as f:
+            json.dump({'semester_type': semester_type}, f)
+        print(f"✅ Saved config: {config_file}")
         
         uploaded_files = []
         errors = []
@@ -328,6 +338,18 @@ def regenerate_timetables():
         latest_version = sorted(versions, reverse=True)[0]
         print(f"🎯 Using latest version: {latest_version}")
         
+        # Load semester type configuration
+        config_file = os.path.join(versions_root, latest_version, 'config.json')
+        semester_type = 'even'  # Default
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r') as f:
+                    config = json.load(f)
+                    semester_type = config.get('semester_type', 'even')
+                print(f"📅 Loaded semester type: {semester_type}")
+            except Exception as e:
+                print(f"⚠️  Could not load config, using default: {e}")
+        
         # Path to main.py
         tg_dir = os.path.join(BASE_DIR, 'timetable_generator')
         main_script = os.path.join(tg_dir, 'main.py')
@@ -346,11 +368,13 @@ def regenerate_timetables():
         env['CSV_INPUT_FOLDER'] = os.path.join('input_files', 'versions', latest_version)
         env['OUTPUT_CSV_DIR'] = os.path.join('timetable_outputs', latest_version)
         env['OUTPUT_HTML_DIR'] = os.path.join('timetable_html', latest_version)
+        env['SEMESTER_TYPE'] = semester_type  # Pass semester type to main.py
         
         print(f"🔧 Environment variables:")
         print(f"   CSV_INPUT_FOLDER: {env['CSV_INPUT_FOLDER']}")
         print(f"   OUTPUT_CSV_DIR: {env['OUTPUT_CSV_DIR']}")
         print(f"   OUTPUT_HTML_DIR: {env['OUTPUT_HTML_DIR']}")
+        print(f"   SEMESTER_TYPE: {env['SEMESTER_TYPE']}")
         print(f"\n🚀 Running main.py...")
         
         # Run the timetable generation script with UTF-8 encoding

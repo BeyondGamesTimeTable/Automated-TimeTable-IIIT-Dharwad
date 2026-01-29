@@ -504,6 +504,83 @@
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6);
         }
         
+        /* Semester Slider Toggle */
+        .semester-slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .semester-option {
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+        
+        .semester-option.active {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        
+        .semester-title {
+            font-weight: 700;
+            font-size: 1.2em;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .semester-subtitle {
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+        
+        .toggle-track {
+            position: relative;
+            width: 140px;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.4) 0%, rgba(139, 92, 246, 0.4) 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+        
+        .toggle-track:hover {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.6) 0%, rgba(139, 92, 246, 0.6) 100%);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+        
+        .toggle-wheel {
+            position: absolute;
+            top: 50%;
+            left: -25px;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: #FFD700;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            animation: wheelRotate 3s linear infinite;
+        }
+        
+        .toggle-wheel.odd {
+            left: calc(100% - 25px);
+        }
+        
+        @keyframes wheelRotate {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        
         /* Loading Overlay with Rotating Chakra */
         .loading-overlay {
             display: none;
@@ -589,6 +666,24 @@
         <div class="header">
             <h1>Upload Course Data</h1>
             <p>Add or update CSV files for timetable generation</p>
+        </div>
+        
+        <!-- Semester Type Toggle -->
+        <div style="margin-bottom: 30px; padding: 25px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.3);">
+            <h3 style="color: #a5b4fc; margin-bottom: 20px; font-size: 1.3em; text-align: center;">Select Semester Type</h3>
+            <div class="semester-slider-container">
+                <div class="semester-option" id="evenLabel">
+                    <div class="semester-title">Even Semester</div>
+                    <div class="semester-subtitle">Sem 2, 4, 6, 8</div>
+                </div>
+                <div class="toggle-track" onclick="toggleSemester()">
+                    <div class="toggle-wheel" id="toggleWheel">☸</div>
+                </div>
+                <div class="semester-option" id="oddLabel">
+                    <div class="semester-title">Odd Semester</div>
+                    <div class="semester-subtitle">Sem 1, 3, 5, 7</div>
+                </div>
+            </div>
         </div>
         
         <div class="upload-section">
@@ -714,6 +809,7 @@
             Minors: null      // Optional
         };
         let currentVersion = null;
+        let semesterType = 'even';  // Default to even semester
 
         // API base auto-detection: prefer local server while developing
         const REMOTE_API = 'https://automated-timetable-iiit-dharwad.onrender.com';
@@ -723,6 +819,37 @@
         } else {
             API_BASE = REMOTE_API;
         }
+        
+        function selectSemesterType(type) {
+            semesterType = type;
+            
+            // Update toggle wheel position and labels
+            const wheel = document.getElementById('toggleWheel');
+            const evenLabel = document.getElementById('evenLabel');
+            const oddLabel = document.getElementById('oddLabel');
+            
+            if (type === 'even') {
+                wheel.classList.remove('odd');
+                evenLabel.classList.add('active');
+                oddLabel.classList.remove('active');
+            } else {
+                wheel.classList.add('odd');
+                oddLabel.classList.add('active');
+                evenLabel.classList.remove('active');
+            }
+            
+            console.log('Semester type selected:', semesterType);
+        }
+        
+        function toggleSemester() {
+            const newType = semesterType === 'even' ? 'odd' : 'even';
+            selectSemesterType(newType);
+        }
+        
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            selectSemesterType('even');
+        });
         
         function handleFileSelection(type, file) {
             console.log('handleFileSelection called:', type, file);
@@ -859,6 +986,7 @@
                 formData.append('ece_file', selectedFiles.ECE);
                 formData.append('dsai_file', selectedFiles.DSAI);
                 formData.append('classroom_file', selectedFiles.Classroom);
+                formData.append('semester_type', semesterType);  // Add semester type
                 
                 // Add optional files if provided
                 if (selectedFiles.Electives) {

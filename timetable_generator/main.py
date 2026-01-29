@@ -81,12 +81,20 @@ class TimetableGenerator:
         self.elective_classroom_assignments = {}
         
         # Elective rotation strategy: Only schedule certain baskets per semester
-        # Even semesters (2, 4, 6): Baskets B1, B3, E1 (+ Minor for Sem 4 only)
-        # Odd semesters would get: Baskets B2, B4, E2 (if implemented)
+        # Even semesters (2, 4, 6, 8): Baskets B1, B3, E1 (+ Minor for Sem 4 only, + B4 for Sem 2)
+        # Odd semesters (1, 3, 5, 7): Baskets B2, B4, E2 (customizable per semester)
         self.elective_rotation = {
+            # Even semesters
             2: ['B1', 'B3', 'B4', 'E1'],  # Semester 2: Allow B4 for now (HS courses)
             4: ['B1', 'B3', 'Minor'],     # Semester 4: Core electives + Minor
-            6: ['B1', 'B3', 'E1']         # Semester 6: Advanced electives
+            6: ['B1', 'B3', 'E1'],        # Semester 6: Advanced electives
+            8: ['B1', 'B3', 'E1'],        # Semester 8: Advanced electives
+            
+            # Odd semesters
+            1: ['B2', 'B4'],              # Semester 1: Foundational electives
+            3: ['B2', 'B4', 'E2'],        # Semester 3: Core electives
+            5: ['B2', 'B4', 'E2'],        # Semester 5: Advanced electives  
+            7: ['B2', 'B4', 'E2']         # Semester 7: Advanced electives
         }
         
         # Combined time slots for timetable display
@@ -1196,8 +1204,12 @@ class TimetableGenerator:
         
         courses_df = self.get_courses_by_semester(df, semester)
         if courses_df.empty:
-            print(f"No courses found for Semester {semester}")
-            return None
+            print(f"⚠️  No courses found for Semester {semester} in {department} department")
+            print(f"   Creating empty timetable for {department} Sem {semester} Section {section}")
+            print(f"   Note: Add semester {semester} course data to CSV file to populate timetable")
+            # Return empty timetable instead of None
+            timetable = self._initialize_timetable()
+            return (timetable, {}, {})  # Empty timetable, no electives, no rotated out
         
         # Initialize timetable
         timetable = self._initialize_timetable()
@@ -2443,11 +2455,22 @@ def main():
     csv_input_folder = os.environ.get('CSV_INPUT_FOLDER', 'input_files/sdtt_inputs')
     output_csv_dir = os.environ.get('OUTPUT_CSV_DIR', 'timetable_outputs')
     output_html_dir = os.environ.get('OUTPUT_HTML_DIR', 'timetable_html')
+    semester_type = os.environ.get('SEMESTER_TYPE', 'even')  # 'even' or 'odd'
 
     generator = TimetableGenerator(csv_input_folder)
     
     departments = ['CSE', 'DSAI', 'ECE']
-    semesters = [2, 4, 6]
+    
+    # Set semesters based on semester type
+    if semester_type == 'odd':
+        semesters = [1, 3, 5, 7]
+        print("\n📅 SEMESTER TYPE: ODD (Sem 1, 3, 5, 7)")
+        print("⚠️  Note: Ensure your CSV files contain data for odd semesters")
+    else:
+        semesters = [2, 4, 6, 8]
+        print("\n📅 SEMESTER TYPE: EVEN (Sem 2, 4, 6, 8)")
+        print("⚠️  Note: Semester 8 requires data in your CSV files")
+    
     sections = ['A', 'B']
     
     print("\nBeyondGames Enhanced Timetable Generator")
@@ -2472,7 +2495,7 @@ def main():
             if dept in ['DSAI', 'ECE']:
                 result = generator.generate_timetable(dept, sem, 'A')
                 
-                if result:
+                if result:  # Result will always exist now (even if empty)
                     timetable, electives, rotated_out = result
                     generator.print_timetable(timetable)
                     filename = f"{dept}_Sem{sem}_SectionA_Timetable.csv"
@@ -2482,15 +2505,22 @@ def main():
                 for sec in sections:
                     result = generator.generate_timetable(dept, sem, sec)
                     
-                    if result:
+                    if result:  # Result will always exist now (even if empty)
                         timetable, electives, rotated_out = result
                         generator.print_timetable(timetable)
                         filename = f"{dept}_Sem{sem}_Section{sec}_Timetable.csv"
                         generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir)
     
-    print("\n>> All timetables generated successfully!")
+    print("\n" + "="*80)
+    print(">> Timetable generation completed!")
     print(f"CSV Output location: {output_csv_dir}/")
     print(f"HTML Output location: {output_html_dir}/")
+    print("\nℹ️  If some semesters were skipped, add course data to your CSV files")
+    print("="*80)
+    
+    # Return success code
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main() or 0)
