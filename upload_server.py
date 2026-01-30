@@ -400,10 +400,12 @@ def regenerate_timetables():
             env2 = env.copy()
             env2['INPUT_CSV_DIR'] = env['OUTPUT_CSV_DIR']
             env2['OUTPUT_HTML_DIR'] = env['OUTPUT_HTML_DIR']
+            env2['CSV_INPUT_FOLDER'] = env['CSV_INPUT_FOLDER']  # Pass original CSV folder for course data
             
             print(f"\n🎨 Running timetable_to_html.py...")
             print(f"   INPUT_CSV_DIR: {env2['INPUT_CSV_DIR']}")
             print(f"   OUTPUT_HTML_DIR: {env2['OUTPUT_HTML_DIR']}")
+            print(f"   CSV_INPUT_FOLDER: {env2['CSV_INPUT_FOLDER']}")
             
             html_result = subprocess.run(
                 [sys.executable, html_script],

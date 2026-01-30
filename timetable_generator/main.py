@@ -189,7 +189,12 @@ class TimetableGenerator:
                     except ValueError:
                         capacity = 0
                 
+                # For labs with empty capacity, use default of 40
+                if capacity == 0 and 'lab' in description.lower():
+                    capacity = 40
+                
                 # Skip rooms with no capacity (like recreation, library, examination room)
+                # But keep labs even if they have no specified capacity
                 if capacity == 0:
                     continue
                 
@@ -996,15 +1001,32 @@ class TimetableGenerator:
           Number of lab sessions = P / 2
           Example: P=2 means 2 hours/week = 1 session of 2 hours
         """
-        lecture_hours = int(row.get('Lectures', 0))
-        tutorial_hours = int(row.get('Tutorials', 0))
-        practical_hours = int(row.get('Practicals', 0))
+        import math
+        import pandas as pd
+        
+        # Handle NaN values by converting to 0
+        lecture_hours = row.get('Lectures', 0)
+        if pd.isna(lecture_hours):
+            lecture_hours = 0
+        else:
+            lecture_hours = int(lecture_hours)
+            
+        tutorial_hours = row.get('Tutorials', 0)
+        if pd.isna(tutorial_hours):
+            tutorial_hours = 0
+        else:
+            tutorial_hours = int(tutorial_hours)
+            
+        practical_hours = row.get('Practicals', 0)
+        if pd.isna(practical_hours):
+            practical_hours = 0
+        else:
+            practical_hours = int(practical_hours)
         
         # Convert hours to number of sessions
         # Round UP to nearest multiple of 1.5:
         # L=1 → 1.5 → 1 slot, L=2 → 3.0 → 2 slots, L=3 → 3.0 → 2 slots
         # L=4 → 4.5 → 3 slots, L=5 → 6.0 → 4 slots
-        import math
         if lecture_hours > 0:
             adjusted_hours = math.ceil(lecture_hours / 1.5) * 1.5  # Round UP to nearest multiple of 1.5
             num_lecture_sessions = int(adjusted_hours / 1.5)
@@ -1293,9 +1315,13 @@ class TimetableGenerator:
         if is_truly_common and not common_courses.empty:
             # Check if common courses are already scheduled (for Section B, copy from Section A)
             if section == 'B' and department in self.common_course_schedule and semester in self.common_course_schedule[department]:
-                # Copy Section A's common course schedule to Section B
-                print(f"   >> Reusing common course schedule from Section A (same times + classrooms)")
+                # Copy Section A's common course schedule to Section B (excluding labs)
+                print(f"   >> Reusing common course schedule from Section A (same times + classrooms, labs excluded)")
                 self._copy_common_course_schedule(timetable, used_slots, department, semester)
+                # Now schedule Section B's own lab sessions for common courses (lectures/tutorials already copied)
+                self._schedule_courses(common_courses, timetable, used_slots, 
+                                      lecture_schedule, tutorial_schedule, lab_schedule,
+                                      lab_usage, total_labs_per_day, section, semester, is_common=True, labs_only=True)
             elif section == 'A':
                 # For Section A, schedule common courses and save the schedule
                 self._schedule_courses(common_courses, timetable, used_slots, 
@@ -1598,6 +1624,7 @@ class TimetableGenerator:
         """
         Copy Section A's common course schedule to Section B.
         Both sections will have identical time slots and classrooms.
+        NOTE: Lab sessions are NOT copied - each section gets separate lab times.
         """
         if department not in self.common_course_schedule or semester not in self.common_course_schedule[department]:
             return
@@ -1605,14 +1632,20 @@ class TimetableGenerator:
         saved_schedule = self.common_course_schedule[department][semester]
         
         for course_code, course_slots in saved_schedule.items():
+            copied_count = 0
             for slot_info in course_slots:
                 day = slot_info['day']
                 time_str = slot_info['time_str']
                 classroom = slot_info['classroom']
                 entry = slot_info['entry']
                 
+                # Skip lab sessions - each section needs separate lab times
+                if '-Lab' in entry or 'Lab-' in entry:
+                    continue
+                
                 # Copy to timetable
                 timetable[day][time_str] = entry
+                copied_count += 1
                 
                 # Mark slot as used
                 if day not in used_slots:
@@ -1632,12 +1665,17 @@ class TimetableGenerator:
                     'course': course_code
                 }
             
-            print(f"   [COPIED] {course_code} - {len(course_slots)} slots copied from Section A")
+            if copied_count > 0:
+                print(f"   [COPIED] {course_code} - {copied_count} slots copied from Section A (labs excluded)")
     
     def _schedule_courses(self, courses_df, timetable, used_slots,
                          lecture_schedule, tutorial_schedule, lab_schedule,
-                         lab_usage, total_labs_per_day, section, semester, is_common=False):
-        """Schedule courses into timetable"""
+                         lab_usage, total_labs_per_day, section, semester, is_common=False, labs_only=False):
+        """Schedule courses into timetable
+        
+        Args:
+            labs_only: If True, only schedule lab sessions (skip lectures and tutorials)
+        """
         
         # Track which baskets we've already scheduled
         scheduled_baskets = set()
@@ -1781,34 +1819,43 @@ class TimetableGenerator:
                     required_capacity = 180
             
             # Schedule lectures (1.5 hours each)
-            for lec_num in range(lectures):
-                success = self._schedule_session(
-                    timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
-                    lab_usage, course_code, course_title, classroom,
-                    'Lecture', section, is_common, is_elective, basket,
-                    required_capacity=required_capacity, department=self.current_department
-                )
-                if not success:
-                    self.unscheduled_courses.append(f"{course_code} - Lecture {lec_num+1}")
+            if not labs_only:
+                for lec_num in range(lectures):
+                    success = self._schedule_session(
+                        timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
+                        lab_usage, course_code, course_title, classroom,
+                        'Lecture', section, is_common, is_elective, basket,
+                        required_capacity=required_capacity, department=self.current_department
+                    )
+                    if not success:
+                        self.unscheduled_courses.append(f"{course_code} - Lecture {lec_num+1}")
             
             # Schedule tutorials (1 hour - use 1 slot)
-            for tut_num in range(tutorials):
-                success = self._schedule_session(
-                    timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
-                    lab_usage, course_code, course_title, classroom,
-                    'Tutorial', section, is_common, is_elective, basket, duration_hours=1,
-                    required_capacity=required_capacity, department=self.current_department
-                )
-                if not success:
-                    self.unscheduled_courses.append(f"{course_code} - Tutorial {tut_num+1}")
+            if not labs_only:
+                for tut_num in range(tutorials):
+                    success = self._schedule_session(
+                        timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
+                        lab_usage, course_code, course_title, classroom,
+                        'Tutorial', section, is_common, is_elective, basket, duration_hours=1,
+                        required_capacity=required_capacity, department=self.current_department
+                    )
+                    if not success:
+                        self.unscheduled_courses.append(f"{course_code} - Tutorial {tut_num+1}")
             
             # Schedule practicals/labs (2 hours per lab session)
             # Note: 'practicals' is already converted to number of sessions in parse_ltpsc()
+            # Extract lab type from course row: 'H' for Hardware, 'S' for Software
+            lab_type = str(course.get('Lab', '')).strip().upper() if not pd.isna(course.get('Lab', '')) else None
+            
+            # IMPORTANT: Labs are NOT treated as common even if lectures are common
+            # Each section needs separate lab slots (especially for hardware labs with limited rooms)
+            is_common_lab = False
+            
             for prac_num in range(practicals):
                 success = self._schedule_lab_session(
                     timetable, used_slots, lecture_schedule, tutorial_schedule, lab_schedule,
                     lab_usage, total_labs_per_day, course_code, course_title, classroom,
-                    section, is_common, is_elective, basket
+                    section, is_common_lab, is_elective, basket, lab_type_preference=lab_type
                 )
                 if not success:
                     self.unscheduled_courses.append(f"{course_code} - Lab {prac_num+1}")
@@ -2126,10 +2173,11 @@ class TimetableGenerator:
             candidate_labs = []
             for lab in self.lab_rooms:
                 if lab in self.classrooms:
-                    desc = self.classrooms[lab].get('description', '').lower()
-                    if lab_type_preference == 'S' and 'software' in desc:
+                    # Check both 'type' and 'description' keys (fallback to 'type')
+                    lab_desc = self.classrooms[lab].get('type', self.classrooms[lab].get('description', '')).lower()
+                    if lab_type_preference == 'S' and 'software' in lab_desc:
                         candidate_labs.append(lab)
-                    elif lab_type_preference == 'H' and 'hardware' in desc:
+                    elif lab_type_preference == 'H' and 'hardware' in lab_desc:
                         candidate_labs.append(lab)
                     elif lab_type_preference not in ['S', 'H']:
                         candidate_labs.append(lab)
@@ -2159,16 +2207,18 @@ class TimetableGenerator:
     
     def _schedule_lab_session(self, timetable, used_slots, lecture_schedule, tutorial_schedule,
                              lab_schedule, lab_usage, total_labs_per_day, course_code, course_title, classroom,
-                             section, is_common, is_elective, basket):
+                             section, is_common, is_elective, basket, lab_type_preference=None):
         """Schedule a 2-hour lab session in dedicated afternoon flexible slots
         
         For lab sessions, we assign 2 lab rooms together to accommodate ~80 students
         CONSTRAINT: Maximum 1 lab per day across all courses
+        
+        Args:
+            lab_type_preference: 'S' for Software Lab, 'H' for Hardware Lab, None for any
         """
         
-        # Determine lab type preference from course data if available
-        lab_type_preference = None  # Will be 'S' for Software, 'H' for Hardware
-        # This can be extracted from course data or Practicals column
+        # Lab type preference is now passed as parameter from course data
+        # 'S' = Software Lab, 'H' = Hardware Lab, None = any available
         
         # Labs are 2 hours and should use the afternoon 2-hour flexible slots
         # This gives priority to labs for these slots
