@@ -502,6 +502,7 @@ class TimetableGenerator:
     def find_cross_dept_shared_courses(self, semester):
         """
         Find courses that are shared between DSAI and ECE for a given semester.
+        A course is considered shared only if it has the same course code AND same faculty.
         Returns dict of {course_code: course_details_from_either_dept}
         """
         dsai_df = self.load_department_data('DSAI')
@@ -522,16 +523,26 @@ class TimetableGenerator:
         
         shared_codes = dsai_codes.intersection(ece_codes)
         
-        # Get course details for shared courses (use DSAI version)
+        # Check each shared code to ensure same faculty
         shared_courses = {}
         for code in shared_codes:
-            course_row = dsai_courses[dsai_courses['Course Code'].str.strip() == code].iloc[0]
-            shared_courses[code] = course_row.to_dict()
+            dsai_row = dsai_courses[dsai_courses['Course Code'].str.strip() == code].iloc[0]
+            ece_row = ece_courses[ece_courses['Course Code'].str.strip() == code].iloc[0]
+            
+            # Get faculty names and normalize (strip whitespace, convert to lowercase)
+            dsai_faculty = str(dsai_row.get('Faculty', '')).strip().lower()
+            ece_faculty = str(ece_row.get('Faculty', '')).strip().lower()
+            
+            # Only consider as shared if same faculty teaches both departments
+            if dsai_faculty == ece_faculty and dsai_faculty != '':
+                shared_courses[code] = dsai_row.to_dict()
+            else:
+                print(f"   >> {code} - Different faculty (DSAI: {dsai_row.get('Faculty', 'N/A')}, ECE: {ece_row.get('Faculty', 'N/A')}) - NOT shared")
         
         if shared_courses:
-            print(f"\n   >> Found {len(shared_courses)} shared courses between DSAI and ECE:")
+            print(f"\n   >> Found {len(shared_courses)} shared courses between DSAI and ECE (same course code + same faculty):")
             for code in shared_courses.keys():
-                print(f"      - {code}: {shared_courses[code].get('Course Title', 'N/A')}")
+                print(f"      - {code}: {shared_courses[code].get('Course Title', 'N/A')} (Faculty: {shared_courses[code].get('Faculty', 'N/A')})")
         
         return shared_courses
     
