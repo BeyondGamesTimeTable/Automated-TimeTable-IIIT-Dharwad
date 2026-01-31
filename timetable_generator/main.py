@@ -1581,12 +1581,11 @@ class TimetableGenerator:
                         else:
                             classroom = 'C004'  # Default to large auditorium
                         
-                        # Extract session type (from parentheses or dash)
-                        if '(Common)' in entry_str:
-                            session_type = 'Lecture'
-                        elif '-Lab' in entry_str:
+                        # Extract session type (from entry string)
+                        if '-Lab' in entry_str or 'Lab-' in entry_str:
                             session_type = 'Lab'
-                        elif '-T-' in entry_str:
+                        elif '-T' in entry_str:
+                            # Tutorial: could be "MA262-T (Common)" or "CS162-T-A"
                             session_type = 'Tutorial'
                         else:
                             session_type = 'Lecture'
@@ -2169,10 +2168,14 @@ class TimetableGenerator:
             classroom: Provided but NOT used in label for electives (shown in summary instead)
         """
         if is_elective and basket:
-            # For electives: DON'T include classroom in label (it goes in summary below timetable)
+            # For electives: DON'T include classroom in label (it goes in summary instead)
             return f"Elective ({basket})"
         elif is_common:
-            return f"{course_code} (Common)"
+            # Common courses should still differentiate tutorials with -T suffix
+            if session_type == 'Tutorial':
+                return f"{course_code}-T (Common)"
+            else:
+                return f"{course_code} (Common)"
         else:
             # For DSAI/ECE (single section departments), don't add section suffix
             if self.current_department in ['DSAI', 'ECE']:
