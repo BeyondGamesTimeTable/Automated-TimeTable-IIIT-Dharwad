@@ -1048,7 +1048,7 @@ class TimetableHTMLConverter:
             # Generate HTML for till midsem section
             html = """
         <div class="till-midsem-section">
-            <h2>⏰ Till Midsem Courses (1-2 Credits)</h2>
+            <h2>Till Midsem Courses (1-2 Credits)</h2>
             <p class="till-midsem-note">⚠️ These courses are scheduled only until the midsemester examinations</p>
             <div class="till-midsem-courses">
 """
@@ -1090,9 +1090,9 @@ class TimetableHTMLConverter:
         for col in df.columns:
             # Check if this is an afternoon flexible slot
             if self._is_afternoon_flex_slot(col):
-                html += f'<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ {col} <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>\n'
+                html += f'<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">{col} <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>\n'
             else:
-                html += f'<th class="time-slot">⏰ {col}</th>\n'
+                html += f'<th class="time-slot">{col}</th>\n'
         html += '</tr>\n</thead>\n<tbody>\n'
         
         # Data rows
@@ -2164,7 +2164,7 @@ class TimetableHTMLConverter:
                 if basket == 'Elective B':
                     # Elective B uses Elective A's time slots
                     if 'Elective A' in basket_time_slots and basket_time_slots['Elective A']:
-                        time_info = f"<p style='color: #6b7280; font-size: 0.9em; margin-bottom: 15px;'><strong>⏰ Time:</strong> {', '.join(sorted(set(basket_time_slots['Elective A'])))} (Same as Elective A)</p>"
+                        time_info = f"<p style='color: #6b7280; font-size: 0.9em; margin-bottom: 15px;'><strong>Time:</strong> {', '.join(sorted(set(basket_time_slots['Elective A'])))} (Same as Elective A)</p>"
                     special_note = """
                     <div style="background: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 15px;">
                         <strong style="color: #b45309;">⏳ After Mid-Semester Only:</strong><br>
@@ -2172,7 +2172,7 @@ class TimetableHTMLConverter:
                     </div>
 """
                 elif basket in basket_time_slots and basket_time_slots[basket]:
-                    time_info = f"<p style='color: #6b7280; font-size: 0.9em; margin-bottom: 15px;'><strong>⏰ Time:</strong> {', '.join(sorted(set(basket_time_slots[basket])))}</p>"
+                    time_info = f"<p style='color: #6b7280; font-size: 0.9em; margin-bottom: 15px;'><strong>Time:</strong> {', '.join(sorted(set(basket_time_slots[basket])))}</p>"
                 
                 html += f"""
                 <div class="basket-card" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #6366f1;">
