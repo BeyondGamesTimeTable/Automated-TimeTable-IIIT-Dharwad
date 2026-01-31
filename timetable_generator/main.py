@@ -1530,8 +1530,8 @@ class TimetableGenerator:
                     session_type = slot_info['session_type']
                     time_str = slot_info['time_str']
                     
-                    # Add to timetable
-                    timetable[day][time_str] = f"{course_code}\n({session_type})\n{classroom}\n[Shared: DSAI+ECE]"
+                    # Add to timetable - use same format as DSAI (Common)
+                    timetable[day][time_str] = f"{course_code} (Common) | {classroom}"
                     
                     # Mark slot as used
                     if day not in used_slots:
