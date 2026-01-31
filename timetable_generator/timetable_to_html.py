@@ -904,7 +904,7 @@ class TimetableHTMLConverter:
                         # Render course with classroom
                         if course_info and not course_info.startswith('-'):
                             if classroom and classroom not in ['nan', 'None', 'TBD', '']:
-                                html += f'                        <li><strong>{course_info}</strong><br><span style="color: #3b82f6; font-size: 0.9em;">📍 {classroom}</span></li>\n'
+                                html += f'                        <li><strong>{course_info}</strong><br><span style="color: #3b82f6; font-size: 0.9em;">{classroom}</span></li>\n'
                             else:
                                 html += f'                        <li><strong>{course_info}</strong></li>\n'
                     
@@ -924,7 +924,7 @@ class TimetableHTMLConverter:
             if 'AFTER MIDSEMS' in content:
                 html += """
         <div class="after-midsems-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 15px; border: 3px solid #f59e0b;">
-            <h2 style="color: #92400e; margin-bottom: 15px;">🔄 After Midsems - Second Half Electives</h2>
+            <h2 style="color: #92400e; margin-bottom: 15px;">After Midsems - Second Half Electives</h2>
             <p style="color: #78350f; font-weight: 600; margin-bottom: 20px;">These elective baskets will be offered <strong>after mid-semester exams</strong> in the same time slots:</p>
             <div class="electives-container">
 """
@@ -956,7 +956,7 @@ class TimetableHTMLConverter:
                             
                             html += f'                        <li><strong>{course_info}</strong>'
                             if classroom and classroom not in ['nan', '-', '']:
-                                html += f'<br><span class="classroom-info">📍 {classroom}</span>'
+                                html += f'<br><span class="classroom-info">{classroom}</span>'
                             html += '</li>\n'
                         i += 1
                     
@@ -968,7 +968,7 @@ class TimetableHTMLConverter:
                 html += """
             </div>
             <p style="margin-top: 20px; color: #78350f; font-style: italic; font-size: 0.95em;">
-                💡 <strong>Note:</strong> These courses will replace the current electives in the timetable after midsem exams, using the same classroom and time slots.
+                <strong>Note:</strong> These courses will replace the current electives in the timetable after midsem exams, using the same classroom and time slots.
             </p>
         </div>
 """
@@ -1049,7 +1049,7 @@ class TimetableHTMLConverter:
             html = """
         <div class="till-midsem-section">
             <h2>Till Midsem Courses (1-2 Credits)</h2>
-            <p class="till-midsem-note">⚠️ These courses are scheduled only until the midsemester examinations</p>
+            <p class="till-midsem-note">These courses are scheduled only until the midsemester examinations</p>
             <div class="till-midsem-courses">
 """
             
@@ -1070,7 +1070,7 @@ class TimetableHTMLConverter:
             html += """
             </div>
             <p style="margin-top: 20px; color: #7f1d1d; font-style: italic; text-align: center; font-size: 0.95em;">
-                💡 <strong>Note:</strong> After midsem exams, these time slots will be used for other courses or activities.
+                <strong>Note:</strong> After midsem exams, these time slots will be used for other courses or activities.
             </p>
         </div>
 """
@@ -1090,7 +1090,7 @@ class TimetableHTMLConverter:
         for col in df.columns:
             # Check if this is an afternoon flexible slot
             if self._is_afternoon_flex_slot(col):
-                html += f'<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">{col} <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>\n'
+                html += f'<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">{col} <br><small style="font-size:0.8em;opacity:0.9">2-Hour Flexible</small></th>\n'
             else:
                 html += f'<th class="time-slot">{col}</th>\n'
         html += '</tr>\n</thead>\n<tbody>\n'
@@ -1662,7 +1662,7 @@ class TimetableHTMLConverter:
                     <button id="redoBtn" class="timetable-link" style="background:#f97316;" disabled>Redo</button>
                     <button id="saveCsv" class="timetable-link" style="background:#06b6d4;">Save CSV</button>
                     <span id="editorStatus" style="color:#fff; margin-left:10px; font-weight:600; opacity:0.95;"></span>
-                    <button id="viewFullBtn" class="timetable-link" style="background:#8b5cf6; display:none; margin-left:10px;">🔍 View as Full</button>
+                    <button id="viewFullBtn" class="timetable-link" style="background:#8b5cf6; display:none; margin-left:10px;">View as Full</button>
                 </div>
                 <iframe id="timetableFrame" src="" style="width:100%; height:720px; border-radius:12px; border:4px solid rgba(255,255,255,0.08); background:white;"></iframe>
             </div>
@@ -2176,7 +2176,7 @@ class TimetableHTMLConverter:
                 
                 html += f"""
                 <div class="basket-card" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #6366f1;">
-                    <h3 style="color: #3730a3; margin-bottom: 10px;">🎯 {basket}</h3>
+                    <h3 style="color: #3730a3; margin-bottom: 10px;">{basket}</h3>
                     {time_info}
                     {special_note}
                     <p style="color: #4338ca; font-weight: 600; margin-bottom: 10px;">Courses in this basket (all run at the same time):</p>
@@ -2198,14 +2198,14 @@ class TimetableHTMLConverter:
                     for course in elective_data[basket]:
                         tutorial_indicator = ""
                         if course.get('tutorials', 0) > 0:
-                            tutorial_indicator = f" | 📝 Tutorial: {course['tutorials']}T"
+                            tutorial_indicator = f" | Tutorial: {course['tutorials']}T"
                         
                         credit_info = f" ({course.get('credits', 0)} Credits)"
                         
                         html += f"""
                         <li style="padding: 8px; margin: 5px 0; background: #f3f4f6; border-radius: 5px;">
                             <strong style="color: #3730a3;">{course['code']}</strong> - {course['title']}{credit_info}<br>
-                            <span style="color: #6b7280; font-size: 0.9em;">📍 Classroom: {course['classroom']}{tutorial_indicator}</span>
+                            <span style="color: #6b7280; font-size: 0.9em;">Classroom: {course['classroom']}{tutorial_indicator}</span>
                         </li>
 """
                     html += """
@@ -2216,7 +2216,7 @@ class TimetableHTMLConverter:
                     if has_tutorials:
                         html += f"""
                     <div style="background: #fef3c7; padding: 10px; border-radius: 5px; border-left: 3px solid #f59e0b; margin-top: 10px;">
-                        <strong style="color: #b45309;">⚠️ Tutorial Requirement:</strong><br>
+                        <strong style="color: #b45309;">Tutorial Requirement:</strong><br>
                         <span style="color: #78350f; font-size: 0.9em;">This basket includes courses with tutorial sessions. 
                         Courses with tutorials: {', '.join(tutorial_courses)}</span>
                     </div>
@@ -2233,7 +2233,7 @@ class TimetableHTMLConverter:
             html += """
             </div>
             <p style="margin-top: 20px; color: #4338ca; font-style: italic; font-size: 0.95em;">
-                💡 <strong>Note:</strong> Check with your department for the complete list of courses in each basket and their classrooms.
+                <strong>Note:</strong> Check with your department for the complete list of courses in each basket and their classrooms.
             </p>
         </div>
 """
