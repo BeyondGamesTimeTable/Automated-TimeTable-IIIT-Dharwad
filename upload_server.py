@@ -592,6 +592,55 @@ def serve_html_outputs(path):
     html_dir = os.path.join(BASE_DIR, 'timetable_generator', 'timetable_html')
     return send_from_directory(html_dir, path)
 
+@app.route('/api/download_excel/<timestamp>')
+def download_excel(timestamp):
+    """Generate and download Excel file with all timetables"""
+    try:
+        from timetable_generator.export_to_excel import TimetableExcelExporter
+        from flask import send_file
+        
+        print(f"\n📊 Excel download requested for timestamp: {timestamp}")
+        
+        # Set input directory to the specific timestamp folder
+        output_dir = os.path.join(BASE_DIR, 'timetable_generator', 'timetable_outputs', timestamp)
+        
+        if not os.path.exists(output_dir):
+            print(f"❌ Output directory not found: {output_dir}")
+            return jsonify({
+                'success': False,
+                'error': f'Timetables for {timestamp} not found'
+            }), 404
+        
+        # Create exporter and generate Excel
+        exporter = TimetableExcelExporter(input_dir=output_dir)
+        excel_file = exporter.export_to_excel(output_file='All_Timetables.xlsx')
+        
+        if not excel_file or not os.path.exists(excel_file):
+            print(f"❌ Failed to create Excel file")
+            return jsonify({
+                'success': False,
+                'error': 'Failed to generate Excel file'
+            }), 500
+        
+        print(f"✅ Sending Excel file: {excel_file}")
+        
+        # Send the file
+        return send_file(
+            excel_file,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f'Timetables_{timestamp}.xlsx'
+        )
+    
+    except Exception as e:
+        print(f"❌ Error generating Excel: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }), 500
+
 if __name__ == '__main__':
     print("\n" + "="*80)
     print("🚀 Timetable Upload Server Starting...")

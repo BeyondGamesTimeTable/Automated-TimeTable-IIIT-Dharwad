@@ -1651,6 +1651,14 @@ class TimetableHTMLConverter:
         html_content += """
         </div>
         
+        <!-- Download Excel Button -->
+        <div style="text-align:center; margin:40px 0 60px 0;">
+            <button id="downloadExcel" class="timetable-link" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-size:1.1em; padding:16px 48px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);">
+                Download All Timetables as Excel
+            </button>
+            <p style="color:#cbd5e1; margin-top:12px; font-size:0.9em;">Get all timetables in one color-coded Excel file with separate sheets</p>
+        </div>
+        
         <!-- Editor Panel (loads selected timetable into iframe for viewing/editing) -->
         <div id="editorPanel" style="margin-top:40px; display:none; gap:20px; align-items:flex-start;">
             <div style="flex:1;">
@@ -2056,6 +2064,60 @@ class TimetableHTMLConverter:
     }
 
 })();
+
+// Download Excel button handler
+document.getElementById('downloadExcel').addEventListener('click', async () => {
+    const btn = document.getElementById('downloadExcel');
+    const originalText = btn.textContent;
+    
+    try {
+        btn.textContent = 'Generating Excel file...';
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        
+        // Extract timestamp from current URL
+        const urlPath = window.location.pathname;
+        const timestamp = urlPath.split('/').filter(p => p.match(/^\\d{8}_\\d{6}$/))[0];
+        
+        if (!timestamp) {
+            alert('Could not determine timetable version');
+            return;
+        }
+        
+        // Download the Excel file
+        const response = await fetch(`/api/download_excel/${timestamp}`);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to generate Excel file');
+        }
+        
+        // Create download link
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Timetables_${timestamp}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        btn.textContent = '✓ Downloaded!';
+        btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        alert('Error downloading Excel file: ' + error.message);
+        btn.textContent = originalText;
+    } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+});
 </script>
 </html>
 """

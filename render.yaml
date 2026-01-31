@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: automated-timetable-iiit-dharwad
-    env: python
-    buildCommand: pip install --upgrade pip && pip install -r requirements-backend.txt
-    startCommand: gunicorn upload_server:app
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
