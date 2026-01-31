@@ -2174,10 +2174,17 @@ class TimetableGenerator:
         elif is_common:
             return f"{course_code} (Common)"
         else:
-            if session_type == 'Tutorial':
-                return f"{course_code}-T-{section}"
+            # For DSAI/ECE (single section departments), don't add section suffix
+            if self.current_department in ['DSAI', 'ECE']:
+                if session_type == 'Tutorial':
+                    return f"{course_code}-T"
+                else:
+                    return course_code
             else:
-                return f"{course_code}-{section}"
+                if session_type == 'Tutorial':
+                    return f"{course_code}-T-{section}"
+                else:
+                    return f"{course_code}-{section}"
     
     def _find_two_available_labs(self, day, time_str, lab_usage, lab_type_preference=None):
         """Find 2 available lab rooms for a session to accommodate 80 students
@@ -2285,7 +2292,11 @@ class TimetableGenerator:
                 elif is_common:
                     label = f"{course_code}-Lab (Common)"
                 else:
-                    label = f"{course_code}-Lab-{section}"
+                    # For DSAI/ECE (single section departments), don't add section suffix
+                    if self.current_department in ['DSAI', 'ECE']:
+                        label = f"{course_code}-Lab"
+                    else:
+                        label = f"{course_code}-Lab-{section}"
                 
                 # Schedule the lab (full 2 hours) with both rooms
                 timetable[day][time_str] = f"{label} [120min] | {combined_labs}"
