@@ -1207,7 +1207,7 @@ class TimetableHTMLConverter:
         elif 'Lab' in cell_value or 'lab' in cell_value:
             duration_class = 'lab-duration'
             duration_label = '2 Hours'
-        elif '-T-' in cell_value or 'Tutorial' in cell_value:
+        elif '-T-' in cell_value or '-T ' in cell_value or 'Tutorial' in cell_value:
             duration_class = 'tutorial-duration'
             duration_minutes = 60
             duration_label = '1 Hour'
