@@ -1503,12 +1503,16 @@ class TimetableGenerator:
             # Check if this course has already been scheduled by the other department
             if semester in self.cross_dept_shared_schedule and \
                course_code in self.cross_dept_shared_schedule[semester]:
-                # Use ALL pre-scheduled time slots
+                # Use pre-scheduled time slots (lectures and tutorials only, NOT labs)
                 scheduled_slots = self.cross_dept_shared_schedule[semester][course_code]
                 
-                print(f"   [OK] {course_code} - Using {len(scheduled_slots)} pre-scheduled slots (Shared with {'ECE' if department=='DSAI' else 'DSAI'})")
+                print(f"   [OK] {course_code} - Using {len(scheduled_slots)} pre-scheduled slots (Shared with {'ECE' if department=='DSAI' else 'DSAI'}, labs excluded)")
                 
                 for slot_info in scheduled_slots:
+                    # Skip lab sessions - each department gets its own lab time
+                    if slot_info.get('session_type') == 'Lab':
+                        continue
+                    
                     day = slot_info['day']
                     time_slot = slot_info['time_slot']
                     classroom = slot_info['classroom']
@@ -1524,6 +1528,12 @@ class TimetableGenerator:
                     used_slots[day][time_str] = {'room': classroom, 'course': course_code}
                     
                     print(f"       • {day} {time_str} ({session_type}) in {classroom}")
+                
+                # Now schedule this department's own lab sessions
+                single_course_df = pd.DataFrame([course])
+                self._schedule_courses(single_course_df, timetable, used_slots,
+                                     lecture_schedule, tutorial_schedule, lab_schedule,
+                                     lab_usage, total_labs_per_day, section, semester, is_common=True, labs_only=True)
                 continue
             
             # This is the first department scheduling this course - schedule it normally
@@ -1535,12 +1545,17 @@ class TimetableGenerator:
                                  lecture_schedule, tutorial_schedule, lab_schedule,
                                  lab_usage, total_labs_per_day, section, semester, is_common=True)
             
-            # After scheduling, save ALL schedules for the other department
-            # Find ALL slots where this course was scheduled in the timetable
+            # After scheduling, save ONLY lectures/tutorials (NOT labs) for the other department
+            # Each department needs separate lab sessions with different rooms
+            # Find ALL non-lab slots where this course was scheduled in the timetable
             course_slots = []
             for day in timetable:
                 for time_str, entry in timetable[day].items():
                     if course_code in str(entry) and entry != 'Free' and time_str != '13:00-14:30':
+                        # Skip lab sessions - each department gets separate lab times
+                        if '-Lab' in str(entry) or 'Lab-' in str(entry):
+                            continue
+                        
                         # Parse time_str back to time_slot tuple
                         start_time, end_time = time_str.split('-')
                         time_slot = (start_time, end_time)
@@ -1573,14 +1588,14 @@ class TimetableGenerator:
                             'session_type': session_type
                         })
             
-            # Save ALL slots for other department
+            # Save non-lab slots for other department (labs scheduled separately)
             if course_slots:
                 if semester not in self.cross_dept_shared_schedule:
                     self.cross_dept_shared_schedule[semester] = {}
                 
                 self.cross_dept_shared_schedule[semester][course_code] = course_slots
                 
-                print(f"   [OK] {course_code} - Scheduled {len(course_slots)} sessions for both DSAI and ECE")
+                print(f"   [OK] {course_code} - Scheduled {len(course_slots)} non-lab sessions for both DSAI and ECE (labs scheduled separately)")
                 for slot in course_slots:
                     print(f"       • {slot['day']} {slot['time_str']} ({slot['session_type']}) in {slot['classroom']}")
     
