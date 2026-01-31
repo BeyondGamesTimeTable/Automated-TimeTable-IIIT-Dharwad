@@ -1530,8 +1530,10 @@ class TimetableGenerator:
                     session_type = slot_info['session_type']
                     time_str = slot_info['time_str']
                     
-                    # Add to timetable - use same format as DSAI (Common)
-                    timetable[day][time_str] = f"{course_code} (Common) | {classroom}"
+                    # Create proper label with -T for tutorials
+                    label = self._create_session_label(course_code, session_type, section, 
+                                                       is_common=True, is_elective=False, basket=None, classroom=classroom)
+                    timetable[day][time_str] = f"{label} | {classroom}"
                     
                     # Mark slot as used
                     if day not in used_slots:
