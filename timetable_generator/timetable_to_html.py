@@ -825,15 +825,15 @@ class TimetableHTMLConverter:
                 
                 // Try to extract timestamp from path
                 // Expected format: .../timetable_html/20260205_004256/CSE_Sem5_SectionA_Timetable.html
-                const pathMatch = currentPath.match(/timetable_html[\/\\](\d{{8}}_\d{{6}})/);
+                const pathMatch = currentPath.match(/timetable_html[\\/](\\d{{8}}_\\d{{6}})/);
                 
                 if (!pathMatch) {{
                     // Fallback: try to get from parent directory
-                    const pathParts = currentPath.split(/[\/\\]/);
+                    const pathParts = currentPath.split(/[\\/]/);
                     const htmlFileIndex = pathParts.findIndex(p => p.includes('.html'));
                     const timestamp = htmlFileIndex > 0 ? pathParts[htmlFileIndex - 1] : null;
                     
-                    if (!timestamp || !/^\d{{8}}_\d{{6}}/.test(timestamp)) {{
+                    if (!timestamp || !/^\\d{{8}}_\\d{{6}}/.test(timestamp)) {{
                         throw new Error('Could not extract timestamp from URL. Make sure to access this page through the server at http://localhost:5000');
                     }}
                     
