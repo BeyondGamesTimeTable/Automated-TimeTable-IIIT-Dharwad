@@ -85,16 +85,16 @@ class TimetableGenerator:
         # Odd semesters (1, 3, 5, 7): Baskets B2, B4, E2 (customizable per semester)
         self.elective_rotation = {
             # Even semesters
-            2: ['B1', 'B3', 'B4', 'E1'],  # Semester 2: Allow B4 for now (HS courses)
-            4: ['B1', 'B3', 'Minor'],     # Semester 4: Core electives + Minor
-            6: ['B1', 'B3', 'E1'],        # Semester 6: Advanced electives
-            8: ['B1', 'B3', 'E1'],        # Semester 8: Advanced electives
+            2: ['B1', 'B3', 'B4', 'E1', 'Elective A', 'Elective B', 'Elective C'],  # Semester 2: Allow B4 for now (HS courses)
+            4: ['B1', 'B3', 'Minor', 'Elective A', 'Elective B', 'Elective C'],     # Semester 4: Core electives + Minor
+            6: ['B1', 'B3', 'E1', 'Elective A', 'Elective B', 'Elective C'],        # Semester 6: Advanced electives
+            8: ['B1', 'B3', 'E1', 'Elective A', 'Elective B', 'Elective C'],        # Semester 8: Advanced electives
             
             # Odd semesters
-            1: ['B2', 'B4'],              # Semester 1: Foundational electives
-            3: ['B2', 'B4', 'E2'],        # Semester 3: Core electives
-            5: ['B2', 'B4', 'E2'],        # Semester 5: Advanced electives  
-            7: ['B2', 'B4', 'E2']         # Semester 7: Advanced electives
+            1: ['B2', 'B4', 'Elective A', 'Elective B', 'Elective C'],              # Semester 1: Foundational electives
+            3: ['B2', 'B4', 'E2', 'Elective A', 'Elective B', 'Elective C'],        # Semester 3: Core electives
+            5: ['B2', 'B4', 'E2', 'Elective A', 'Elective B', 'Elective C'],        # Semester 5: Advanced electives  
+            7: ['B2', 'B4', 'E2', 'Elective A', 'Elective B', 'Elective C']         # Semester 7: Advanced electives
         }
         
         # Combined time slots for timetable display
@@ -570,18 +570,27 @@ class TimetableGenerator:
         # STEP 1: Schedule GLOBAL baskets (or reuse if already scheduled)
         global_baskets = basket_groups.get('global', {})
         if global_baskets:
+            print(f"\n   >> Processing GLOBAL baskets: {list(global_baskets.keys())}")
+            print(f"   >> Existing global schedule for semesters: {list(self.elective_basket_schedule.get('global', {}).keys())}")
+            
             if semester in self.elective_basket_schedule['global']:
                 # Reuse global schedule
                 print(f"\n   >> Reusing GLOBAL elective baskets (common to ALL branches)")
-                for basket_name, slots in self.elective_basket_schedule['global'][semester].items():
-                    basket_assignments[basket_name] = slots
-                    # Find basket courses from global_baskets
+                print(f"   >> Scheduled baskets for semester {semester}: {list(self.elective_basket_schedule['global'][semester].keys())}")
+                
+                # Match baskets including tutorial variants (e.g., "Elective C" should match "Elective C-T")
+                for scheduled_basket_name, slots in self.elective_basket_schedule['global'][semester].items():
+                    # Find matching basket from global_baskets
+                    base_basket_name = scheduled_basket_name.replace('-T', '').replace('-P', '').strip()
+                    
                     basket_courses = None
                     for bname, basket_data in global_baskets.items():
-                        if bname == basket_name:
+                        if bname == base_basket_name:
                             basket_courses = basket_data.get('courses', [])
                             break
-                    self._apply_basket_schedule_to_timetable(timetable, used_slots, basket_name, slots, basket_courses)
+                    
+                    basket_assignments[scheduled_basket_name] = slots
+                    self._apply_basket_schedule_to_timetable(timetable, used_slots, scheduled_basket_name, slots, basket_courses)
                 
                 # Also restore Elective B courses (which aren't scheduled but need to be in JSON)
                 for bname, basket_data in global_baskets.items():
@@ -605,10 +614,12 @@ class TimetableGenerator:
             else:
                 # First branch - create global schedule
                 print(f"\n   >> Scheduling GLOBAL elective baskets (common to ALL branches)")
+                print(f"   >> Baskets to schedule: {list(global_baskets.keys())}")
                 self.elective_basket_schedule['global'][semester] = {}
                 global_assignments = self._schedule_baskets(timetable, used_slots, global_baskets, semester, department)
                 basket_assignments.update(global_assignments)
                 self.elective_basket_schedule['global'][semester].update(global_assignments)
+                print(f"   >> Stored global schedule: {list(self.elective_basket_schedule['global'][semester].keys())}")
         
         # STEP 2: Schedule BRANCH-SPECIFIC baskets (or reuse within same branch)
         branch_baskets = basket_groups.get('branch_specific', {})
@@ -616,15 +627,19 @@ class TimetableGenerator:
             if semester in self.elective_basket_schedule[department]:
                 # Reuse branch schedule from first section
                 print(f"\n   >> Reusing {department} branch-specific baskets (within branch sections)")
-                for basket_name, slots in self.elective_basket_schedule[department][semester].items():
-                    basket_assignments[basket_name] = slots
-                    # Find basket courses from branch_baskets
+                
+                # Match baskets including tutorial variants
+                for scheduled_basket_name, slots in self.elective_basket_schedule[department][semester].items():
+                    base_basket_name = scheduled_basket_name.replace('-T', '').replace('-P', '').strip()
+                    
                     basket_courses = None
                     for bname, basket_data in branch_baskets.items():
-                        if bname == basket_name:
+                        if bname == base_basket_name:
                             basket_courses = basket_data.get('courses', [])
                             break
-                    self._apply_basket_schedule_to_timetable(timetable, used_slots, basket_name, slots, basket_courses)
+                    
+                    basket_assignments[scheduled_basket_name] = slots
+                    self._apply_basket_schedule_to_timetable(timetable, used_slots, scheduled_basket_name, slots, basket_courses)
                 
                 # Also restore Elective B courses (which aren't scheduled but need to be in JSON)
                 for bname, basket_data in branch_baskets.items():
@@ -662,26 +677,59 @@ class TimetableGenerator:
         Args:
             courses: List of courses in the basket (for populating elective_courses)
         """
-        for day, time_str, classrooms in slots:
-            basket_label = basket_name
-            if '[' in basket_name:
-                basket_label = basket_name.split('[')[0].strip()
+        first_slot_classrooms = None
+        for slot_data in slots:
+            # Handle both old 3-tuple and new 4-tuple formats
+            if len(slot_data) == 4:
+                day, time_str, classrooms, slot_type = slot_data
+            else:
+                day, time_str, classrooms = slot_data
+                slot_type = 'L'  # Default to lecture for backward compatibility
+                
+            if first_slot_classrooms is None:
+                first_slot_classrooms = classrooms
+                
+            # Use the full basket_name with suffix for tutorials/practicals
+            if slot_type == 'T':
+                basket_label = f"{basket_name}-T"
+            elif slot_type == 'P':
+                basket_label = f"{basket_name}-P"
+            else:
+                basket_label = basket_name
+            
             if day in timetable and time_str in timetable[day]:
                 timetable[day][time_str] = basket_label
+            if day not in used_slots:
+                used_slots[day] = {}
             if time_str not in used_slots[day]:
                 used_slots[day][time_str] = {}
             used_slots[day][time_str][basket_label] = classrooms
-            print(f"      {basket_name}: {day} {time_str}")
+            
+            # Record global classroom usage for each slot
+            for course_code, classroom in classrooms.items():
+                if day not in self.global_classroom_usage:
+                    self.global_classroom_usage[day] = {}
+                if time_str not in self.global_classroom_usage[day]:
+                    self.global_classroom_usage[day][time_str] = {}
+                
+                self.global_classroom_usage[day][time_str][classroom] = {
+                    'dept': self.current_department if hasattr(self, 'current_department') else 'ALL',
+                    'semester': self.current_semester if hasattr(self, 'current_semester') else 0,
+                    'section': self.current_section if hasattr(self, 'current_section') else 'A',
+                    'course': f"{basket_label} - {course_code}"
+                }
+            
+            print(f"      {basket_label}: {day} {time_str}")
         
         # Also populate elective_courses for display (if courses provided)
-        if courses and classrooms:
+        if courses and first_slot_classrooms:
             if basket_name not in self.elective_courses:
                 self.elective_courses[basket_name] = []
             for course in courses:
                 self.elective_courses[basket_name].append({
                     'code': course['code'],
                     'title': course['title'],
-                    'classroom': classrooms.get(course['code'], 'TBD'),
+                    'classroom': first_slot_classrooms.get(course['code'], 'TBD'),
                     'faculty': course['faculty'],
                     'credits': course['credits'],
                     'L': course['L'],
@@ -751,30 +799,33 @@ class TimetableGenerator:
             
             basket_slots = []
             used_days_for_basket = set()  # Track which days we've used for this basket
+            num_courses = len(courses)
             
             # Schedule lecture sessions
             for i in range(num_lectures):
-                slot = self._find_free_slot_for_basket(timetable, used_slots, basket_name, 90, semester, False, used_days_for_basket)
+                slot = self._find_free_slot_for_basket(timetable, used_slots, basket_name, 90, semester, False, used_days_for_basket, num_courses)
                 if slot:
                     day, time_str = slot
                     used_days_for_basket.add(day)  # Mark this day as used for this basket
                     classrooms = self._assign_classrooms_to_basket(courses)
-                    basket_slots.append((day, time_str, classrooms))
+                    basket_slots.append((day, time_str, classrooms, 'L'))  # 'L' for lecture
                     self._mark_basket_slot_used(timetable, used_slots, day, time_str, basket_name, classrooms)
                     print(f"        Lecture {i+1}: {day} {time_str}")
                     for course_code, classroom in classrooms.items():
                         print(f"          {course_code}: {classroom}")
+                else:
+                    print(f"        Lecture {i+1}: FAILED - No free slot found (need {num_courses} classrooms)")
             
             # Schedule tutorial sessions if basket has tutorials (T > 0)
             if basket_info.get('has_tutorials', False) and num_tutorials > 0:
                 print(f"      >> Scheduling {num_tutorials} tutorial session(s) for {basket_name}")
                 for i in range(num_tutorials):
-                    slot = self._find_free_slot_for_basket(timetable, used_slots, f"{basket_name}-T", 60, semester, False, used_days_for_basket)
+                    slot = self._find_free_slot_for_basket(timetable, used_slots, f"{basket_name}-T", 60, semester, False, used_days_for_basket, num_courses)
                     if slot:
                         day, time_str = slot
                         used_days_for_basket.add(day)
                         classrooms = self._assign_classrooms_to_basket(courses)
-                        basket_slots.append((day, time_str, classrooms))
+                        basket_slots.append((day, time_str, classrooms, 'T'))  # 'T' for tutorial
                         self._mark_basket_slot_used(timetable, used_slots, day, time_str, f"{basket_name}-T", classrooms)
                         print(f"        Tutorial {i+1}: {day} {time_str}")
                         for course_code, classroom in classrooms.items():
@@ -785,6 +836,7 @@ class TimetableGenerator:
             if basket_name not in self.elective_courses:
                 self.elective_courses[basket_name] = []
             for course in courses:
+                # basket_slots now contains (day, time_str, classrooms, slot_type) tuples
                 classrooms = basket_slots[0][2] if basket_slots else {}
                 self.elective_courses[basket_name].append({
                     'code': course['code'],
@@ -802,14 +854,18 @@ class TimetableGenerator:
         
         return basket_assignments
     
-    def _find_free_slot_for_basket(self, timetable, used_slots, basket_name, duration_minutes, semester, is_hss=False, used_days=None):
+    def _find_free_slot_for_basket(self, timetable, used_slots, basket_name, duration_minutes, semester, is_hss=False, used_days=None, num_courses_needed=1):
         """Find a free slot for an elective basket
         
         Args:
             used_days: Set of days already used for this basket (to prevent same-day scheduling)
+            num_courses_needed: Number of courses in basket (to check if enough classrooms available)
         """
         if used_days is None:
             used_days = set()
+        
+        print(f"      DEBUG: Looking for {duration_minutes}min slot for {basket_name} (need {num_courses_needed} classrooms)")
+        print(f"      DEBUG: Already used days: {used_days}")
             
         for day in self.days:
             # Skip days already used for this basket
@@ -830,12 +886,16 @@ class TimetableGenerator:
                 if duration_minutes == 120 and slot_duration < 120:
                     continue
                 
-                # Check if slot is free
+                # Check if slot is free in this section's timetable
                 if timetable[day].get(time_str, 'Free') == 'Free':
-                    # Check global usage to avoid conflicts
-                    if not self._is_slot_globally_used(day, time_str):
+                    # Check if there are enough free classrooms globally for this basket
+                    available_classrooms = self._get_available_classrooms(day, time_str)
+                    print(f"         {day} {time_str} ({slot_duration}min): {len(available_classrooms)} classrooms free - {available_classrooms[:5]}")
+                    if len(available_classrooms) >= num_courses_needed:
+                        print(f"      DEBUG: ✓ Found slot: {day} {time_str}")
                         return (day, time_str)
         
+        print(f"      DEBUG: ✗ No suitable slot found")
         return None
     
     def _assign_classrooms_to_basket(self, courses):
@@ -953,6 +1013,40 @@ class TimetableGenerator:
         end = datetime.strptime(time_slot[1], '%H:%M')
         duration = (end - start).total_seconds() / 60
         return int(duration)
+    
+    def _get_available_classrooms(self, day, time_str):
+        """Get list of classrooms that are free at a given day/time globally
+        
+        Returns: List of classroom names that are available
+        """
+        # Get ALL classrooms suitable for electives (include large, regular, but exclude labs and auditorium)
+        # Use backup_large_classrooms and regular_classrooms if available
+        all_classrooms = []
+        
+        # Add large classrooms first (best for electives)
+        if self.backup_large_classrooms:
+            all_classrooms.extend(self.backup_large_classrooms)
+        
+        # Add regular classrooms
+        if self.regular_classrooms:
+            all_classrooms.extend(self.regular_classrooms)
+        
+        # If lists are empty, get from self.classrooms directly
+        if not all_classrooms:
+            all_classrooms = [
+                room for room, info in self.classrooms.items()
+                if room != self.large_auditorium and 'lab' not in info['type'].lower()
+            ]
+        
+        # Check which ones are occupied at this time
+        occupied = set()
+        if day in self.global_classroom_usage:
+            if time_str in self.global_classroom_usage[day]:
+                occupied = set(self.global_classroom_usage[day][time_str].keys())
+        
+        # Return free classrooms
+        available = [room for room in all_classrooms if room not in occupied]
+        return available
     
     def _is_slot_globally_used(self, day, time_str):
         """Check if a slot is used globally across all departments/sections"""
