@@ -444,9 +444,16 @@ def regenerate_timetables():
             print(f"⚠️  STDERR:\n{result.stderr}")
             print("="*80 + "\n")
             
+            # Create detailed error message
+            error_msg = f"Timetable generation failed with exit code {result.returncode}"
+            if result.stderr:
+                error_msg += f"\n\nError details:\n{result.stderr}"
+            if result.stdout:
+                error_msg += f"\n\nOutput:\n{result.stdout}"
+            
             return jsonify({
                 'success': False,
-                'error': 'Timetable generation failed',
+                'error': error_msg,
                 'details': result.stderr,
                 'stdout': result.stdout
             }), 500

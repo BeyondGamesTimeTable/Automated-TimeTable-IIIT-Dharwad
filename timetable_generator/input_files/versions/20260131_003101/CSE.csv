@@ -1,0 +1,24 @@
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester,Section,Lab
+MA161,Statistics,3,0,0,0,2,Dr. Ramesh Athe,1,,
+DS161,Introduction to Data science and Artificial Intellignce,3,0,0,0,2,Dr. Abdul Wahid,1,,
+MA162,Probability,3,0,0,0,2,Dr. Chinmayananda,1,,
+EC161,Digital Design ,3,0,2,0,2,Dr. Prakash Pawar,1,,H
+CS161,Problem solving through programming ,3,0,2,0,4,Dr. Sunil P V,1,1A,S
+CS161,Problem solving through programming ,3,0,2,0,4,Dr. Sunil C K,1,1B,S
+HS161,English language and communication,3,0,0,0,3,Dr. Rajesh N S ,1,,
+MA261,Differential Equation,2,0,0,0,2,Dr. Anand P Barangi,3,,
+MA262,Multivariate Calculus,2,0,0,0,2,Dr. Somen Bhattacharjee,3,,
+CS261,Operating Sytems,3,0,0,4,2,Dr. Suvadip Hazra,3,,
+CA262,Software design tools and tehniques,2,0,2,0,3,Dr. Sunil P V,3,3A,S
+CA262,Software design tools and tehniques,2,0,2,0,3,Dr. Vivekraj,3,3B,S
+CS263,Design and analysis of algorithm ,3,0,2,0,4,Dr. Malay ,3,3A,S
+CS263,Design and analysis of algorithm ,3,0,2,0,4,Dr. Promod Y,3,3B,S
+CS264,Computer networks ,3,1,0,0,4,Dr. Prabhu Prasad,3,,
+HS261,Ethics and values & Environmental studies ,3,0,0,0,3,Dr. Ganesh ,3,,
+CS309,Statistics for computer science,3,1,0,0,4,Dr. Sunil C K,5,5A,
+CS309,Statistics for computer science,3,1,0,0,4,Dr. Pavan ,5,5B,
+CS303,Computer networks ,3,1,2,0,5,Dr. Animesh Roy,5,5A,S
+CS303,Computer networks ,3,1,2,0,5,Dr. Dibyajyothi,5,5B,S
+CS304,Artificial intelligence,3,1,0,0,4,Dr. krishnendu,5,5A,
+CS304,Artificial intelligence,3,1,0,0,4,Dr. Girish,5,5B,
+HS101,Environmental studies,0,0,0,8,2,Dr. Aswath,5,,

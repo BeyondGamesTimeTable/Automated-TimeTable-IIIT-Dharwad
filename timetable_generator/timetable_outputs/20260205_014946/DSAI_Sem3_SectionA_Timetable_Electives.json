@@ -1,0 +1,97 @@
+{
+  "Elective A": [
+    {
+      "code": "CS152",
+      "title": "Data science with python",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "CS180",
+      "title": "Computer Graphics",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "EC251",
+      "title": "electronic system design - 1",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 2
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  },
+  "Elective B": [
+    {
+      "code": "EC252",
+      "title": "Introduction of RFIC design ",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "EC253",
+      "title": "Introduction  to Embedded Signal Intelligence",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "EC254",
+      "title": "electronic sysytem engineering ",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 2
+    }
+  ],
+  "Elective B_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  },
+  "HSS": [
+    {
+      "code": "IE251",
+      "title": "Neuro-Linguistic Programming(NLP)",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "IE252",
+      "title": "Leadership I",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "HS252",
+      "title": "Sociology for Innovation",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "HS251",
+      "title": "Social Imapct of Technology",
+      "classroom": "C102",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "IE253",
+      "title": "Sustainable Supply Chain management",
+      "classroom": "C104",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "HSS_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  }
+}

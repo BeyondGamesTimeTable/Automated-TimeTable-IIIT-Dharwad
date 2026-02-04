@@ -1,0 +1,903 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sankalp Timetable Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.15) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.15) 2px, transparent 2px);
+            background-size: 80px 80px;
+            animation: gridPulse 20s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        @keyframes gridPulse {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(40px, 40px) scale(1.05);
+                opacity: 0.8;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #a5b4fc 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(165, 180, 252, 0.5);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            color: #cbd5e1;
+            opacity: 0.9;
+        }
+        
+        .departments {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .department-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                        0 0 80px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .department-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8),
+                        0 0 100px rgba(99, 102, 241, 0.5);
+            border-color: rgba(99, 102, 241, 0.6);
+        }
+        
+        .dept-header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dept-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .dept-header h2 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .dept-header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        
+        .semester-group {
+            margin-bottom: 20px;
+        }
+        
+        .semester-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #a5b4fc;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.5);
+        }
+        
+        .section-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .timetable-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .timetable-link::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .timetable-link:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .timetable-link:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.7),
+                        0 0 20px rgba(139, 92, 246, 0.6);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            border-color: rgba(255,255,255,0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        
+        .footer p {
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .back-to-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-to-main:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .departments {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/upload.html" class="back-to-main">← Back</a>
+        
+        <div class="header">
+            <h1>Sankalp Timetable Viewer</h1>
+            <p>Select your department, semester, and section to view timetable</p>
+        </div>
+        
+        <div class="departments">
+
+            <div class="department-card">
+                <div class="dept-header">
+                    <h2>CSE</h2>
+                    <p>Computer Science & Engineering</p>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem1</div>
+
+                    <div class="section-buttons">
+
+                        <a href="CSE_Sem1_SectionA_Timetable.html" class="timetable-link">Section A</a>
+
+                        <a href="CSE_Sem1_SectionB_Timetable.html" class="timetable-link">Section B</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem3</div>
+
+                    <div class="section-buttons">
+
+                        <a href="CSE_Sem3_SectionA_Timetable.html" class="timetable-link">Section A</a>
+
+                        <a href="CSE_Sem3_SectionB_Timetable.html" class="timetable-link">Section B</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem5</div>
+
+                    <div class="section-buttons">
+
+                        <a href="CSE_Sem5_SectionA_Timetable.html" class="timetable-link">Section A</a>
+
+                        <a href="CSE_Sem5_SectionB_Timetable.html" class="timetable-link">Section B</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem7</div>
+
+                    <div class="section-buttons">
+
+                        <a href="CSE_Sem7_SectionA_Timetable.html" class="timetable-link">Section A</a>
+
+                        <a href="CSE_Sem7_SectionB_Timetable.html" class="timetable-link">Section B</a>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="department-card">
+                <div class="dept-header">
+                    <h2>DSAI</h2>
+                    <p>Data Science & AI</p>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem1</div>
+
+                    <div class="section-buttons">
+
+                        <a href="DSAI_Sem1_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem3</div>
+
+                    <div class="section-buttons">
+
+                        <a href="DSAI_Sem3_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem5</div>
+
+                    <div class="section-buttons">
+
+                        <a href="DSAI_Sem5_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem7</div>
+
+                    <div class="section-buttons">
+
+                        <a href="DSAI_Sem7_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="department-card">
+                <div class="dept-header">
+                    <h2>ECE</h2>
+                    <p>Electronics & Communication</p>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem1</div>
+
+                    <div class="section-buttons">
+
+                        <a href="ECE_Sem1_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem3</div>
+
+                    <div class="section-buttons">
+
+                        <a href="ECE_Sem3_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem5</div>
+
+                    <div class="section-buttons">
+
+                        <a href="ECE_Sem5_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+                <div class="semester-group">
+                    <div class="semester-title">Sem7</div>
+
+                    <div class="section-buttons">
+
+                        <a href="ECE_Sem7_SectionA_Timetable.html" class="timetable-link">View Timetable</a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        
+        <!-- Download Excel Button -->
+        <div style="text-align:center; margin:40px 0 60px 0;">
+            <button id="downloadExcel" class="timetable-link" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-size:1.1em; padding:16px 48px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);">
+                Download All Timetables as Excel
+            </button>
+            <p style="color:#cbd5e1; margin-top:12px; font-size:0.9em;">Get all timetables in one color-coded Excel file with separate sheets</p>
+        </div>
+        
+        <!-- Editor Panel (loads selected timetable into iframe for viewing/editing) -->
+        <div id="editorPanel" style="margin-top:40px; display:none; gap:20px; align-items:flex-start;">
+            <div style="flex:1;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                    <button id="closeEditor" class="timetable-link" style="background:#ef4444;">Close Editor</button>
+                    <label style="color:#fff; font-weight:600;">Editor Mode:</label>
+                    <button id="toggleEdit" class="timetable-link" style="background:#10b981;">Enable Edit</button>
+                    <button id="undoBtn" class="timetable-link" style="background:#f59e0b;" disabled>Undo</button>
+                    <button id="redoBtn" class="timetable-link" style="background:#f97316;" disabled>Redo</button>
+                    <button id="saveCsv" class="timetable-link" style="background:#06b6d4;">Save CSV</button>
+                    <span id="editorStatus" style="color:#fff; margin-left:10px; font-weight:600; opacity:0.95;"></span>
+                    <button id="viewFullBtn" class="timetable-link" style="background:#8b5cf6; display:none; margin-left:10px;">View as Full</button>
+                </div>
+                <iframe id="timetableFrame" src="" style="width:100%; height:720px; border-radius:12px; border:4px solid rgba(255,255,255,0.08); background:white;"></iframe>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+// Timetable Viewer Editor - parent-page based iframe editor
+(() => {
+    const links = document.querySelectorAll('.timetable-link');
+    const editorPanel = document.getElementById('editorPanel');
+    const frame = document.getElementById('timetableFrame');
+    const toggleEditBtn = document.getElementById('toggleEdit');
+    const saveCsvBtn = document.getElementById('saveCsv');
+    const closeBtn = document.getElementById('closeEditor');
+    const status = document.getElementById('editorStatus');
+    const viewFullBtn = document.getElementById('viewFullBtn');
+    let editEnabled = false;
+    let currentHref = null;
+    // Undo/Redo history stacks (store table.outerHTML snapshots)
+    const MAX_HISTORY = 60;
+    let historyStack = [];
+    let redoStack = [];
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+
+    // Intercept timetable links to open in iframe editor
+    links.forEach(a => {
+        a.addEventListener('click', (e) => {
+            const href = a.getAttribute('href');
+            if (!href) return;
+            e.preventDefault();
+            currentHref = href;
+            
+            // Show loading state
+            status.textContent = 'Loading: ' + href.split('/').pop();
+            status.style.color = '#fbbf24'; // yellow
+            viewFullBtn.style.display = 'none';
+            editEnabled = false;
+            toggleEditBtn.textContent = 'Enable Edit';
+            toggleEditBtn.disabled = true;
+            
+            // reset history for new file
+            historyStack = [];
+            redoStack = [];
+            updateHistoryButtons();
+            
+            // Load iframe
+            frame.src = href;
+            editorPanel.style.display = 'flex';
+            
+            // Wait for iframe to load
+            const loadTimeout = setTimeout(() => {
+                status.textContent = 'Load timeout - try refreshing';
+                status.style.color = '#ef4444'; // red
+            }, 10000);
+            
+            frame.onload = () => {
+                clearTimeout(loadTimeout);
+                try {
+                    const doc = frame.contentDocument || frame.contentWindow.document;
+                    if (!doc || !doc.querySelector('table')) {
+                        status.textContent = 'Error: No table found or cross-origin blocked';
+                        status.style.color = '#ef4444';
+                        return;
+                    }
+                    status.textContent = 'Ready: ' + href.split('/').pop();
+                    status.style.color = '#10b981'; // green
+                    viewFullBtn.style.display = 'inline-block';
+                    toggleEditBtn.disabled = false;
+                } catch (err) {
+                    console.error('Iframe load error:', err);
+                    status.textContent = 'Error: Cannot access iframe (cross-origin?)';
+                    status.style.color = '#ef4444';
+                }
+            };
+            
+            frame.onerror = () => {
+                clearTimeout(loadTimeout);
+                status.textContent = 'Failed to load timetable';
+                status.style.color = '#ef4444';
+            };
+        });
+    });
+
+    // Close editor
+    closeBtn.addEventListener('click', () => {
+        frame.src = '';
+        frame.onload = null;
+        frame.onerror = null;
+        editorPanel.style.display = 'none';
+        status.textContent = '';
+        status.style.color = '#fff';
+        viewFullBtn.style.display = 'none';
+        toggleEditBtn.disabled = false;
+        // clear history when closing
+        historyStack = [];
+        redoStack = [];
+        updateHistoryButtons();
+    });
+    
+    // View Full Page button
+    viewFullBtn.addEventListener('click', () => {
+        if (currentHref) {
+            window.open(currentHref, '_blank');
+        }
+    });
+
+    // Toggle edit mode
+    toggleEditBtn.addEventListener('click', () => {
+        if (!frame.src) {
+            alert('Open a timetable first');
+            return;
+        }
+        
+        try {
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if (!doc) {
+                alert('Cannot access iframe content. The page may not have loaded yet or there is a cross-origin issue.');
+                return;
+            }
+            
+            const table = doc.querySelector('table');
+            if (!table) {
+                alert('No timetable table found in the loaded page.');
+                return;
+            }
+            
+            editEnabled = !editEnabled;
+            toggleEditBtn.textContent = editEnabled ? 'Disable Edit' : 'Enable Edit';
+            status.textContent = editEnabled ? 'Edit mode ON' : 'Edit mode OFF';
+            status.style.color = editEnabled ? '#10b981' : '#fff';
+            
+            if (editEnabled) {
+                enableEditing(doc);
+                // initial snapshot (only if history is empty for this session)
+                if (historyStack.length === 0) pushSnapshot(doc);
+                attachKeyHandlers(doc);
+            } else {
+                disableEditing(doc);
+                removeKeyHandlers(doc);
+            }
+        } catch (err) {
+            console.error('Error toggling edit mode:', err);
+            alert('Unable to toggle edit mode:\n' + err.message + '\n\nThis usually happens if:\n- The page is still loading\n- Cross-origin restrictions apply\n- The timetable file is missing or corrupted');
+        }
+    });
+
+    // Save CSV by extracting table inside iframe
+    saveCsvBtn.addEventListener('click', () => {
+        if (!frame.src) return alert('Open a timetable first');
+        try {
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            const table = doc.querySelector('table');
+            if (!table) return alert('No timetable table found in the page');
+            const csv = tableToCSV(table);
+            const filename = (currentHref || 'timetable').split('/').pop().replace('.html','.csv');
+            downloadString(csv, filename);
+        } catch (err) {
+            console.error(err);
+            alert('Error saving CSV: ' + err.message);
+        }
+    });
+
+    // Undo / Redo button handlers
+    undoBtn.addEventListener('click', () => { try { undo(); } catch(e){console.error(e);} });
+    redoBtn.addEventListener('click', () => { try { redo(); } catch(e){console.error(e);} });
+
+
+    // Helper: enable editing in iframe doc
+    function enableEditing(doc) {
+        const cells = doc.querySelectorAll('td');
+        cells.forEach(td => {
+            // Enable drag-and-drop
+            td.setAttribute('draggable','true');
+            td.style.cursor = 'move';
+            td.addEventListener('dragstart', dragStartHandler);
+            td.addEventListener('dragover', dragOverHandler);
+            td.addEventListener('drop', dropHandler);
+            
+            // Enable direct text editing (especially for classroom names)
+            td.contentEditable = 'true';
+            td.addEventListener('blur', cellBlurHandler);
+            td.addEventListener('keydown', cellKeydownHandler);
+        });
+        // Enable editing of time slot headers (except first column)
+        const headers = doc.querySelectorAll('thead th');
+        headers.forEach((th, idx) => {
+            if (idx === 0) return; // skip Day/Time column
+            th.contentEditable = 'true';
+            th.style.cursor = 'text';
+            th.addEventListener('blur', headerBlurHandler);
+            th.addEventListener('keydown', headerKeydownHandler);
+        });
+    }
+
+    function disableEditing(doc) {
+        const cells = doc.querySelectorAll('td');
+        cells.forEach(td => {
+            td.removeAttribute('draggable');
+            td.style.cursor = '';
+            td.contentEditable = 'false';
+            td.removeEventListener('dragstart', dragStartHandler);
+            td.removeEventListener('dragover', dragOverHandler);
+            td.removeEventListener('drop', dropHandler);
+            td.removeEventListener('blur', cellBlurHandler);
+            td.removeEventListener('keydown', cellKeydownHandler);
+        });
+        // Disable header editing
+        const headers = doc.querySelectorAll('thead th');
+        headers.forEach((th, idx) => {
+            if (idx === 0) return;
+            th.contentEditable = 'false';
+            th.style.cursor = '';
+            th.removeEventListener('blur', headerBlurHandler);
+            th.removeEventListener('keydown', headerKeydownHandler);
+        });
+    }
+
+    // Drag handlers (operate on iframe's document elements)
+    function dragStartHandler(ev) {
+        // store source element reference on the document for later swapping
+        try { ev.target.ownerDocument._dragSrc = ev.target; } catch(e){}
+        ev.dataTransfer.setData('text/html', ev.target.innerHTML || '');
+        ev.dataTransfer.setData('text/plain', 'timetable-cell');
+        ev.dataTransfer.effectAllowed = 'move';
+    }
+
+    function dragOverHandler(ev) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; }
+
+    function dropHandler(ev) {
+        ev.preventDefault();
+        const target = ev.currentTarget;
+        const html = ev.dataTransfer.getData('text/html');
+        const doc = target.ownerDocument;
+        if (!html) return;
+        // Try to swap source and target content if source reference exists
+        const src = doc._dragSrc;
+        if (src && src !== target) {
+            const tmp = target.innerHTML;
+            target.innerHTML = src.innerHTML;
+            src.innerHTML = tmp;
+            // cleanup
+            try { delete doc._dragSrc; } catch(e) { doc._dragSrc = null; }
+            // push snapshot after a swap
+            try { pushSnapshot(doc); } catch (e) { console.error('pushSnapshot error', e); }
+        } else {
+            // Fallback: just place dragged HTML into target
+            target.innerHTML = html;
+            try { pushSnapshot(doc); } catch (e) { console.error('pushSnapshot error', e); }
+        }
+    }
+
+    // Convert table DOM to CSV (day in first column + text content of each cell)
+    function tableToCSV(table) {
+        const rows = [];
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => cleanText(th.innerText));
+        rows.push(headers.join(','));
+        table.querySelectorAll('tbody tr').forEach(tr => {
+            const cells = Array.from(tr.children).map(td => '"' + cleanText(td.innerText).replace(/"/g,'""') + '"');
+            rows.push(cells.join(','));
+        });
+        return rows.join('\n');
+    }
+
+    function cleanText(s) { return (s||'').trim().replace(/\n+/g,' ').replace(/\s+/g,' ').replace(/,/g,';'); }
+
+    function downloadString(text, filename) {
+        const blob = new Blob([text], {type: 'text/csv;charset=utf-8;'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    // History (undo/redo) helpers: snapshots store table.outerHTML
+    function pushSnapshot(doc) {
+        try {
+            const table = doc.querySelector('table');
+            if (!table) return;
+            const snap = table.outerHTML;
+            // avoid duplicates
+            if (historyStack.length && historyStack[historyStack.length-1] === snap) return;
+            historyStack.push(snap);
+            if (historyStack.length > MAX_HISTORY) historyStack.shift();
+            // clear redo when new action occurs
+            redoStack = [];
+            updateHistoryButtons();
+        } catch (e) { console.error('pushSnapshot failed', e); }
+    }
+
+    function restoreSnapshot(snapshot, doc) {
+        try {
+            const table = doc.querySelector('table');
+            if (!table) return;
+            // replace table markup
+            table.outerHTML = snapshot;
+            // re-enable handlers on the new DOM elements if editing is active
+            if (editEnabled) enableEditing(doc);
+            updateHistoryButtons();
+        } catch (e) { console.error('restoreSnapshot failed', e); }
+    }
+
+    function undo() {
+        try {
+            if (historyStack.length < 2) return;
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if (!doc) return;
+            const last = historyStack.pop();
+            redoStack.push(last);
+            const prev = historyStack[historyStack.length-1];
+            if (prev) restoreSnapshot(prev, doc);
+        } finally { updateHistoryButtons(); }
+    }
+
+    function redo() {
+        try {
+            if (redoStack.length === 0) return;
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if (!doc) return;
+            const snap = redoStack.pop();
+            historyStack.push(snap);
+            restoreSnapshot(snap, doc);
+        } finally { updateHistoryButtons(); }
+    }
+
+    function updateHistoryButtons() {
+        try {
+            undoBtn.disabled = !(historyStack.length > 1);
+            redoBtn.disabled = !(redoStack.length > 0);
+        } catch (e) { /* ignore if buttons not present yet */ }
+    }
+
+    // Keyboard shortcuts inside iframe (when editing): Ctrl+Z / Ctrl+Y
+    function attachKeyHandlers(doc) {
+        try {
+            const win = doc.defaultView || doc.parentWindow;
+            if (!win) return;
+            const handler = (ev) => {
+                const key = ev.key.toLowerCase();
+                const isMod = ev.ctrlKey || ev.metaKey;
+                if (!isMod) return;
+                if (key === 'z') { ev.preventDefault(); undo(); }
+                else if (key === 'y' || (ev.shiftKey && key === 'z')) { ev.preventDefault(); redo(); }
+            };
+            // store reference so we can remove later
+            doc._historyKeyHandler = handler;
+            win.addEventListener('keydown', handler);
+        } catch (e) { console.error('attachKeyHandlers failed', e); }
+    }
+
+    function removeKeyHandlers(doc) {
+        try {
+            const win = doc.defaultView || doc.parentWindow;
+            if (!win) return;
+            const handler = doc._historyKeyHandler;
+            if (handler) win.removeEventListener('keydown', handler);
+            doc._historyKeyHandler = null;
+        } catch (e) { console.error('removeKeyHandlers failed', e); }
+    }
+
+    // Header editing handlers inside iframe
+    function headerBlurHandler(ev) {
+        // normalize whitespace and ensure readable format
+        ev.target.innerText = ev.target.innerText.trim().replace(/\n+/g,' ').replace(/\s+/g,' ');
+        // record header edit in history
+        try { const doc = ev.target.ownerDocument; pushSnapshot(doc); } catch(e){ console.error('pushSnapshot error', e); }
+    }
+
+    function headerKeydownHandler(ev) {
+        // Enter commits edit and blurs
+        if (ev.key === 'Enter') {
+            ev.preventDefault();
+            ev.target.blur();
+        }
+    }
+
+    // Cell editing handlers (for editing course names, classrooms, etc.)
+    function cellBlurHandler(ev) {
+        // normalize whitespace
+        ev.target.innerText = ev.target.innerText.trim().replace(/\n+/g,' ').replace(/\s+/g,' ');
+        // record cell edit in history
+        try { const doc = ev.target.ownerDocument; pushSnapshot(doc); } catch(e){ console.error('pushSnapshot error', e); }
+    }
+
+    function cellKeydownHandler(ev) {
+        // Enter commits edit and blurs
+        if (ev.key === 'Enter') {
+            ev.preventDefault();
+            ev.target.blur();
+        }
+    }
+
+})();
+
+// Download Excel button handler
+document.getElementById('downloadExcel').addEventListener('click', async () => {
+    const btn = document.getElementById('downloadExcel');
+    const originalText = btn.textContent;
+    
+    try {
+        btn.textContent = 'Generating Excel file...';
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        
+        // Extract timestamp from current URL
+        const urlPath = window.location.pathname;
+        const timestamp = urlPath.split('/').filter(p => p.match(/^\d{8}_\d{6}$/))[0];
+        
+        if (!timestamp) {
+            alert('Could not determine timetable version');
+            return;
+        }
+        
+        // Download the Excel file
+        const response = await fetch(`/api/download_excel/${timestamp}`);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to generate Excel file');
+        }
+        
+        // Create download link
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Timetables_${timestamp}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        btn.textContent = '✓ Downloaded!';
+        btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        alert('Error downloading Excel file: ' + error.message);
+        btn.textContent = originalText;
+    } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+});
+</script>
+</html>

@@ -1,0 +1,84 @@
+================================================================================
+ELECTIVE COURSES - Choose ONE from each basket
+================================================================================
+
+Basket Elective Basket A:
+----------------------------------------
+  • CS471: Deep Computer Vision
+    Classroom: C003
+
+Basket Elective Basket B:
+----------------------------------------
+  • DS357: Large Languange Models
+    Classroom: C003
+
+Basket Elective Basket C:
+----------------------------------------
+  • CS458: Natural Language Processing
+    Classroom: C003
+
+Basket Elective Basket D:
+----------------------------------------
+  • CS455: Blockchain Technology
+    Classroom: C003
+
+Basket Elective Basket E:
+----------------------------------------
+  • EC361: Introduction to 5G Network
+    Classroom: C003
+
+Basket Elective Basket F:
+----------------------------------------
+  • CS365: Model Checking
+    Classroom: C003
+
+Basket Elective Basket G:
+----------------------------------------
+  • PH352: Quantum Communication
+    Classroom: C003
+
+Basket Elective Basket H:
+----------------------------------------
+  • ASD351: Design Thinking and Innovation
+    Classroom: C003
+
+Basket Elective Basket I:
+----------------------------------------
+  • EC362: Automotive Embedded and Multimedia Systems
+    Classroom: C003
+
+Basket Elective Basket J:
+----------------------------------------
+  • CS462: Computer Graphics
+    Classroom: C003
+
+Basket Elective Basket K:
+----------------------------------------
+  • CS469: Virtualization and Cloud Computing
+    Classroom: C003
+
+Basket Elective Basket L:
+----------------------------------------
+  • DS355: Data Analytics and Visualization
+    Classroom: C003
+
+Basket Elective Basket M:
+----------------------------------------
+  • DS351: Statistics for Health Technology
+    Classroom: C003
+
+Basket Elective Basket N:
+----------------------------------------
+  • DS356: Medical Image Analysis
+    Classroom: C003
+
+Basket Elective Basket O:
+----------------------------------------
+  • CS472: Bioinformatics
+    Classroom: C003
+
+Basket Till-Midsem Basket A:
+----------------------------------------
+  • PH353: Quantum HPC and AI
+    Classroom: C003
+

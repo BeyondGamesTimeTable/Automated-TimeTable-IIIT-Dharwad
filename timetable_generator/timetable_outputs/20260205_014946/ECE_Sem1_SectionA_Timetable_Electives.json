@@ -1,0 +1,77 @@
+{
+  "Elective A": [
+    {
+      "code": "ASD151",
+      "title": "Basic of design ",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "CS161",
+      "title": "Introduction to cyber security",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "DS151",
+      "title": "Linux to engineers",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "EC505",
+      "title": "Fundamentals of sensing and controls",
+      "classroom": "C102",
+      "tutorials": 0,
+      "credits": 2
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  },
+  "Elective B": [
+    {
+      "code": "HS156",
+      "title": "Holistic peersonality development ",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "HS157",
+      "title": "Computational musicology for hindustani music",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "HS505",
+      "title": "Leveraging IT for social good & CSR",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "KA505",
+      "title": "Kannada kali-nali",
+      "classroom": "C102",
+      "tutorials": 0,
+      "credits": 2
+    },
+    {
+      "code": "PH151",
+      "title": "Introduction to quantum physics",
+      "classroom": "C104",
+      "tutorials": 0,
+      "credits": 2
+    }
+  ],
+  "Elective B_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  }
+}

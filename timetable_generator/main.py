@@ -27,7 +27,10 @@ try:
         get_active_config, 
         SATURDAY_ENABLED_FOR,
         validate_time_config,
-        print_time_config
+        print_time_config,
+        MINOR_SLOT_ENABLED,
+        MINOR_SLOT_TIME,
+        MINOR_SLOT_DAYS
     )
     USE_TIME_CONFIG = True
 except ImportError:
@@ -46,6 +49,11 @@ class TimetableGenerator:
             self.lunch_slot = config['lunch_slot']
             self.afternoon_flex_slots = config['afternoon_slots']
             
+            # Load minor slot configuration (already imported at top of file)
+            self.minor_slot_enabled = MINOR_SLOT_ENABLED
+            self.minor_slot_time = MINOR_SLOT_TIME
+            self.minor_slot_days = MINOR_SLOT_DAYS
+            
             # Print loaded configuration
             print("\n" + "="*80)
             print("TIME CONFIGURATION LOADED FROM time_config.py")
@@ -53,6 +61,8 @@ class TimetableGenerator:
             print(f"Working Days: {', '.join(self.days)}")
             print(f"Regular Slots: {len(self.regular_slots)} slots")
             print(f"Afternoon Slots: {len(self.afternoon_flex_slots)} slots")
+            if self.minor_slot_enabled:
+                print(f"Minor Slot: {self.minor_slot_time[0]}-{self.minor_slot_time[1]} on {', '.join(self.minor_slot_days)}")
             print("="*80 + "\n")
         else:
             # Fallback to default configuration
@@ -67,6 +77,9 @@ class TimetableGenerator:
                 ('14:30', '16:30'),
                 ('16:30', '18:30'),
             ]
+            self.minor_slot_enabled = False
+            self.minor_slot_time = ('18:30', '20:00')
+            self.minor_slot_days = []
         
         # Track cross-department shared courses (DSAI + ECE)
         # Format: {semester: {course_code: {day: ..., time: ..., classroom: ...}}}
@@ -98,7 +111,11 @@ class TimetableGenerator:
         }
         
         # Combined time slots for timetable display
-        self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots
+        # Add minor slot only for specified days
+        if self.minor_slot_enabled:
+            self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots + [self.minor_slot_time]
+        else:
+            self.time_slots = self.regular_slots + [self.lunch_slot] + self.afternoon_flex_slots
         
         # Section sizes for capacity calculation (typical IIIT Dharwad section strength)
         self.section_size = {
@@ -1591,6 +1608,13 @@ class TimetableGenerator:
                 time_str = f"{time_slot[0]}-{time_slot[1]}"
                 if time_slot == self.lunch_slot:
                     timetable[day][time_str] = 'LUNCH BREAK'
+                elif self.minor_slot_enabled and time_slot == self.minor_slot_time:
+                    # Add minor slot on all days, but mark as 'Minor' only on specified days
+                    if day in self.minor_slot_days:
+                        timetable[day][time_str] = 'Minor'
+                    else:
+                        # On non-minor days, mark as unavailable (not schedulable)
+                        timetable[day][time_str] = 'Not Available'
                 else:
                     timetable[day][time_str] = 'Free'
         return timetable

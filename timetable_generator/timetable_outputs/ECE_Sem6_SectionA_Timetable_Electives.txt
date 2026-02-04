@@ -1,0 +1,60 @@
+================================================================================
+ELECTIVE COURSES - Choose ONE from each basket
+================================================================================
+
+Basket B1:
+----------------------------------------
+  • CS464: Deep Learning for Computer Vision
+    Classroom: C101
+  • DS357: Large Languange Models
+    Classroom: C102
+  • CS458: Natural Language Processing
+    Classroom: C103
+
+Basket B3:
+----------------------------------------
+  • CS462: Computer Graphics
+    Classroom: C101
+  • CS307: Machine Learning
+    Classroom: C102
+  • CS469: Virtualization and Cloud Computing
+    Classroom: C103
+
+
+================================================================================
+AFTER MIDSEMS - These electives will be offered after mid-semester exams
+================================================================================
+
+Basket B2 (After Midsems):
+----------------------------------------
+  • CS455: Blockchain Technology
+    Classroom: C302
+  • EC361: Introduction to 5G Network
+    Classroom: C303
+  • ASD351: Design Thinking and Innovation
+    Classroom: C204
+  • CS455: Blockchain Technology
+    Classroom: C302
+  • EC361: Introduction to 5G Network
+    Classroom: C303
+  • ASD351: Design Thinking and Innovation
+    Classroom: C204
+
+Basket B4 (After Midsems):
+----------------------------------------
+  • DS355: Data Analytics and Visualization
+    Classroom: C002
+  • DS351: Statistics for Health Technology
+    Classroom: C303
+  • DS356: Medical Image Analysis
+    Classroom: C304
+  • CS472: Bioinformatics
+    Classroom: C305
+
+Basket Minor (After Midsems):
+----------------------------------------
+  • DS358: Deep Speech Processing
+    Classroom: C305
+  • DS358: Deep Speech Processing
+    Classroom: C305
+

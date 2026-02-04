@@ -1,0 +1,55 @@
+{
+  "Elective A": [
+    {
+      "code": "EC154",
+      "title": "Introduction to Digital VLSI Design",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "ASD152",
+      "title": "Visual Design-PAPC",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "HS155",
+      "title": "Industry Insights Program Part 1",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "EC154",
+      "ASD152"
+    ]
+  },
+  "HSS": [
+    {
+      "code": "HS153",
+      "title": "Innovation and Entrepreneurship",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 3
+    },
+    {
+      "code": "HS204",
+      "title": "Economics",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 3
+    }
+  ],
+  "HSS_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "HS153",
+      "HS204"
+    ]
+  }
+}

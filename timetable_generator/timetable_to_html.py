@@ -355,6 +355,16 @@ class TimetableHTMLConverter:
             border: 1px solid rgba(254, 225, 64, 0.4);
         }}
         
+        .minor-slot {{
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(167, 139, 250, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: #c4b5fd;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid rgba(167, 139, 250, 0.4);
+        }}
+        
         .free-slot {{
             background-color: rgba(240, 244, 248, 0.05);
             color: #94a3b8;
@@ -1263,6 +1273,10 @@ class TimetableHTMLConverter:
             return '<td class="free-slot">Free</td>\n'
         elif 'lunch' in cell_value.lower():
             return '<td class="lunch-break">LUNCH BREAK</td>\n'
+        elif cell_value.lower() == 'minor':
+            return '<td class="minor-slot">Minor</td>\n'
+        elif 'not available' in cell_value.lower():
+            return '<td class="free-slot" style="opacity: 0.3;">-</td>\n'
         
         # Check if this is a till midsem course
         is_till_midsem = self._is_till_midsem_course(cell_value)

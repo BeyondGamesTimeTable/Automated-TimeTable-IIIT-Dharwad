@@ -1,0 +1,31 @@
+{
+  "Elective A": [
+    {
+      "code": "DS151",
+      "title": "Linux for Engineers",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "HS156",
+      "title": "Introduction to Holistic Personality Development",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "HS155",
+      "title": "Industry Insights Program Part 1",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "DS151"
+    ]
+  }
+}

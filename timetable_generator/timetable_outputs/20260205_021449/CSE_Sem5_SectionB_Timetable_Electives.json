@@ -1,0 +1,89 @@
+{
+  "Elective C": [
+    {
+      "code": "CS463",
+      "title": "Parallel computing ",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS308",
+      "title": "Compiler design ",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "DS301",
+      "title": "Graphs and social network",
+      "classroom": "C101",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS366",
+      "title": "Advanced algorithm design ",
+      "classroom": "C102",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "DS359",
+      "title": "Full stack development ",
+      "classroom": "C104",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "EC355",
+      "title": "Internet of things",
+      "classroom": "C202",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "EC364",
+      "title": "Semiconductor device modelling ",
+      "classroom": "C203",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS352",
+      "title": "Cryptography and information security",
+      "classroom": "C204",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "ASD352",
+      "title": "User interaction and expirence design ",
+      "classroom": "C205",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "EC365",
+      "title": "AI in biomedical signal interpretation",
+      "classroom": "C302",
+      "tutorials": 1,
+      "credits": 4
+    }
+  ],
+  "Elective C_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "CS463",
+      "CS308",
+      "DS301",
+      "CS366",
+      "DS359",
+      "EC355",
+      "EC364",
+      "CS352",
+      "ASD352",
+      "EC365"
+    ]
+  }
+}

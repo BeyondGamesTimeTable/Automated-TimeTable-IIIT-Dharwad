@@ -1,0 +1,33 @@
+{
+  "Elective A": [
+    {
+      "code": "CS152",
+      "title": "Data Science with Python",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "DS151",
+      "title": "Linux for Engineers",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "ASD152",
+      "title": "Visual Design-PAPC",
+      "classroom": "C101",
+      "tutorials": 1,
+      "credits": 2
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "CS152",
+      "DS151",
+      "ASD152"
+    ]
+  }
+}

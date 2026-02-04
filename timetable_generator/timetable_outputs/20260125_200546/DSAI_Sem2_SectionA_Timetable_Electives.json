@@ -1,0 +1,69 @@
+{
+  "Elective A": [
+    {
+      "code": "DS151",
+      "title": "Linux for Engineers",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "HS154",
+      "title": "Photography101",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "CS152",
+      "title": "Data Science with Python",
+      "classroom": "C101",
+      "tutorials": 1,
+      "credits": 2
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "DS151",
+      "CS152"
+    ]
+  },
+  "Elective B": [
+    {
+      "code": "HS155",
+      "title": "Industry Insights Program Part 1",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "EC154",
+      "title": "Introduction to Digital VLSI Design",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "HS156",
+      "title": "Introduction to Holistic Personality Development",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "ASD152",
+      "title": "Visual Design-PAPC",
+      "classroom": "C102",
+      "tutorials": 1,
+      "credits": 2
+    }
+  ],
+  "Elective B_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "EC154",
+      "ASD152"
+    ]
+  }
+}

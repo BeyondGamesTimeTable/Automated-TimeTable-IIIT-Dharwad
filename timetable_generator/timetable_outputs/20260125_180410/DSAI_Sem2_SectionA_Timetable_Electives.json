@@ -1,0 +1,52 @@
+{
+  "Global HSS Basket": [
+    {
+      "code": "HS155",
+      "title": "Industry Insights Program Part 1",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "HS156",
+      "title": "Introduction to Holistic Personality Development",
+      "classroom": "C002",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "HS154",
+      "title": "Photography101",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Global HSS Basket_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  },
+  "Global Elective A (Till Mid-Sem)": [
+    {
+      "code": "DS151",
+      "title": "Linux for Engineers",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "EC154",
+      "title": "Introduction to Digital VLSI Design",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 2
+    }
+  ],
+  "Global Elective A (Till Mid-Sem)_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "DS151",
+      "EC154"
+    ]
+  }
+}

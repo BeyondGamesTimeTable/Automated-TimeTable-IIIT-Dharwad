@@ -1,0 +1,15 @@
+{
+  "Elective B": [
+    {
+      "code": "PH353",
+      "title": "Quantum HPC and AI",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Elective B_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  }
+}

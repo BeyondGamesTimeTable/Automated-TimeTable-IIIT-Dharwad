@@ -1,0 +1,857 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECE - Sem4 - SectionA Timetable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Moving Diagonal Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(45deg, rgba(99, 102, 241, 0.08) 1.5px, transparent 1.5px),
+                linear-gradient(-45deg, rgba(139, 92, 246, 0.08) 1.5px, transparent 1.5px);
+            background-size: 50px 50px;
+            animation: gridSlide 30s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        @keyframes gridSlide {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                0 0 80px rgba(99, 102, 241, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #a5b4fc 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(165, 180, 252, 0.5);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #cbd5e1;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(139, 92, 246, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.7);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .back-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .back-button:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.4);
+        }
+        
+        .download-section {
+            text-align: center;
+            margin: 20px;
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .download-section h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: #a5b4fc;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 14px;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .csv-btn {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.7) 0%, rgba(5, 150, 105, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .image-btn {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.7) 0%, rgba(217, 119, 6, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timetable-wrapper {
+            padding: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+        }
+        
+        thead {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 1em;
+            letter-spacing: 1px;
+            color: #e2e8f0;
+        }
+        
+        th.time-slot {
+            font-weight: 700;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.5) 0%, rgba(45, 55, 72, 0.5) 100%);
+            backdrop-filter: blur(10px);
+            color: #f1f5f9;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border-right: 2px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        th.time-slot:last-child {
+            border-right: none;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            border-right: 1px solid rgba(99, 102, 241, 0.2);
+            vertical-align: top;
+            color: #cbd5e1;
+        }
+        
+        td:last-child {
+            border-right: none;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tbody tr:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        
+        .day-column {
+            font-weight: bold;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.3) 0%, rgba(245, 87, 108, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: #f3e8ff;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        
+        .lunch-break {
+            background: linear-gradient(135deg, rgba(250, 112, 154, 0.3) 0%, rgba(254, 225, 64, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            color: #fde68a;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid rgba(254, 225, 64, 0.4);
+        }
+        
+        .free-slot {
+            background-color: rgba(240, 244, 248, 0.05);
+            color: #94a3b8;
+            text-align: center;
+            font-style: italic;
+            font-weight: 500;
+        }
+        
+        /* Individual section classes - Blue */
+        .course-slot {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 6px solid #3b82f6;
+            font-weight: 600;
+            color: #1e40af;
+            padding: 18px 15px;
+        }
+        
+        /* Common classes (CSE A+B or DSAI+ECE) - Yellow/Amber */
+        .common-course {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 6px solid #f59e0b;
+            font-weight: 600;
+            color: #92400e;
+            padding: 18px 15px;
+        }
+        
+        /* 2-hour Labs - Purple */
+        .lab-slot {
+            background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
+            border-left: 6px solid #a855f7;
+            font-weight: 600;
+            color: #6b21a8;
+            padding: 18px 15px;
+        }
+        
+        /* 1-hour Tutorials - Green */
+        .tutorial-slot {
+            background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
+            border-left: 6px solid #14b8a6;
+            font-weight: 600;
+            color: #115e59;
+            padding: 18px 15px;
+        }
+        
+        /* Electives - Orange */
+        .elective-slot {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-left: 6px solid #ea580c;
+            font-weight: 600;
+            color: #7c2d12;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Courses - Red background (entire cell) */
+        .till-midsem-cell {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+            border-left: 6px solid #dc2626 !important;
+            font-weight: 600;
+            color: #7f1d1d !important;
+            padding: 18px 15px;
+        }
+        
+        /* Till Midsem Badge (deprecated - using red cell instead) */
+        .till-midsem-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            color: #7f1d1d;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-left: 8px;
+            border: 1px solid #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Till Midsem Section */
+        .till-midsem-section {
+            padding: 25px;
+            margin: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 15px;
+            border: 3px solid #dc2626;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+        
+        .till-midsem-section h2 {
+            color: #991b1b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .till-midsem-note {
+            text-align: center;
+            color: #7f1d1d;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .till-midsem-courses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .till-midsem-course-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #dc2626;
+            transition: transform 0.2s ease;
+        }
+        
+        .till-midsem-course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .till-midsem-course-card .course-code {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .till-midsem-course-card .course-title {
+            color: #4b5563;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        
+        .till-midsem-course-card .course-credits {
+            color: #991b1b;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            margin: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .electives-section {
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .electives-section h2 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .elective-note {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .electives-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .basket-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .basket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .basket-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .course-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .course-list li {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 8px;
+            border-left: 3px solid #764ba2;
+            transition: background 0.2s ease;
+        }
+        
+        .course-list li:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+        }
+        
+        .classroom-info {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .basket-classroom {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 10px 0 15px 0;
+            font-size: 1em;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .back-button, .legend {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+            
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .download-btn {
+                width: 80%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+        
+        /* ============================================ */
+        /* FLEXIBLE AFTERNOON SLOT DURATION BARS */
+        /* ============================================ */
+        
+        .afternoon-flex-slot {
+            position: relative;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            overflow: hidden;
+            min-height: 85px;
+        }
+        
+        .session-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .duration-bar-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .duration-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            position: relative;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            width: 100%;
+            gap: 6px;
+        }
+        /* Cell inner wrapper for regular slots to show fractional duration */
+        .cell-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .duration-segment {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            opacity: 0.95;
+            z-index: 1;
+        }
+
+        .tutorial-seg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-left: 4px solid #047857;
+        }
+
+        .cell-text {
+            position: relative;
+            z-index: 2;
+            padding: 6px 8px;
+            font-weight: 600;
+            color: #0f172a; /* dark text over colored background */
+            text-align: center;
+        }
+        
+        /* Lab - Full 2 hours (100%) */
+        .lab-duration {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-left: 4px solid #6d28d9;
+        }
+        
+        /* Lecture - 1.5 hours (75% of 2 hours) */
+        .lecture-duration {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-left: 4px solid #1d4ed8;
+        }
+        
+        /* Tutorial - 1 hour (50% of 2 hours) */
+        .tutorial-duration {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-left: 4px solid #047857;
+        }
+        
+        .duration-tag {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .course-info {
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        
+        /* Hover effects for afternoon slots */
+        .afternoon-flex-slot:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+        
+        .duration-bar:hover {
+            filter: brightness(1.05);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        function downloadAsImage() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Generating...';
+            button.disabled = true;
+            
+            // Get the timetable container
+            const timetableContainer = document.querySelector('.container');
+            
+            // Configure html2canvas options
+            const options = {
+                scale: 2, // Higher quality
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#1e293b',
+                width: timetableContainer.scrollWidth,
+                height: timetableContainer.scrollHeight,
+                scrollX: 0,
+                scrollY: 0
+            };
+            
+            html2canvas(timetableContainer, options).then(canvas => {
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'ECE_Sem4_SectionA_Timetable_timetable.png';
+                link.href = canvas.toDataURL('image/png');
+                
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }).catch(error => {
+                console.error('Error generating image:', error);
+                alert('Error generating image. Please try again.');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ECE Timetable</h1>
+            <div class="subtitle">Sem4</div>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin: 20px; flex-wrap: wrap;">
+            <a href="index.html" class="back-button">← Back</a>
+        </div>
+        
+        <div class="download-section">
+            <h3>Download Timetable</h3>
+            <div class="download-buttons">
+                <a href="../timetable_outputs/ECE_Sem4_SectionA_Timetable.csv" class="download-btn csv-btn" download="ECE_Sem4_SectionA_Timetable.csv">
+                    Download CSV
+                </a>
+                <button class="download-btn image-btn" onclick="downloadAsImage()">
+                    Download as Image
+                </button>
+            </div>
+        </div>
+        
+        <div class="timetable-wrapper">
+            <table>
+<thead>
+<tr>
+<th style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Day/Time</th>
+<th class="time-slot">⏰ 09:00-10:30</th>
+<th class="time-slot">⏰ 10:45-12:15</th>
+<th class="time-slot">⏰ 12:30-13:30</th>
+<th class="time-slot">⏰ 13:30-14:30</th>
+<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 14:30-16:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
+<th class="time-slot" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">⏰ 16:30-18:30 <br><small style="font-size:0.8em;opacity:0.9">📦 2-Hour Flexible</small></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="day-column">Monday</td>
+<td class="course-slot" style="background: hsl(109, 59%, 79%); border-left: 6px solid hsl(289, 70%, 45%); color: hsl(109, 60%, 25%);">EC205-A | C303</td>
+<td class="course-slot" style="background: hsl(150, 45%, 75%); border-left: 6px solid hsl(330, 70%, 45%); color: hsl(150, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">EC310A | C203 — Tutorial (1 hour)</div></div></td>
+<td class="course-slot" style="background: hsl(201, 51%, 81%); border-left: 6px solid hsl(21, 70%, 45%); color: hsl(201, 60%, 25%);">HS204-A | C202</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+</tr>
+<tr>
+<td class="day-column">Tuesday</td>
+<td class="course-slot" style="background: hsl(109, 59%, 79%); border-left: 6px solid hsl(289, 70%, 45%); color: hsl(109, 60%, 25%);">EC205-A | C205</td>
+<td class="course-slot" style="background: hsl(32, 67%, 77%); border-left: 6px solid hsl(212, 70%, 45%); color: hsl(32, 60%, 25%);">EC204-A | C203</td>
+<td class="course-slot" style="background: hsl(201, 51%, 81%); border-left: 6px solid hsl(21, 70%, 45%); color: hsl(201, 60%, 25%);">HS204-A | C202</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+</tr>
+<tr>
+<td class="day-column">Wednesday</td>
+<td class="course-slot" style="background: hsl(150, 45%, 75%); border-left: 6px solid hsl(330, 70%, 45%); color: hsl(150, 60%, 25%);">EC310-A | C205</td>
+<td class="course-slot" style="background: hsl(32, 67%, 77%); border-left: 6px solid hsl(212, 70%, 45%); color: hsl(32, 60%, 25%);">EC204-A | C203</td>
+<td class="course-slot" style="background: hsl(201, 51%, 81%); border-left: 6px solid hsl(21, 70%, 45%); color: hsl(201, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">HS204A | C204 — Tutorial (1 hour)</div></div></td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="free-slot">Free</td>
+<td class="free-slot">Free</td>
+</tr>
+<tr>
+<td class="day-column">Thursday</td>
+<td class="course-slot" style="background: hsl(32, 67%, 77%); border-left: 6px solid hsl(212, 70%, 45%); color: hsl(32, 60%, 25%);"><div class="cell-inner"><div class="duration-segment tutorial-seg" style="width:66.67%;"></div><div class="cell-text">EC204A | C205 — Tutorial (1 hour)</div></div></td>
+<td class="course-slot" style="background: hsl(214, 59%, 79%); border-left: 6px solid hsl(34, 70%, 45%); color: hsl(214, 60%, 25%);">HS205-A | C203</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="free-slot">Free</td>
+<td class="afternoon-flex-slot" style="background: hsl(109, 59%, 79%); border-left: 6px solid hsl(289, 70%, 45%); color: hsl(109, 60%, 25%);">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lab-duration">
+                <div class="course-info">EC205-Lab-A  | L106 & L107</div>
+                <div class="duration-tag">2 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+</tr>
+<tr>
+<td class="day-column">Friday</td>
+<td class="course-slot" style="background: hsl(150, 45%, 75%); border-left: 6px solid hsl(330, 70%, 45%); color: hsl(150, 60%, 25%);">EC310-A | C205</td>
+<td class="course-slot" style="background: hsl(214, 59%, 79%); border-left: 6px solid hsl(34, 70%, 45%); color: hsl(214, 60%, 25%);">HS205-A | C203</td>
+<td class="free-slot" style="">Free</td>
+<td class="lunch-break" style="">LUNCH BREAK</td>
+<td class="afternoon-flex-slot" style="background: hsl(32, 67%, 77%); border-left: 6px solid hsl(212, 70%, 45%); color: hsl(32, 60%, 25%);">
+    <div class="session-container">
+        <div class="duration-bar-wrapper">
+            <div class="duration-bar lab-duration">
+                <div class="course-info">EC204-Lab-A  | L207 & L208</div>
+                <div class="duration-tag">2 Hours</div>
+            </div>
+        </div>
+    </div>
+</td>
+<td class="free-slot">Free</td>
+</tr>
+</tbody>
+</table>
+        </div>
+        
+        
+        
+        
+    </div>
+</body>
+</html>

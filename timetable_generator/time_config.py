@@ -81,6 +81,15 @@ AFTERNOON_FLEX_SLOTS = [
 ]
 
 # ============================================================================
+# MINOR SLOT CONFIGURATION (Evening 6:30 PM - 8:00 PM)
+# ============================================================================
+# Minor slot for 2 days per week (90 minutes)
+MINOR_SLOT_ENABLED = True
+MINOR_SLOT_TIME = ('18:30', '20:00')  # 90 minutes
+MINOR_SLOT_DAYS = ['Tuesday', 'Thursday']  # Days when minor slot is available
+# You can change to any 2 days: ['Monday', 'Wednesday'], ['Tuesday', 'Friday'], etc.
+
+# ============================================================================
 # OPTIONAL: EVENING SLOTS (if needed)
 # ============================================================================
 # Uncomment these if you want to add evening slots

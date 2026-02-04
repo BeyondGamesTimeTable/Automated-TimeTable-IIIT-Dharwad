@@ -1,0 +1,138 @@
+{
+  "Elective C": [
+    {
+      "code": "CS471",
+      "title": "Deep Computer Vision",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "DS357",
+      "title": "Large Languange Models",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS458",
+      "title": "Natural Language Processing",
+      "classroom": "C101",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS455",
+      "title": "Blockchain Technology",
+      "classroom": "C102",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "EC361",
+      "title": "Introduction to 5G Network",
+      "classroom": "C104",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS365",
+      "title": "Model Checking",
+      "classroom": "C202",
+      "tutorials": 0,
+      "credits": 4
+    },
+    {
+      "code": "PH352",
+      "title": "Quantum Communication",
+      "classroom": "C203",
+      "tutorials": 0,
+      "credits": 3
+    },
+    {
+      "code": "ASD351",
+      "title": "Design Thinking and Innovation",
+      "classroom": "C204",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "EC362",
+      "title": "Automotive Embedded and Multimedia Systems",
+      "classroom": "C205",
+      "tutorials": 0,
+      "credits": 4
+    },
+    {
+      "code": "CS462",
+      "title": "Computer Graphics",
+      "classroom": "C302",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "CS469",
+      "title": "Virtualization and Cloud Computing",
+      "classroom": "C303",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "DS355",
+      "title": "Data Analytics and Visualization",
+      "classroom": "C304",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "DS351",
+      "title": "Statistics for Health Technology",
+      "classroom": "C305",
+      "tutorials": 1,
+      "credits": 4
+    },
+    {
+      "code": "DS356",
+      "title": "Medical Image Analysis",
+      "classroom": "C402",
+      "tutorials": 0,
+      "credits": 4
+    },
+    {
+      "code": "CS472",
+      "title": "Bioinformatics",
+      "classroom": "C003",
+      "tutorials": 1,
+      "credits": 4
+    }
+  ],
+  "Elective C_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "CS471",
+      "DS357",
+      "CS458",
+      "CS455",
+      "EC361",
+      "ASD351",
+      "CS462",
+      "CS469",
+      "DS355",
+      "DS351",
+      "CS472"
+    ]
+  },
+  "Elective B": [
+    {
+      "code": "PH353",
+      "title": "Quantum HPC and AI",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Elective B_meta": {
+    "has_tutorials": false,
+    "tutorial_courses": []
+  }
+}

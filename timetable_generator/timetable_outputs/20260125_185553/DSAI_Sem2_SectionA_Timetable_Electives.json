@@ -1,0 +1,31 @@
+{
+  "Elective A": [
+    {
+      "code": "HS156",
+      "title": "Introduction to Holistic Personality Development",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "EC154",
+      "title": "Introduction to Digital VLSI Design",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "HS154",
+      "title": "Photography101",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "EC154"
+    ]
+  }
+}

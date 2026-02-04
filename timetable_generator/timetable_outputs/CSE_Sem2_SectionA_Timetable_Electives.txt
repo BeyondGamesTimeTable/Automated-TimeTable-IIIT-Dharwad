@@ -1,0 +1,31 @@
+================================================================================
+ELECTIVE COURSES - Choose ONE from each basket
+================================================================================
+
+Basket B3:
+----------------------------------------
+  • CS152: Data Science with Python
+    Classroom: C101
+  • EC154: Introduction to Digital VLSI Design
+    Classroom: C102
+  • HS155: Industry Insights Program Part 1
+    Classroom: C103
+
+Basket B4:
+----------------------------------------
+  • DS151: Linux for Engineers
+    Classroom: C101
+  • HS156: Introduction to Holistic Personality Development
+    Classroom: C102
+  • HS154: Photography101
+    Classroom: C103
+  • ASD152: Visual Design-PAPC
+    Classroom: C202
+
+Basket E1:
+----------------------------------------
+  • HS153: Innovation and Entrepreneurship
+    Classroom: C101
+  • HS204: Economics
+    Classroom: C102
+

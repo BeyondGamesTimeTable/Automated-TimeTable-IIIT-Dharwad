@@ -1,0 +1,31 @@
+{
+  "Elective A": [
+    {
+      "code": "HS154",
+      "title": "Photography101",
+      "classroom": "C003",
+      "tutorials": 0,
+      "credits": 1
+    },
+    {
+      "code": "CS152",
+      "title": "Data Science with Python",
+      "classroom": "C002",
+      "tutorials": 1,
+      "credits": 2
+    },
+    {
+      "code": "HS156",
+      "title": "Introduction to Holistic Personality Development",
+      "classroom": "C101",
+      "tutorials": 0,
+      "credits": 1
+    }
+  ],
+  "Elective A_meta": {
+    "has_tutorials": true,
+    "tutorial_courses": [
+      "CS152"
+    ]
+  }
+}
