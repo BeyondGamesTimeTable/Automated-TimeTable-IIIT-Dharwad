@@ -769,8 +769,8 @@ class TimetableHTMLConverter:
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        function downloadAsImage() {{
-            const button = event.target;
+        function downloadAsImage(btn) {{
+            const button = btn;
             const originalText = button.innerHTML;
             button.innerHTML = '⏳ Generating...';
             button.disabled = true;
@@ -812,8 +812,8 @@ class TimetableHTMLConverter:
             }});
         }}
         
-        async function downloadAsExcel() {{
-            const button = event.target;
+        async function downloadAsExcel(btn) {{
+            const button = btn;
             const originalText = button.innerHTML;
             button.innerHTML = '⏳ Generating Excel...';
             button.disabled = true;
@@ -904,10 +904,10 @@ class TimetableHTMLConverter:
         <div class="download-section">
             <h3>Download Timetable</h3>
             <div class="download-buttons">
-                <button class="download-btn excel-btn" onclick="downloadAsExcel()">
+                <button class="download-btn excel-btn" onclick="downloadAsExcel(this)">
                     Download as Excel
                 </button>
-                <button class="download-btn image-btn" onclick="downloadAsImage()">
+                <button class="download-btn image-btn" onclick="downloadAsImage(this)">
                     Download as Image
                 </button>
             </div>
