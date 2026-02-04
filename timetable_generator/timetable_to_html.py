@@ -761,7 +761,51 @@ class TimetableHTMLConverter:
         }}
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        function downloadAsExcel() {{
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Generating...';
+            button.disabled = true;
+            
+            try {{
+                // Get the main timetable table
+                const table = document.querySelector('.timetable-wrapper table');
+                if (!table) {{
+                    alert('Timetable table not found');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }}
+                
+                // Convert HTML table to workbook
+                const wb = XLSX.utils.table_to_book(table, {{sheet: "Timetable"}});
+                
+                // Add styling to the worksheet
+                const ws = wb.Sheets["Timetable"];
+                
+                // Set column widths
+                const colWidths = [];
+                for (let i = 0; i < 10; i++) {{
+                    colWidths.push({{wch: 20}});
+                }}
+                ws['!cols'] = colWidths;
+                
+                // Write the file
+                XLSX.writeFile(wb, '{filename}_timetable.xlsx');
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }} catch (error) {{
+                console.error('Error generating Excel:', error);
+                alert('Error generating Excel file: ' + error.message);
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }}
+        }}
+        
         function downloadAsImage() {{
             const button = event.target;
             const originalText = button.innerHTML;
@@ -820,6 +864,9 @@ class TimetableHTMLConverter:
         <div class="download-section">
             <h3>Download Timetable</h3>
             <div class="download-buttons">
+                <button class="download-btn excel-btn" onclick="downloadAsExcel()">
+                    Download as Excel
+                </button>
                 <button class="download-btn image-btn" onclick="downloadAsImage()">
                     Download as Image
                 </button>
