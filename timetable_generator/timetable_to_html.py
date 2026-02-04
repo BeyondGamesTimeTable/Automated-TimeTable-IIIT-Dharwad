@@ -820,9 +820,6 @@ class TimetableHTMLConverter:
         <div class="download-section">
             <h3>Download Timetable</h3>
             <div class="download-buttons">
-                <a href="../timetable_outputs/{filename}.csv" class="download-btn csv-btn" download="{filename}.csv">
-                    Download CSV
-                </a>
                 <button class="download-btn image-btn" onclick="downloadAsImage()">
                     Download as Image
                 </button>
