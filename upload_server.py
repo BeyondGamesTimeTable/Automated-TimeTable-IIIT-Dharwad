@@ -641,6 +641,60 @@ def download_excel(timestamp):
             'error': f'Error: {str(e)}'
         }), 500
 
+@app.route('/api/download_single_excel/<timestamp>/<filename>')
+def download_single_excel(timestamp, filename):
+    """Download a single timetable as Excel"""
+    try:
+        from timetable_generator.export_to_excel import TimetableExcelExporter
+        
+        # Construct paths
+        output_dir = os.path.join('timetable_generator', 'timetable_outputs', timestamp)
+        
+        if not os.path.exists(output_dir):
+            return jsonify({
+                'success': False,
+                'error': 'Timetable folder not found'
+            }), 404
+        
+        # Check if CSV file exists
+        csv_filename = f"{filename}.csv"
+        csv_path = os.path.join(output_dir, csv_filename)
+        
+        if not os.path.exists(csv_path):
+            return jsonify({
+                'success': False,
+                'error': f'CSV file not found: {csv_filename}'
+            }), 404
+        
+        # Create exporter and generate Excel for single timetable
+        exporter = TimetableExcelExporter(input_dir=output_dir)
+        excel_file = exporter.export_single_timetable(csv_filename, output_filename=f'{filename}.xlsx')
+        
+        if not excel_file or not os.path.exists(excel_file):
+            return jsonify({
+                'success': False,
+                'error': 'Failed to generate Excel file'
+            }), 500
+        
+        print(f"✅ Sending Excel file: {excel_file}")
+        
+        # Send the file
+        return send_file(
+            excel_file,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f'{filename}.xlsx'
+        )
+    
+    except Exception as e:
+        print(f"❌ Error generating single Excel: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }), 500
+
 if __name__ == '__main__':
     print("\n" + "="*80)
     print("🚀 Timetable Upload Server Starting...")
