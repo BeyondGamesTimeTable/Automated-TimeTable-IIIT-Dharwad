@@ -819,21 +819,56 @@ class TimetableHTMLConverter:
             button.disabled = true;
             
             try {{
-                // Extract timestamp from URL
-                const pathParts = window.location.pathname.split('/');
-                const timestamp = pathParts[pathParts.length - 2]; // Get timestamp folder
-                const filename = '{filename}'; // Use the actual filename
+                // Extract timestamp from URL - works for both file:// and http:// URLs
+                const currentPath = window.location.pathname;
+                console.log('Current path:', currentPath);
+                
+                // Try to extract timestamp from path
+                // Expected format: .../timetable_html/20260205_004256/CSE_Sem5_SectionA_Timetable.html
+                const pathMatch = currentPath.match(/timetable_html[\/\\](\d{{8}}_\d{{6}})/);
+                
+                if (!pathMatch) {{
+                    // Fallback: try to get from parent directory
+                    const pathParts = currentPath.split(/[\/\\]/);
+                    const htmlFileIndex = pathParts.findIndex(p => p.includes('.html'));
+                    const timestamp = htmlFileIndex > 0 ? pathParts[htmlFileIndex - 1] : null;
+                    
+                    if (!timestamp || !/^\d{{8}}_\d{{6}}/.test(timestamp)) {{
+                        throw new Error('Could not extract timestamp from URL. Make sure to access this page through the server at http://localhost:5000');
+                    }}
+                    
+                    var extractedTimestamp = timestamp;
+                }} else {{
+                    var extractedTimestamp = pathMatch[1];
+                }}
+                
+                const filename = '{filename}';
+                console.log('Timestamp:', extractedTimestamp);
+                console.log('Filename:', filename);
+                
+                // Construct API URL
+                const apiUrl = `/api/download_single_excel/${{extractedTimestamp}}/${{filename}}`;
+                console.log('API URL:', apiUrl);
                 
                 // Make API request
-                const response = await fetch(`/api/download_single_excel/${{timestamp}}/${{filename}}`);
+                const response = await fetch(apiUrl);
+                console.log('Response status:', response.status);
                 
                 if (!response.ok) {{
-                    const error = await response.json();
-                    throw new Error(error.error || 'Failed to generate Excel file');
+                    let errorMsg = 'Failed to generate Excel file';
+                    try {{
+                        const error = await response.json();
+                        errorMsg = error.error || errorMsg;
+                    }} catch (e) {{
+                        errorMsg = `Server error: ${{response.status}} ${{response.statusText}}`;
+                    }}
+                    throw new Error(errorMsg);
                 }}
                 
                 // Download the file
                 const blob = await response.blob();
+                console.log('Blob size:', blob.size);
+                
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
