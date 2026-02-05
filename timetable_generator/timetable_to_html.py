@@ -59,6 +59,9 @@ class TimetableHTMLConverter:
             # Load elective basket information from CSV (scheduled baskets only)
             electives_html = self._load_elective_baskets_from_csv(csv_file, dept, semester, section)
             
+            # Load minor course information from JSON
+            minors_html = self._load_minor_courses_from_json(csv_file, dept, semester, section)
+            
             html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -930,6 +933,8 @@ class TimetableHTMLConverter:
         {till_midsem_html}
         
         {electives_html}
+        
+        {minors_html}
     </div>
 </body>
 </html>
@@ -2402,6 +2407,81 @@ document.getElementById('downloadExcel').addEventListener('click', async () => {
             
         except Exception as e:
             print(f"Warning: Could not load elective baskets from {csv_file}: {e}")
+            return ""
+    
+    def _load_minor_courses_from_json(self, csv_file, dept, semester, section):
+        """Load minor courses from JSON file and display them"""
+        try:
+            # Load minor courses data from JSON file
+            json_filepath = csv_file.replace('.csv', '_Minors.json')
+            
+            if not os.path.exists(json_filepath):
+                return ""  # No minor courses file
+            
+            import json
+            with open(json_filepath, 'r', encoding='utf-8') as f:
+                minor_data = json.load(f)
+            
+            if not minor_data or len(minor_data) == 0:
+                return ""  # No minor courses
+            
+            # Create HTML display
+            html = f"""
+        <div class="minors-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border-radius: 15px; border: 3px solid #a78bfa;">
+            <h2 style="color: #6b21a8; margin-bottom: 15px;">📚 Minor Course Options</h2>
+            <p style="color: #7c3aed; font-weight: 600; margin-bottom: 20px;">The following minor courses are available for this semester. Choose <strong>ONE minor option</strong> from the list below:</p>
+            
+            <div style="background: #fef3c7; padding: 15px; border-radius: 10px; border-left: 4px solid #f59e0b; margin-bottom: 20px;">
+                <strong style="color: #b45309;">⏰ Minor Time Slot:</strong><br>
+                <span style="color: #78350f; font-size: 0.95em;">All minor courses are scheduled on <strong>Tuesday and Thursday, 6:30 PM - 8:00 PM</strong></span>
+            </div>
+            
+            <div class="minors-container">
+                <ul style="list-style-type: none; padding-left: 0; margin: 10px 0;">
+"""
+            
+            for course in minor_data:
+                faculty_name = course.get('faculty', 'TBA')
+                html += f"""
+                    <li style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #a78bfa;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #6b21a8; font-size: 1.05em; margin-bottom: 5px;">
+                                    {course.get('code', 'N/A')}
+                                </div>
+                                <div style="color: #4b5563; font-size: 0.95em; margin-bottom: 3px;">
+                                    {course.get('title', 'No title')}
+                                </div>
+                                <div style="color: #6b7280; font-size: 0.85em; font-style: italic;">
+                                    Faculty: {faculty_name}
+                                </div>
+                            </div>
+                            <div style="text-align: right; margin-left: 15px;">
+                                <div style="background: #e9d5ff; color: #6b21a8; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9em; margin-bottom: 5px;">
+                                    {course.get('classroom', 'TBA')}
+                                </div>
+                                <div style="color: #7c3aed; font-size: 0.85em;">
+                                    {course.get('credits', 0)} Credits
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+"""
+            
+            html += """
+                </ul>
+            </div>
+            
+            <p style="margin-top: 20px; color: #7c3aed; font-style: italic; font-size: 0.95em;">
+                <strong>Note:</strong> Minor courses are common across all departments (CSE, DSAI, ECE) and run at the same time. Students can choose any minor from this list based on availability and their interest.
+            </p>
+        </div>
+"""
+            
+            return html
+            
+        except Exception as e:
+            print(f"Warning: Could not load minor courses from {json_filepath}: {e}")
             return ""
 
 def main():

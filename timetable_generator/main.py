@@ -137,10 +137,15 @@ class TimetableGenerator:
         
         self.unscheduled_courses = []  # Track courses that couldn't be scheduled
         self.elective_courses = {}  # Track elective courses by basket
+        self.minor_courses = {}  # Track minor courses available per semester
         
         # Track which elective baskets are used in each timetable
         # Format: {(dept, semester, section): ['HSS', 'Elective A', 'Elective C']}
         self.timetable_basket_usage = {}
+        
+        # Track which minor options are available for each semester
+        # Format: {semester: [{'code': ..., 'title': ..., 'classroom': ...}, ...]}
+        self.timetable_minor_usage = {}
         
         # GLOBAL classroom tracker - shared across ALL semesters and sections
         # Format: global_classroom_usage[day][time_str][classroom] = {'dept': ..., 'semester': ..., 'section': ..., 'course': ...}
@@ -303,6 +308,18 @@ class TimetableGenerator:
         df = pd.read_csv(csv_file)
         df.columns = df.columns.str.strip()
         print(f"   >> Loaded {len(df)} elective courses from electives.csv")
+        return df
+    
+    def load_minors_data(self):
+        """Load minor courses CSV file if it exists"""
+        csv_file = os.path.join(self.csv_folder, 'minors.csv')
+        if not os.path.exists(csv_file):
+            print(f"   >> No minors.csv found - skipping minor course scheduling")
+            return None
+        
+        df = pd.read_csv(csv_file)
+        df.columns = df.columns.str.strip()
+        print(f"   >> Loaded {len(df)} minor courses from minors.csv")
         return df
     
     def group_electives_into_baskets(self, electives_df, semester, department):
@@ -1352,11 +1369,11 @@ class TimetableGenerator:
             print(f"   Creating empty timetable for {department} Sem {semester} Section {section}")
             print(f"   Note: Add semester {semester} course data to CSV file to populate timetable")
             # Return empty timetable instead of None
-            timetable = self._initialize_timetable()
+            timetable = self._initialize_timetable(semester)
             return (timetable, {}, {})  # Empty timetable, no electives, no rotated out
         
-        # Initialize timetable
-        timetable = self._initialize_timetable()
+        # Initialize timetable with semester context (for minor slot restriction)
+        timetable = self._initialize_timetable(semester)
         
         # Track used slots and available lab rooms per slot
         used_slots = {}  # {day: {time_slot: {'room': room, 'course': course}}}
@@ -1481,6 +1498,62 @@ class TimetableGenerator:
         else:
             print(f"   >> No electives.csv file found - skipping elective scheduling")
         
+        # PRIORITY 5: Load and track Minor courses for this semester
+        print(f"\n{'='*60}")
+        # PRIORITY 5: Load and track Minor courses for this semester
+        # Minor courses are only available from Semester 3 onwards
+        # They are cross-department common, so only track once per semester
+        print(f"\n{'='*60}")
+        print(f"MINOR COURSE TRACKING - {department} Sem{semester} Section{section}")
+        print(f"{'='*60}")
+        
+        # Only track minors for semester 3 and above, and only once per semester
+        if semester >= 3 and semester not in self.timetable_minor_usage:
+            minors_df = self.load_minors_data()
+            if minors_df is not None:
+                # Filter minor courses for this semester
+                # Minor courses can be for multiple semesters (e.g., "2,4" or "2" or "4,6")
+                sem_minors = []
+                for _, row in minors_df.iterrows():
+                    semester_val = str(row.get('Semester', '')).strip()
+                    # Handle both comma-separated and single values
+                    semester_list = [s.strip() for s in semester_val.split(',') if s.strip()]
+                    semester_list = [int(s) for s in semester_list if s.isdigit()]
+                    if semester in semester_list:
+                        sem_minors.append(row)
+                
+                if sem_minors:
+                    # Track minor options for this semester (cross-department, cross-sem common)
+                    # This is set once per semester, not per department/section
+                    self.timetable_minor_usage[semester] = []
+                    
+                    # Assign classrooms to minor courses
+                    available_classrooms = self.backup_large_classrooms.copy()
+                    for idx, minor_row in enumerate(sem_minors):
+                        if idx < len(available_classrooms):
+                            classroom = available_classrooms[idx]
+                        else:
+                            classroom = available_classrooms[idx % len(available_classrooms)]
+                        
+                        self.timetable_minor_usage[semester].append({
+                            'code': str(minor_row.get('Course Code', '')).strip(),
+                            'title': str(minor_row.get('Course Title', '')).strip(),
+                            'classroom': classroom,
+                            'credits': int(minor_row.get('Credits', 0)),
+                            'faculty': str(minor_row.get('Faculty', 'TBA')).strip()
+                        })
+                    
+                    print(f"   >> Tracked {len(sem_minors)} minor course options for Semester {semester}")
+                    print(f"   >> Minor courses: {[m['code'] for m in self.timetable_minor_usage[semester]]}")
+                else:
+                    print(f"   >> No minor courses found for Semester {semester}")
+            else:
+                print(f"   >> No minors.csv file found - skipping minor course tracking")
+        elif semester < 3:
+            print(f"   >> Minor courses not available for 1st year (Semester {semester})")
+        else:
+            print(f"   >> Minor courses already tracked for Semester {semester} (cross-department common)")
+        
         # Report unscheduled courses
         if self.unscheduled_courses:
             print(f"\nWARNING: {len(self.unscheduled_courses)} sessions could not be scheduled:")
@@ -1599,8 +1672,13 @@ class TimetableGenerator:
         
         print(f"{'='*60}\n")
     
-    def _initialize_timetable(self):
-        """Initialize empty timetable"""
+    def _initialize_timetable(self, semester=None):
+        """Initialize empty timetable
+        
+        Args:
+            semester (int, optional): Semester number. If provided, minor slot is only 
+                                     added for semesters 3 and above (not for 1st year)
+        """
         timetable = {}
         for day in self.days:
             timetable[day] = {}
@@ -1609,12 +1687,17 @@ class TimetableGenerator:
                 if time_slot == self.lunch_slot:
                     timetable[day][time_str] = 'LUNCH BREAK'
                 elif self.minor_slot_enabled and time_slot == self.minor_slot_time:
-                    # Add minor slot on all days, but mark as 'Minor' only on specified days
-                    if day in self.minor_slot_days:
-                        timetable[day][time_str] = 'Minor'
+                    # Only add minor slot for semester 3 and above (not 1st year)
+                    if semester is None or semester >= 3:
+                        # Add minor slot on all days, but mark as 'Minor' only on specified days
+                        if day in self.minor_slot_days:
+                            timetable[day][time_str] = 'Minor'
+                        else:
+                            # On non-minor days, mark as unavailable (not schedulable)
+                            timetable[day][time_str] = 'Not Available'
                     else:
-                        # On non-minor days, mark as unavailable (not schedulable)
-                        timetable[day][time_str] = 'Not Available'
+                        # For 1st year (Sem 1 & 2), treat this time as a regular free slot
+                        timetable[day][time_str] = 'Free'
                 else:
                     timetable[day][time_str] = 'Free'
         return timetable
@@ -2465,8 +2548,8 @@ class TimetableGenerator:
         print(f"      WARNING: Could not schedule lab for {course_code} (need 2 available labs)")
         return False
     
-    def export_to_csv(self, timetable, filename, electives=None, rotated_out=None, output_dir='timetable_outputs'):
-        """Export timetable to CSV and elective basket data to JSON"""
+    def export_to_csv(self, timetable, filename, electives=None, rotated_out=None, output_dir='timetable_outputs', semester=None):
+        """Export timetable to CSV, elective basket data to JSON, and minor courses to JSON"""
         if timetable is None:
             return False
         
@@ -2521,6 +2604,18 @@ class TimetableGenerator:
                 json.dump(elective_data, f, indent=2, ensure_ascii=False)
             
             print(f"Elective baskets saved: {json_filepath}")
+        
+        # Export minor course data to JSON file if available for this semester
+        if semester is not None and semester in self.timetable_minor_usage:
+            minor_data = self.timetable_minor_usage[semester]
+            if minor_data and len(minor_data) > 0:
+                json_filepath = filepath.replace('.csv', '_Minors.json')
+                import json
+                
+                with open(json_filepath, 'w', encoding='utf-8') as f:
+                    json.dump(minor_data, f, indent=2, ensure_ascii=False)
+                
+                print(f"Minor courses saved: {json_filepath}")
         
         print(f"Timetable saved: {filepath}")
         return True
@@ -2709,7 +2804,7 @@ def main():
                     timetable, electives, rotated_out = result
                     generator.print_timetable(timetable)
                     filename = f"{dept}_Sem{sem}_SectionA_Timetable.csv"
-                    generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir)
+                    generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir, semester=sem)
             else:
                 # CSE has sections A and B
                 for sec in sections:
@@ -2719,7 +2814,7 @@ def main():
                         timetable, electives, rotated_out = result
                         generator.print_timetable(timetable)
                         filename = f"{dept}_Sem{sem}_Section{sec}_Timetable.csv"
-                        generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir)
+                        generator.export_to_csv(timetable, filename, electives, rotated_out, output_dir=output_csv_dir, semester=sem)
     
     print("\n" + "="*80)
     print(">> Timetable generation completed!")
