@@ -78,31 +78,53 @@ python upload_server.py
 
 ### Input Files
 
-- `cse_sample.csv` - CSE courses
-- `dsai_sample.csv` - DSAI courses
-- `ece_sample.csv` - ECE courses
-- `electives_sample.csv` - Elective courses
+Sample files are available in `timetable_generator/input_files/sdtt_inputs/`:
+- `CSE.csv` - CSE department courses
+- `DSAI.csv` - DSAI department courses
+- `ECE.csv` - ECE department courses
+- `electives.csv` - Elective courses
 - `minors.csv` - Minor courses (Semester 3+)
 
 ---
 
 ## CSV File Format
 
-### Department Files
+### Department Files (CSE.csv, DSAI.csv, ECE.csv)
+
+```csv
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester,Section,Lab
+MA163,Linear Algebra,3,1,0,0,2,Dr. Sibasankar Padhy,2,2A,
+CS163,Data Structures & Algorithms,3,0,2,0,4,Dr. C. B. Akki,2,2A,S
+CS206,Theory of Computation,3,1,0,0,4,Dr. Pavan,4,4A,
+```
+
+**Required Columns:**
+- Course Code, Course Title, Lectures, Tutorials, Practicals, Self-Study, Credits, Faculty, Semester
+- Optional: Section (e.g., 2A, 4B), Lab (S for separate lab, H for hardware lab)
+
+### Electives File (electives.csv)
+
+```csv
+Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester,Branch,HSS
+HS153,Innovation and Entrepreneurship,3,1,0,0,3,Dr. Deepak K T,2,Cse,Y
+CS471,Deep Computer Vision,3,1,0,0,4,Chinmayanand,6,,
+```
+
+**Required Columns:**
+- Course Code, Course Title, Lectures, Tutorials, Practicals, Self-Study, Credits, Faculty, Semester
+- Optional: Branch (Cse/DSAI/ECE), HSS (Y for humanities electives)
+
+### Minors File (minors.csv)
 
 ```csv
 Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester
-CS201,Data Structures,3,1,2,6,4,Prof. Kumar,2
+DS358,Deep Speech Processing,3,0,0,0,4,Prof. SRM Prasanna,"4,6"
+QU505,Quantum Computing,3,0,0,0,4,Dr. Aswath B,4
 ```
 
-### Minors File
-
-```csv
-Course Code,Course Title,Lectures,Tutorials,Practicals,Self-Study,Credits,Faculty,Semester
-DS358,Deep Speech Processing,1,0,0,2,1,Prof. SRM Prasanna,"4,6"
-```
-
-Note: Semester field in minors can be comma-separated for multi-semester courses.
+**Required Columns:**
+- Course Code, Course Title, Lectures, Tutorials, Practicals, Self-Study, Credits, Faculty, Semester
+- **Note:** Semester field can be comma-separated for multi-semester courses (e.g., "4,6")
 
 ---
 
@@ -144,9 +166,9 @@ taskkill /PID <process_id> /F
 ### CSV Upload Issues
 
 - Ensure CSV files are UTF-8 encoded
-- Check column names match required format
+- Check column names match required format exactly
 - Verify semester numbers are integers
-- For minors, upload `minors.csv` (plural)
+- Use correct file names: CSE.csv, DSAI.csv, ECE.csv, electives.csv, minors.csv
 
 ---
 
